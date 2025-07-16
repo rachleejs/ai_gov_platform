@@ -39,7 +39,11 @@ export default function ScenarioEvaluation() {
       importance: '매우 높음',
       status: 'pending',
       threshold: 0.8,
-      score: null
+      modelPerformance: {
+        ChatGPT: { score: 0.0, grade: 'N/A' },
+        Claude: { score: 0.0, grade: 'N/A' },
+        Gemini: { score: 0.0, grade: 'N/A' }
+      }
     },
     {
       id: 'answer_relevancy',
@@ -48,7 +52,11 @@ export default function ScenarioEvaluation() {
       importance: '높음',
       status: 'pending',
       threshold: 0.75,
-      score: null
+      modelPerformance: {
+        ChatGPT: { score: 0.0, grade: 'N/A' },
+        Claude: { score: 0.0, grade: 'N/A' },
+        Gemini: { score: 0.0, grade: 'N/A' }
+      }
     },
     {
       id: 'context_recall',
@@ -57,7 +65,11 @@ export default function ScenarioEvaluation() {
       importance: '높음',
       status: 'pending',
       threshold: 0.75,
-      score: null
+      modelPerformance: {
+        ChatGPT: { score: 0.0, grade: 'N/A' },
+        Claude: { score: 0.0, grade: 'N/A' },
+        Gemini: { score: 0.0, grade: 'N/A' }
+      }
     },
     {
       id: 'context_precision',
@@ -66,60 +78,71 @@ export default function ScenarioEvaluation() {
       importance: '높음',
       status: 'pending',
       threshold: 0.8,
-      score: null
+      modelPerformance: {
+        ChatGPT: { score: 0.0, grade: 'N/A' },
+        Claude: { score: 0.0, grade: 'N/A' },
+        Gemini: { score: 0.0, grade: 'N/A' }
+      }
     }
   ];
 
   // 안전성 메트릭 카테고리 (완료)
   const safetyMetrics = [
-      {
+    {
       id: 'hallucination',
       name: '환각 방지 (Hallucination)',
       description: '존재하지 않는 정보나 잘못된 정보를 생성하지 않는지 평가',
       importance: '매우 높음',
       status: 'completed',
       threshold: 0.9,
-      score: 0.89
-      },
-      {
+      modelPerformance: {
+        ChatGPT: { score: 0.272, grade: 'D' },
+        Claude: { score: 0.257, grade: 'D' },
+        Gemini: { score: 0.219, grade: 'F' }
+      }
+    },
+    {
       id: 'bias',
       name: '편향 방지 (Bias)',
       description: '성별, 인종, 종교 등에 대한 편향이 없는 공정한 답변을 제공하는지 평가',
       importance: '높음',
       status: 'completed',
       threshold: 0.85,
-      score: 0.92
+      modelPerformance: {
+        ChatGPT: { score: 0.950, grade: 'A+' },
+        Claude: { score: 0.947, grade: 'A' },
+        Gemini: { score: 0.949, grade: 'A' }
+      }
     },
-      {
+    {
       id: 'toxicity',
       name: '독성 방지 (Toxicity)',
       description: '해롭거나 독성이 있는 내용을 포함하지 않는지 평가',
       importance: '매우 높음',
       status: 'completed',
       threshold: 0.95,
-      score: 0.94
-      },
-      {
-      id: 'pii_prevention',
-      name: 'PII 유출 방지',
-      description: '개인식별정보(PII)의 의도치 않은 노출을 방지하는지 평가',
-      importance: '매우 높음',
-      status: 'completed',
-      threshold: 0.95,
-      score: 0.88
+      modelPerformance: {
+        ChatGPT: { score: 0.815, grade: 'B' },
+        Claude: { score: 0.815, grade: 'B' },
+        Gemini: { score: 0.840, grade: 'B+' }
       }
+    }
   ];
 
   // 품질 메트릭 카테고리 (완료)
   const qualityMetrics = [
-      {
+    {
       id: 'coherence',
       name: '일관성 (Coherence)',
       description: '답변의 논리적 흐름과 일관성을 평가',
       importance: '높음',
       status: 'completed',
       threshold: 0.75,
-      score: 0.85
+      modelPerformance: {
+        ChatGPT: { score: 0.950, grade: 'A+' },
+        Claude: { score: 0.947, grade: 'A' },
+        Gemini: { score: 0.949, grade: 'A' }
+      }
     },
     {
       id: 'prompt_alignment',
@@ -128,69 +151,67 @@ export default function ScenarioEvaluation() {
       importance: '높음',
       status: 'completed',
       threshold: 0.8,
-      score: 0.87
-      },
-      {
-      id: 'clarity',
-      name: '명확성 (Clarity)',
-      description: '답변의 이해도와 명확성을 평가',
-      importance: '중간',
-      status: 'completed',
-      threshold: 0.7,
-      score: 0.81
+      modelPerformance: {
+        ChatGPT: { score: 0.950, grade: 'A+' },
+        Claude: { score: 0.947, grade: 'A' },
+        Gemini: { score: 0.949, grade: 'A' }
       }
+    }
   ];
 
   // 대화형 메트릭 카테고리 (완료)
   const conversationalMetrics = [
-      {
+    {
       id: 'role_adherence',
       name: '역할 준수 (Role Adherence)',
       description: '대화 중 정의된 역할을 일관되게 유지하는지 평가',
       importance: '높음',
       status: 'completed',
       threshold: 0.8,
-      score: 0.91
-      },
-      {
+      modelPerformance: {
+        ChatGPT: { score: 0.815, grade: 'B' },
+        Claude: { score: 0.815, grade: 'B' },
+        Gemini: { score: 0.840, grade: 'B+' }
+      }
+    },
+    {
       id: 'knowledge_retention',
       name: '지식 보유 (Knowledge Retention)',
       description: '대화 과정에서 이전 정보를 기억하고 활용하는 능력 평가',
       importance: '중간',
       status: 'completed',
       threshold: 0.7,
-      score: 0.78
+      modelPerformance: {
+        ChatGPT: { score: 0.815, grade: 'B' },
+        Claude: { score: 0.815, grade: 'B' },
+        Gemini: { score: 0.840, grade: 'B+' }
+      }
     },
-      {
+    {
       id: 'conversation_completeness',
       name: '대화 완성도 (Conversation Completeness)',
       description: '대화가 사용자 요구사항을 충분히 만족시키는지 평가',
       importance: '높음',
       status: 'completed',
       threshold: 0.75,
-      score: 0.86
-      },
-      {
-      id: 'expertise',
-      name: '전문성 (Expertise)',
-      description: '전문 분야에 대한 깊이 있는 지식과 정보 제공 능력 평가',
-      importance: '높음',
-      status: 'completed',
-      threshold: 0.8,
-      score: 0.83
+      modelPerformance: {
+        ChatGPT: { score: 0.815, grade: 'B' },
+        Claude: { score: 0.815, grade: 'B' },
+        Gemini: { score: 0.840, grade: 'B+' }
       }
+    }
   ];
 
   // 메트릭 카테고리 전체 구조
   const metricCategories = [
-      {
+    {
       id: 'rag',
       name: 'RAG 메트릭',
       description: '검색 증강 생성(RAG)에서의 정확성과 관련성을 평가',
       color: 'sky',
       metrics: ragMetrics
-      },
-      {
+    },
+    {
       id: 'safety',
       name: '안전성 메트릭',
       description: 'AI 시스템의 안전성, 윤리성, 신뢰성을 종합적으로 평가',
@@ -204,7 +225,7 @@ export default function ScenarioEvaluation() {
       color: 'emerald',
       metrics: qualityMetrics
     },
-      {
+    {
       id: 'conversational',
       name: '대화형 메트릭',
       description: '다중 턴 대화에서의 상호작용 품질과 연속성을 평가',
@@ -332,13 +353,30 @@ export default function ScenarioEvaluation() {
     }
   ];
 
-  // 점수 계산 함수들
+  // 점수 계산 함수들 수정
   const calculateCategoryScore = (category: any) => {
     const completedMetrics = category.metrics.filter((metric: any) => metric.status === 'completed');
-    if (completedMetrics.length === 0) return 0;
+    if (completedMetrics.length === 0) return { ChatGPT: 0, Claude: 0, Gemini: 0 };
     
-    const scores = completedMetrics.map((metric: any) => metric.score || 0);
-    return scores.reduce((a: number, b: number) => a + b, 0) / scores.length;
+    const modelScores = {
+      ChatGPT: 0,
+      Claude: 0,
+      Gemini: 0
+    };
+
+    completedMetrics.forEach((metric: any) => {
+      if (metric.modelPerformance) {
+        modelScores.ChatGPT += metric.modelPerformance.ChatGPT.score;
+        modelScores.Claude += metric.modelPerformance.Claude.score;
+        modelScores.Gemini += metric.modelPerformance.Gemini.score;
+      }
+    });
+
+    return {
+      ChatGPT: modelScores.ChatGPT / completedMetrics.length,
+      Claude: modelScores.Claude / completedMetrics.length,
+      Gemini: modelScores.Gemini / completedMetrics.length
+    };
   };
 
   const calculateOverallScore = () => {
@@ -346,10 +384,26 @@ export default function ScenarioEvaluation() {
       category.metrics.some(metric => metric.status === 'completed')
     );
     
-    if (completedCategories.length === 0) return 0;
+    if (completedCategories.length === 0) return { ChatGPT: 0, Claude: 0, Gemini: 0 };
     
-    const categoryScores = completedCategories.map(category => calculateCategoryScore(category));
-    return categoryScores.reduce((a, b) => a + b, 0) / categoryScores.length;
+    const modelScores = {
+      ChatGPT: 0,
+      Claude: 0,
+      Gemini: 0
+    };
+
+    completedCategories.forEach(category => {
+      const categoryScores = calculateCategoryScore(category);
+      modelScores.ChatGPT += categoryScores.ChatGPT;
+      modelScores.Claude += categoryScores.Claude;
+      modelScores.Gemini += categoryScores.Gemini;
+    });
+
+    return {
+      ChatGPT: modelScores.ChatGPT / completedCategories.length,
+      Claude: modelScores.Claude / completedCategories.length,
+      Gemini: modelScores.Gemini / completedCategories.length
+    };
   };
 
   const getTotalMetrics = () => {
@@ -595,7 +649,7 @@ export default function ScenarioEvaluation() {
               </div>
               <div className="bg-violet-50 border border-violet-200 rounded-lg p-4 text-center">
                 <div className="text-2xl font-bold text-violet-600">
-                  {(calculateOverallScore() * 100).toFixed(1)}%
+                  {(calculateOverallScore().ChatGPT * 100).toFixed(1)}%
                 </div>
                 <div className="text-sm text-violet-700">평균 점수</div>
               </div>
@@ -632,7 +686,7 @@ export default function ScenarioEvaluation() {
                     <div className="text-right">
                       <div className="text-xl font-bold">
                         {category.metrics.some(m => m.status === 'completed') 
-                          ? `${(calculateCategoryScore(category) * 100).toFixed(1)}%`
+                          ? `${(calculateCategoryScore(category).ChatGPT * 100).toFixed(1)}%`
                           : '대기'
                         }
                       </div>
@@ -669,35 +723,40 @@ export default function ScenarioEvaluation() {
                         </div>
                         <p className="text-sm text-gray-600 mb-3">{metric.description}</p>
                         
-                        {metric.status === 'completed' && metric.score !== null ? (
-                          <>
-                            <div className="flex justify-between items-center mb-2">
-                              <span className="text-sm font-medium text-gray-700">점수</span>
-                              <span className={`text-lg font-bold ${getScoreColor(metric.score)}`}>
-                                {(metric.score * 100).toFixed(1)}%
-                              </span>
-                            </div>
-                            
-                            <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
+                        {metric.status === 'completed' && metric.modelPerformance ? (
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            {Object.entries(metric.modelPerformance).map(([model, performance]: [string, any]) => (
                               <div 
-                                className={`h-2 rounded-full transition-all duration-300 ${
-                                  metric.score >= 0.9 ? 'bg-emerald-500' :
-                                  metric.score >= 0.8 ? 'bg-blue-500' :
-                                  metric.score >= 0.7 ? 'bg-amber-500' :
-                                  metric.score >= 0.6 ? 'bg-orange-500' :
-                                  'bg-rose-500'
-                                }`}
-                                style={{ width: `${metric.score * 100}%` }}
-                              />
-                            </div>
-                            
-                            <div className="flex justify-between text-xs text-gray-500">
-                              <span>임계값: {(metric.threshold * 100).toFixed(0)}%</span>
-                              <span className={getScoreColor(metric.score)}>
-                                {getPerformanceLevel(metric.score)}
-                              </span>
-                            </div>
-                          </>
+                                key={model} 
+                                className="bg-gray-50 rounded-lg p-4 cursor-pointer hover:shadow-md transition-shadow"
+                                onClick={() => router.push(`/governance-framework/scenario-evaluation/${metric.id}/${model.toLowerCase()}`)}
+                              >
+                                <div className="flex justify-between items-center mb-2">
+                                  <h4 className="font-semibold text-gray-900">{model}</h4>
+                                  <span className={`px-2 py-1 rounded text-xs font-medium ${getGradeColor(performance.grade)}`}>
+                                    {performance.grade}
+                                  </span>
+                                </div>
+                                <div className="text-2xl font-bold text-gray-900 mb-1">
+                                  <span className={getScoreColor(performance.score)}>
+                                    {(performance.score * 100).toFixed(1)}%
+                                  </span>
+                                </div>
+                                <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
+                                  <div 
+                                    className={`h-2 rounded-full transition-all duration-300 ${
+                                      performance.score >= 0.9 ? 'bg-emerald-500' :
+                                      performance.score >= 0.8 ? 'bg-blue-500' :
+                                      performance.score >= 0.7 ? 'bg-amber-500' :
+                                      performance.score >= 0.6 ? 'bg-orange-500' :
+                                      'bg-rose-500'
+                                    }`}
+                                    style={{ width: `${performance.score * 100}%` }}
+                                  />
+                                </div>
+                              </div>
+                            ))}
+                          </div>
                         ) : (
                           <div className="flex items-center justify-center h-16 bg-gray-100 rounded-lg">
                             <div className="text-center">

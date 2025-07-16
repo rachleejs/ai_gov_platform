@@ -149,7 +149,10 @@ export default function Home() {
                     <span>{user.name}{user.isGuest ? ' (게스트)' : ''}</span>
                   </div>
                   <button
-                    onClick={logout}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      logout();
+                    }}
                     className="text-sm text-gray-600 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-lg transition-colors"
                   >
                     로그아웃
@@ -158,21 +161,30 @@ export default function Home() {
               ) : (
                 <div className="flex items-center space-x-2">
                   <button
-                    onClick={handleGuestLogin}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleGuestLogin();
+                    }}
                     className="text-sm text-gray-600 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-lg transition-colors"
                   >
                     👤 게스트
                   </button>
                   <span className="text-gray-400">|</span>
                   <button
-                    onClick={() => router.push('/login')}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      router.push('/login');
+                    }}
                     className="text-sm text-gray-600 hover:text-indigo-600 font-medium transition-colors"
                   >
                     로그인
                   </button>
                   <span className="text-gray-400">|</span>
                   <button
-                    onClick={() => router.push('/signup')}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      router.push('/signup');
+                    }}
                     className="text-sm bg-indigo-600 text-white px-3 py-1 rounded-lg hover:bg-indigo-700 transition-colors"
                   >
                     회원가입
@@ -229,10 +241,13 @@ export default function Home() {
               
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {category.items.map((item, index) => (
-                  <div
+                  <button
                     key={index}
-                    onClick={() => router.push(item.href)}
-                    className="bg-white rounded-xl p-6 shadow-md hover:shadow-xl transition-all duration-200 cursor-pointer border border-white/50 hover:scale-105 group"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      router.push(item.href);
+                    }}
+                    className="bg-white rounded-xl p-6 shadow-md hover:shadow-xl transition-all duration-200 cursor-pointer border border-white/50 hover:scale-105 group text-left w-full"
                   >
                     <div className="flex items-start justify-between mb-4">
                       <div className={`p-3 rounded-lg bg-gradient-to-r ${item.gradient} text-white`}>
@@ -249,15 +264,14 @@ export default function Home() {
                     <p className="text-gray-600 text-sm mb-3">
                       {item.description}
                     </p>
-                    <p className="text-gray-500 text-xs mb-4">
+                    <p className="text-gray-500 text-xs">
                       {item.detail}
                     </p>
-                    
-                    <div className="flex items-center text-indigo-600 text-sm font-medium group-hover:text-indigo-700">
-                      <span>시작하기</span>
-                      <ArrowRightIcon className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                    <div className="mt-4 flex items-center text-indigo-600 text-sm font-medium group-hover:text-indigo-700">
+                      바로가기
+                      <ArrowRightIcon className="h-4 w-4 ml-1 group-hover:translate-x-1 transition-transform" />
                     </div>
-                  </div>
+                  </button>
                 ))}
               </div>
             </div>
