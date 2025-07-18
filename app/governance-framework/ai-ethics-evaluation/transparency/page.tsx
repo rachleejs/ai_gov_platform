@@ -4,6 +4,7 @@ import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { useLanguage } from '@/app/contexts/LanguageContext';
+import { useActiveModels } from '@/lib/hooks/useActiveModels';
 
 export default function TransparencyEvaluation() {
   const router = useRouter();
@@ -11,11 +12,7 @@ export default function TransparencyEvaluation() {
   const [selectedModel, setSelectedModel] = useState<string>('');
   const [scores, setScores] = useState<{[key: string]: number}>({});
 
-  const models = [
-    { id: 'gpt4-turbo', name: 'GPT-4-turbo', provider: 'OpenAI' },
-    { id: 'claude3-opus', name: 'Claude-3-opus', provider: 'Anthropic' },
-    { id: 'gemini2-flash', name: 'Gemini-2.0-flash', provider: 'Google' },
-  ];
+  const models = useActiveModels();
 
   const evaluationItems = [
     {

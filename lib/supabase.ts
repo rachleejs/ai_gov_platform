@@ -185,6 +185,32 @@ export type Database = {
           test_date?: string
           created_at?: string
         }
+      },
+      evaluation_metrics: {
+        Row: {
+          id: string;
+          name: string;
+          description?: string;
+          created_by?: string | null;
+          created_at: string;
+          is_active: boolean;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          description?: string;
+          created_by?: string | null;
+          created_at?: string;
+          is_active?: boolean;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          description?: string;
+          created_by?: string | null;
+          created_at?: string;
+          is_active?: boolean;
+        };
       }
     }
     Views: {
@@ -204,4 +230,5 @@ export type User = Database['public']['Tables']['users']['Row']
 export type AIModel = Database['public']['Tables']['ai_models']['Row']
 export type Evaluation = Database['public']['Tables']['evaluations']['Row']
 export type AuditLog = Database['public']['Tables']['audit_logs']['Row']
-export type PerformanceMetric = Database['public']['Tables']['performance_metrics']['Row'] 
+export type PerformanceMetric = Database['public']['Tables']['performance_metrics']['Row']
+export type EvaluationMetric = Database['public']['Tables']['evaluation_metrics']['Row'] 

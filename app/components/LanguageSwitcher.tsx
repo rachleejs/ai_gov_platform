@@ -1,40 +1,35 @@
 'use client';
 
-import React from 'react';
-import { useLanguage, Language } from '../contexts/LanguageContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { GlobeAltIcon } from '@heroicons/react/24/outline';
 
-export default function LanguageSwitcher() {
+const LanguageSwitcher = () => {
   const { language, setLanguage } = useLanguage();
 
-  const languages = [
-    { code: 'ko' as Language, name: '한국어', flag: '🇰🇷' },
-    { code: 'en' as Language, name: 'English', flag: '🇬🇧' },
-  ];
+  const toggleLanguage = () => {
+    setLanguage(language === 'ko' ? 'en' : 'ko');
+  };
+
+  const tooltipText = language === 'ko' ? 'English' : '한국어';
 
   return (
     <div className="relative">
-      <div className="flex items-center space-x-2 bg-white/10 backdrop-blur-sm rounded-lg p-2 border border-white/20">
-        <GlobeAltIcon className="h-4 w-4 text-gray-600" />
-        <div className="flex items-center space-x-1">
-          {languages.map((lang) => (
-            <button
-              key={lang.code}
-              onClick={() => setLanguage(lang.code)}
-              className={`
-                flex items-center space-x-1 px-2 py-1 rounded-md text-sm font-medium transition-all duration-200
-                ${language === lang.code 
-                  ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-md' 
-                  : 'text-gray-600 hover:text-gray-800 hover:bg-white/20'
-                }
-              `}
-            >
-              <span className="text-sm">{lang.flag}</span>
-              <span className="hidden sm:inline">{lang.name}</span>
-            </button>
-          ))}
+      <button
+        onClick={toggleLanguage}
+        className="p-2 rounded-lg hover:bg-cream transition-colors group"
+        aria-label="Toggle language"
+      >
+        <GlobeAltIcon className="h-6 w-6 text-slate-blue group-hover:text-navy" />
+        <div 
+          className="absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden group-hover:block 
+                     bg-navy text-white text-xs font-semibold rounded-md px-2 py-1 shadow-lg whitespace-nowrap"
+        >
+          {tooltipText}
+          <div className="absolute left-1/2 -translate-x-1/2 bottom-full w-0 h-0 border-x-4 border-x-transparent border-b-4 border-b-navy"></div>
         </div>
-      </div>
+      </button>
     </div>
   );
-} 
+};
+
+export default LanguageSwitcher; 

@@ -6,10 +6,16 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: '#1D0474', // Navy theme color
+        cream: '#F5EFE7',
+        tan: '#D8C4B6',
+        taupe: '#967E76',
+        'slate-blue': '#3E5879',
+        navy: '#213555',
       },
-      fontFamily: {
-        sans: ['Inter', 'sans-serif'],
+      backgroundImage: {
+        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+        'gradient-conic':
+          'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
       },
     },
   },

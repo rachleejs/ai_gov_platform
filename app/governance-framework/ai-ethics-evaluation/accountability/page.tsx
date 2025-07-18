@@ -4,6 +4,7 @@ import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { useLanguage } from '../../../contexts/LanguageContext';
+import { useActiveModels } from '@/lib/hooks/useActiveModels';
 
 export default function AccountabilityEvaluation() {
   const router = useRouter();
@@ -11,12 +12,8 @@ export default function AccountabilityEvaluation() {
   const [selectedModel, setSelectedModel] = useState<string>('');
   const [scores, setScores] = useState<{[key: string]: number}>({});
 
-  // 모델 옵션
-  const models = [
-    { id: 'gpt4-turbo', name: 'GPT-4-turbo', provider: 'OpenAI' },
-    { id: 'claude3-opus', name: 'Claude-3-opus', provider: 'Anthropic' },
-    { id: 'gemini2-flash', name: 'Gemini-2.0-flash', provider: 'Google' },
-  ];
+  // 모델 옵션 (DB에서 동적 로드)
+  const models = useActiveModels();
 
   // 평가 항목들
   const evaluationItems = [
@@ -76,7 +73,7 @@ export default function AccountabilityEvaluation() {
 
   const handleScoreChange = (itemId: string, score: number) => {
     if (!selectedModel) {
-      alert(t('accountability.selectModel'));
+      alert(t('common.selectModel'));
       return;
     }
       setScores(prev => ({
@@ -192,7 +189,7 @@ export default function AccountabilityEvaluation() {
         {/* 모델 선택 */}
           <div className="mt-8 bg-white shadow rounded-lg">
             <div className="px-6 py-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('accountability.modelSelection')}</h2>
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('common.modelSelection')}</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {models.map((model) => (
                   <div

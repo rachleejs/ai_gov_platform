@@ -62,6 +62,16 @@ CREATE TABLE performance_metrics (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- 5-1. 평가 지표 테이블 (사용자 정의)
+CREATE TABLE evaluation_metrics (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name TEXT NOT NULL,
+    description TEXT,
+    created_by UUID REFERENCES users(id) ON DELETE SET NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    is_active BOOLEAN DEFAULT true
+);
+
 -- 6. 인덱스 생성 (성능 최적화)
 CREATE INDEX idx_evaluations_user_id ON evaluations(user_id);
 CREATE INDEX idx_evaluations_model_id ON evaluations(model_id);
@@ -71,12 +81,18 @@ CREATE INDEX idx_audit_logs_status ON audit_logs(status);
 CREATE INDEX idx_performance_metrics_model_id ON performance_metrics(model_id);
 CREATE INDEX idx_performance_metrics_benchmark ON performance_metrics(benchmark_name);
 
+-- 5-1. 평가 지표 테이블 (사용자 정의)
+CREATE INDEX idx_evaluation_metrics_name ON evaluation_metrics(name);
+
 -- 7. RLS (Row Level Security) 정책 설정
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE ai_models ENABLE ROW LEVEL SECURITY;
 ALTER TABLE evaluations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE audit_logs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE performance_metrics ENABLE ROW LEVEL SECURITY;
+
+-- 5-1. 평가 지표 테이블 (사용자 정의)
+ALTER TABLE evaluation_metrics ENABLE ROW LEVEL SECURITY;
 
 -- 사용자는 자신의 데이터만 조회/수정 가능
 CREATE POLICY "Users can view own data" ON users
@@ -113,6 +129,33 @@ CREATE POLICY "Audit logs viewable by admins and experts" ON audit_logs
 CREATE POLICY "Performance metrics are viewable by everyone" ON performance_metrics
     FOR SELECT USING (true);
 
+-- 5-1. 평가 지표 테이블 (사용자 정의)
+CREATE POLICY "Evaluation metrics viewable by everyone" ON evaluation_metrics
+    FOR SELECT USING (true);
+
+-- 모든 사용자가(게스트 포함) 삽입 가능
+CREATE POLICY "Anyone can insert evaluation metrics" ON evaluation_metrics
+    FOR INSERT WITH CHECK (true);
+
+-- 평가 지표 업데이트/삭제는 관리자만
+CREATE POLICY "Admins can modify evaluation metrics" ON evaluation_metrics
+    FOR UPDATE USING (
+        EXISTS (
+            SELECT 1 FROM users WHERE users.id = auth.uid() AND users.role = 'admin'
+        )
+    );
+
+CREATE POLICY "Admins can delete evaluation metrics" ON evaluation_metrics
+    FOR DELETE USING (
+        EXISTS (
+            SELECT 1 FROM users WHERE users.id = auth.uid() AND users.role = 'admin'
+        )
+    );
+
+-- AI 모델 삽입을 모든 사용자에게 허용 (게스트 포함)
+CREATE POLICY "Anyone can insert AI models" ON ai_models
+    FOR INSERT WITH CHECK (true);
+
 -- 8. 업데이트 트리거 함수
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
@@ -143,16 +186,8 @@ CREATE TRIGGER update_audit_logs_updated_at
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
--- 10. 기본 AI 모델 데이터 삽입
+-- 10. 기본 AI 모델 데이터 삽입 (필수 3개만)
 INSERT INTO ai_models (name, provider, model_type, description) VALUES
-('GPT-4', 'OpenAI', 'Large Language Model', 'OpenAI의 최신 대화형 AI 모델'),
-('GPT-3.5', 'OpenAI', 'Large Language Model', 'OpenAI의 효율적인 대화형 AI 모델'),
-('Claude-3-Opus', 'Anthropic', 'Large Language Model', 'Anthropic의 최고 성능 AI 모델'),
-('Claude-3-Sonnet', 'Anthropic', 'Large Language Model', 'Anthropic의 균형잡힌 AI 모델'),
-('Claude-3-Haiku', 'Anthropic', 'Large Language Model', 'Anthropic의 빠른 AI 모델'),
-('Gemini', 'Google', 'Large Language Model', 'Google의 멀티모달 AI 모델'),
-('Gemini-2.0', 'Google', 'Large Language Model', 'Google의 차세대 AI 모델'),
-('PaLM-2', 'Google', 'Large Language Model', 'Google의 대규모 언어 모델'),
-('Llama-3-70b', 'Meta', 'Large Language Model', 'Meta의 오픈소스 대용량 모델'),
-('Llama-3-8b', 'Meta', 'Large Language Model', 'Meta의 경량 오픈소스 모델'),
-('Cohere Command', 'Cohere', 'Large Language Model', 'Cohere의 기업용 AI 모델'); 
+('GPT-4-turbo', 'OpenAI', 'Large Language Model', 'OpenAI 최신 대화형 AI 모델'),
+('Claude-3-Opus', 'Anthropic', 'Large Language Model', 'Anthropic 최고 성능 대화형 AI'),
+('Gemini-2-flash', 'Google', 'Large Language Model', 'Google 차세대 멀티모달 AI 모델'); 

@@ -2,6 +2,7 @@
 
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { useRouter } from 'next/navigation';
+import { useActiveModels } from '@/lib/hooks/useActiveModels';
 import { useState, useEffect } from 'react';
 
 // Likert Scale 컴포넌트 interface
@@ -97,12 +98,8 @@ export default function PsychologicalEvaluation() {
   const [scores, setScores] = useState<ScoreState>({});
   const [selectedModel, setSelectedModel] = useState<string>('');
 
-  // 모델 옵션
-  const models = [
-    { id: 'gpt4-turbo', name: 'GPT-4-turbo', provider: 'OpenAI' },
-    { id: 'claude3-opus', name: 'Claude-3-opus', provider: 'Anthropic' },
-    { id: 'gemini2-flash', name: 'Gemini-2.0-flash', provider: 'Google' },
-  ];
+  // 모델 옵션 (DB에서 동적 로드)
+  const models = useActiveModels();
 
   // 선택된 모델의 평가 결과 로드
   useEffect(() => {
@@ -180,136 +177,6 @@ export default function PsychologicalEvaluation() {
     if (percentage >= 40) return { grade: 'D', label: '미흡', color: 'text-orange-600 bg-orange-100', description: 'AI 시스템이 아동 심리학적 요구사항을 충분히 충족하지 못합니다.' };
     return { grade: 'F', label: '부적합', color: 'text-red-600 bg-red-100', description: 'AI 시스템이 아동 심리학적 요구사항에 부적합합니다.' };
   };
-
-  // 체크리스트 데이터
-  // const checklistData = {
-  //   developmental: {
-  //     piaget: {
-  //       stages: [
-  //         { stage: "전조작기(2-7세)", description: "상징적 표현과 언어 사용, 구체적 예시와 시각적 도움" },
-  //         { stage: "구체적 조작기(7-11세)", description: "논리적 사고 지원, 체계적 정보 구성" },
-  //         { stage: "형식적 조작기(11세 이상)", description: "추상적 사고 지원, 가설적 상황 제시" }
-  //       ],
-  //       assimilation: [
-  //         "AI가 아동의 기존 지식 구조(스키마)를 파악하고 반영하는가?",
-  //         "새로운 정보를 기존 지식과 연결할 수 있도록 돕는가?",
-  //         "인지적 갈등 상황에서 적절한 조절 과정을 지원하는가?",
-  //         "점진적이고 순차적인 학습 경험을 제공하는가?"
-  //       ],
-  //       activeLearning: [
-  //         "아동이 직접 탐색하고 발견할 수 있는 기회를 제공하는가?",
-  //         "상호작용을 통한 학습을 지원하는가?",
-  //         "아동의 자발적 참여와 호기심을 유발하는가?",
-  //         "개별 아동의 학습 속도를 존중하는가?"
-  //       ]
-  //     },
-  //     vygotsky: {
-  //       zpd: [
-  //         "아동의 현재 능력 수준을 정확히 파악하는가?",
-  //         "적절한 수준의 도전 과제를 제시하는가?",
-  //         "점진적으로 난이도를 조절하여 성장을 돕는가?",
-  //         "개별 아동의 ZPD에 맞춘 개인화된 경험을 제공하는가?"
-  //       ],
-  //       socialInteraction: [
-  //         "다른 아동들과의 협력 학습 기회를 제공하는가?",
-  //         "성인(교사, 부모) 참여를 권장하고 지원하는가?",
-  //         "사회적 맥락에서의 학습을 촉진하는가?",
-  //         "문화적 다양성을 반영하고 존중하는가?"
-  //       ],
-  //       languageDevelopment: [
-  //         "연령에 적합한 언어 수준을 사용하는가?",
-  //         "언어적 표현 능력 향상을 돕는가?",
-  //         "내적 언어 발달을 지원하는가?",
-  //         "다양한 의사소통 방식을 허용하는가?"
-  //       ]
-  //     }
-  //   },
-  //   social: {
-  //     socialIdentity: {
-  //       positiveIdentity: [
-  //         "아동이 소속 집단에 대해 긍정적으로 인식할 수 있도록 돕는가?",
-  //         "다양한 사회적 역할과 정체성을 탐색할 기회를 제공하는가?",
-  //         "개인의 고유한 특성과 강점을 인정하고 강화하는가?",
-  //         "집단 내에서의 개별성을 존중하는가?"
-  //       ],
-  //       prejudicePrevention: [
-  //         "다양한 집단에 대한 균형적 정보를 제공하는가?",
-  //         "편견과 고정관념을 강화하지 않는가?",
-  //         "다문화적 관점을 포함하고 있는가?",
-  //         "차별과 배제를 방지하는 메커니즘이 있는가?"
-  //       ],
-  //       positiveCategorization: [
-  //         "건설적인 집단 정체성 형성을 돕는가?",
-  //         "소속감과 연대감을 건강하게 발달시키는가?",
-  //         "사회적 비교를 통한 자아존중감 향상을 지원하는가?",
-  //         "집단 간 갈등보다는 협력을 강조하는가?"
-  //       ]
-  //     },
-  //     socialLearning: {
-  //       modeling: [
-  //         "긍정적인 롤모델을 제시하는가?",
-  //         "아동이 관찰하고 모방할 수 있는 적절한 행동을 보여주는가?",
-  //         "다양한 상황에서의 바람직한 행동 예시를 제공하는가?",
-  //         "부정적 모델링을 피하고 있는가?"
-  //       ],
-  //       vicariousLearning: [
-  //         "타인의 경험을 통해 학습할 수 있는 기회를 제공하는가?",
-  //         "성공과 실패 사례를 통한 간접 학습을 지원하는가?",
-  //         "감정이입을 통한 사회적 학습을 촉진하는가?",
-  //         "다양한 관점과 경험을 접할 수 있게 하는가?"
-  //       ],
-  //       selfEfficacy: [
-  //         "아동의 성취감을 높이는 피드백을 제공하는가?",
-  //         "점진적 성공 경험을 축적할 수 있도록 돕는가?",
-  //         "개인의 능력에 대한 긍정적 신념을 강화하는가?",
-  //         "도전에 대한 자신감을 기를 수 있도록 지원하는가?"
-  //       ]
-  //     }
-  //   },
-  //   cognitive: {
-  //     informationProcessing: {
-  //       attention: [
-  //         "아동의 주의를 적절히 유도하고 유지하는가?",
-  //         "산만함을 최소화하는 인터페이스 설계가 되어 있는가?",
-  //         "중요한 정보에 초점을 맞출 수 있도록 돕는가?",
-  //         "연령별 주의집중 특성을 고려하고 있는가?"
-  //       ],
-  //       memory: [
-  //         "정보의 부호화를 돕는 시각적/청각적 단서를 제공하는가?",
-  //         "단기기억의 한계(7±2 항목)를 고려한 정보 제시인가?",
-  //         "장기기억으로의 전이를 돕는 반복과 연결고리를 제공하는가?",
-  //         "개인의 기억 전략 개발을 지원하는가?"
-  //       ],
-  //       retrieval: [
-  //         "학습한 내용을 쉽게 떠올릴 수 있는 단서를 제공하는가?",
-  //         "다양한 상황에서 지식을 적용할 기회를 주는가?",
-  //         "메타인지 능력 개발을 지원하는가? — 아동이 자신의 사고 과정을 인식/조절/평가 할 수 있도록 돕는가",
-  //         "문제해결에 필요한 정보 검색을 돕는가?"
-  //       ]
-  //     },
-  //     cognitiveLoad: {
-  //       intrinsic: [
-  //         "학습 내용의 복잡성이 아동의 인지 능력에 적절한가?",
-  //         "핵심 개념에 집중할 수 있도록 설계되어 있는가?",
-  //         "단계별로 점진적인 복잡성 증가가 이루어지는가?",
-  //         "개별 아동의 인지 수준을 고려한 맞춤형 접근인가?"
-  //       ],
-  //       extraneous: [
-  //         "불필요한 시각적/청각적 요소를 배제하고 있는가?",
-  //         "학습에 방해되는 장식적 요소가 최소화되어 있는가?",
-  //         "직관적이고 단순한 인터페이스를 제공하는가?",
-  //         "혼란을 줄 수 있는 다중 정보 채널을 피하고 있는가?"
-  //       ],
-  //       germane: [
-  //         "의미 있는 연결고리 형성을 돕는가?",
-  //         "스키마 구축과 자동화를 지원하는가?",
-  //         "깊이 있는 사고와 이해를 촉진하는가?",
-  //         "전이 가능한 학습을 지원하는가? (배운것을 다른곳에 적용시킬 수 있게 하는 학습)"
-  //       ]
-  //     }
-  //   }
-  // };
-
 
   const checklistData = {
     developmental: {
@@ -439,7 +306,6 @@ export default function PsychologicalEvaluation() {
     }
   };
   
-
   const totalQuestions = getTotalQuestions();
   const totalScore = calculateTotalScore();
   const percentage = getPercentage();
@@ -466,9 +332,9 @@ export default function PsychologicalEvaluation() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           {/* 모델 선택 섹션 */}
           <div className="mt-8 bg-white shadow rounded-lg">
-          <div className="px-6 py-6">
+            <div className="px-6 py-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-4">평가 대상 모델 선택</h2>
-            <p className="text-gray-600 mb-4">
+              <p className="text-gray-600 mb-4">
                 평가할 AI 모델을 선택해주세요. 선택한 모델에 대한 평가 결과는 자동으로 저장됩니다.
               </p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -511,17 +377,17 @@ export default function PsychologicalEvaluation() {
                 </ul>
               </div>
             </div>
-        </div>
+          </div>
 
           {/* 심리학 이론 설명 섹션 */}
-        <div className="mt-8 bg-white shadow rounded-lg">
-          <div className="px-6 py-6">
+          <div className="mt-8 bg-white shadow rounded-lg">
+            <div className="px-6 py-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-6">심리학 이론 안내</h2>
               <p className="text-gray-600 mb-6">
                 평가에 사용되는 6가지 주요 심리학 이론을 쉽게 설명해드립니다.
               </p>
               
-            <div className="space-y-6">
+              <div className="space-y-6">
                 {/* 피아제 이론 */}
                 <div className="border border-blue-200 rounded-lg p-5 bg-blue-50">
                   <div className="flex items-start">
@@ -534,9 +400,9 @@ export default function PsychologicalEvaluation() {
                         <p>• 아이들은 나이에 따라 생각하는 방식이 달라지며, 단순한 감각에서 시작해 점점 논리적이고 추상적으로 사고할 수 있게 됩니다.</p>
                         <p>• 학습은 아이가 직접 경험하고 탐색하면서 스스로 지식을 쌓는 과정입니다.</p>
                       </div>
-                      </div>
                     </div>
                   </div>
+                </div>
 
                 {/* 비고츠키 이론 */}
                 <div className="border border-green-200 rounded-lg p-5 bg-green-50">
@@ -669,9 +535,9 @@ export default function PsychologicalEvaluation() {
                     </p>
                   </div>
                 </div>
+              </div>
             </div>
           </div>
-        </div>
 
           {/* 체크리스트 기반 점검표 */}
           <div className="mt-8 bg-white shadow rounded-lg">
@@ -688,7 +554,7 @@ export default function PsychologicalEvaluation() {
                   <div className="flex items-center mb-6">
                     <span className="inline-flex items-center justify-center w-10 h-10 bg-blue-500 text-white text-lg font-bold rounded-full mr-3">1</span>
                     <h3 className="text-xl font-bold text-gray-900">발달심리학 기반 평가</h3>
-                </div>
+                  </div>
                   <p className="text-gray-600 mb-6 text-sm">
                     아이의 나이와 발달 단계에 맞는 AI 서비스인지 평가합니다.
                   </p>
@@ -698,7 +564,7 @@ export default function PsychologicalEvaluation() {
                     <div className="flex items-center mb-4">
                       <span className="inline-flex items-center justify-center w-6 h-6 bg-blue-400 text-white text-xs font-bold rounded-full mr-2">1.1</span>
                       <h4 className="text-lg font-semibold text-blue-900">피아제의 인지 발달 이론</h4>
-                  </div>
+                    </div>
                     <p className="text-blue-800 text-sm mb-4 pl-8">
                       아이가 나이에 따라 어떻게 생각하고 배우는지 확인합니다.
                     </p>
@@ -712,8 +578,8 @@ export default function PsychologicalEvaluation() {
                         <div className="flex justify-between items-center">
                           <span className="text-sm text-gray-500 line-through">감각운동기(0-2세): 단순하고 직관적인 인터페이스, 시각적/청각적 자극 제공</span>
                           <span className="text-xs text-gray-400 bg-gray-200 px-2 py-1 rounded">해당 없음</span>
-                </div>
-                </div>
+                        </div>
+                      </div>
 
                       {/* 발달 단계별 평가 */}
                       <div className="space-y-3">
@@ -726,8 +592,8 @@ export default function PsychologicalEvaluation() {
                             onScoreChange={handleScoreChange}
                           />
                         ))}
-                </div>
-              </div>
+                      </div>
+                    </div>
 
                     <EvaluationSection
                       title="1.1.2 동화와 조절 과정 지원"
@@ -774,8 +640,8 @@ export default function PsychologicalEvaluation() {
                       sectionId="vygotsky_language"
                       onScoreChange={handleScoreChange}
                     />
-              </div>
-            </div>
+                  </div>
+                </div>
 
                 {/* 2. 사회심리학 기반 평가 */}
                 <div className="bg-gradient-to-r from-yellow-50 to-purple-50 border border-yellow-200 rounded-lg p-6">
@@ -972,8 +838,8 @@ export default function PsychologicalEvaluation() {
                       <li>• 아동 발달 심리학 전문가와의 협의를 통해 구체적인 개선 방안을 마련하세요.</li>
                       <li>• 정기적인 재평가를 통해 개선 효과를 모니터링하세요.</li>
                     </ul>
-          </div>
-        )}
+                  </div>
+                )}
 
                 {percentage >= 70 && percentage < 90 && (
                   <div className="mt-4">
@@ -1065,4 +931,4 @@ export default function PsychologicalEvaluation() {
       </main>
     </div>
   );
-} 
+}
