@@ -6,11 +6,11 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        cream: '#F5EFE7',
+        grey: '#909090',
         tan: '#D8C4B6',
         taupe: '#967E76',
         'slate-blue': '#3E5879',
-        navy: '#213555',
+        green: '#00473B',
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',

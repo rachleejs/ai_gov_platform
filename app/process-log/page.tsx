@@ -79,27 +79,27 @@ export default function ProcessLog() {
   };
 
   return (
-    <div className="bg-cream min-h-screen">
+    <div className="bg-grey min-h-screen">
       <header className="bg-white/80 backdrop-blur-sm border-b border-tan/50 sticky top-0 z-40">
-        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-4 py-4">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between py-4">
             <button
               onClick={() => router.push('/')}
-              className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-taupe bg-cream border border-tan/50 rounded-lg hover:bg-tan"
+              className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-taupe bg-grey border border-tan/50 rounded-lg hover:bg-tan"
             >
-              <ArrowLeftIcon className="w-4 h-4 mr-2" />
+              <ArrowLeftIcon className="h-4 w-4 mr-2" />
               메인으로
             </button>
-            <h1 className="text-xl font-bold text-navy">과정 기록</h1>
+            <h1 className="text-xl font-bold text-green">과정 기록</h1>
           </div>
         </div>
       </header>
 
-      <main className="py-8 mx-auto max-w-4xl sm:px-6 lg:px-8">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-navy mb-2">개발 및 평가 과정 기록</h2>
-          <p className="text-taupe max-w-3xl mx-auto">
-            AI 거버넌스 플랫폼의 주요 개발 및 평가 활동에 대한 전체 기록을 추적합니다.
+      <main className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <div className="mb-8">
+          <h2 className="text-3xl font-bold text-green mb-2">개발 및 평가 과정 기록</h2>
+          <p className="text-taupe">
+            AI 모델의 기획부터 배포까지 모든 단계를 추적하고 관리합니다.
           </p>
         </div>
 
@@ -109,7 +109,7 @@ export default function ProcessLog() {
               key={cat}
               onClick={() => setFilter(cat)}
               className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors 
-                ${filter === cat ? 'bg-navy text-white shadow' : 'text-taupe hover:bg-cream'}`}
+                ${filter === cat ? 'bg-green text-white shadow' : 'text-taupe hover:bg-grey'}`}
             >
               {cat === 'all' ? '전체 보기' : cat}
             </button>
@@ -120,45 +120,55 @@ export default function ProcessLog() {
           <div className="absolute left-9 top-0 h-full w-0.5 bg-tan/50" aria-hidden="true" />
           {phases.map((phase, phaseIndex) => (
             <div key={phaseIndex} className="mb-12">
-                <div className="flex items-center mb-6">
-                <div className="z-10 flex items-center justify-center w-18 h-18 bg-navy rounded-full p-1">
-                  <span className="flex items-center justify-center w-16 h-16 bg-cream text-navy font-bold text-lg rounded-full">{phaseIndex + 1}단계</span>
+              <div className="flex items-center mb-6">
+                <div className="z-10 flex items-center justify-center w-18 h-18 bg-green rounded-full p-1">
+                  <span className="flex items-center justify-center w-16 h-16 bg-grey text-green font-bold text-lg rounded-full">
+                    {phaseIndex + 1}단계
+                  </span>
                 </div>
-                <h3 className="ml-4 text-xl font-bold text-navy">{phase.substring(phase.indexOf(':') + 2)}</h3>
-                              </div>
+                <h3 className="ml-4 text-xl font-bold text-green">{phase}</h3>
+              </div>
 
               <div className="space-y-6">
-                {filteredLogs.filter(log => log.phase === phase).map(log => {
-                  const Icon = getCategoryIcon(log.category);
-                  const statusInfo = getStatusInfo(log.status);
-                  return (
-                    <div key={log.id} className="pl-28 relative">
-                      <div className="absolute left-[34px] top-7 w-5 h-5 bg-navy rounded-full border-4 border-cream" />
-                      <div className="bg-white p-6 rounded-xl shadow-md border border-tan/30">
-                                <div className="flex items-start justify-between">
-                          <div className="flex items-center">
-                            <Icon className="w-6 h-6 text-slate-blue mr-4" />
-                            <div>
-                              <h4 className="font-semibold text-navy">{log.title}</h4>
-                              <p className="text-sm text-taupe">{log.date}</p>
+                {filteredLogs
+                  .filter((log) => log.phase === phase)
+                  .map((log) => {
+                    const Icon = getCategoryIcon(log.category);
+                    const statusInfo = getStatusInfo(log.status);
+                    return (
+                      <div key={log.id} className="pl-28 relative">
+                        <div
+                          className="absolute left-[34px] top-7 w-5 h-5 bg-green rounded-full border-4 border-grey"
+                        />
+                        <div className="bg-white p-6 rounded-xl shadow-md border border-tan/30">
+                          <div className="flex items-start justify-between">
+                            <div className="flex items-center">
+                              <Icon className="w-6 h-6 text-slate-blue mr-4" />
+                              <div>
+                                <h4 className="font-semibold text-green">{log.title}</h4>
+                                <p className="text-sm text-taupe">{log.date}</p>
+                              </div>
                             </div>
+                            <span
+                              className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${statusInfo.color}`}
+                            >
+                              <statusInfo.icon className="w-3 h-3 mr-1.5" />
+                              {statusInfo.text}
+                            </span>
                           </div>
-                          <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${statusInfo.color}`}>
-                            <statusInfo.icon className="w-3 h-3 mr-1.5" />
-                            {statusInfo.text}
-                          </span>
-                        </div>
-                        <p className="mt-3 text-sm text-taupe pl-10">{log.description}</p>
-                        <div className="mt-4 pt-4 border-t border-tan/50 pl-10">
-                          <span className="text-xs bg-cream text-taupe px-2 py-1 rounded-md">{log.category}</span>
+                          <p className="mt-3 text-sm text-taupe pl-10">{log.description}</p>
+                          <div className="mt-4 pt-4 border-t border-tan/50 pl-10">
+                            <span className="text-xs bg-grey text-taupe px-2 py-1 rounded-md">
+                              {log.category}
+                            </span>
                           </div>
                         </div>
                       </div>
                     );
                   })}
-                </div>
               </div>
-            ))}
+            </div>
+          ))}
         </div>
       </main>
     </div>

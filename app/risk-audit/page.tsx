@@ -70,36 +70,36 @@ export default function RiskAudit() {
   };
 
   return (
-    <div className="bg-cream min-h-screen">
+    <div className="bg-grey min-h-screen">
       <header className="bg-white/80 backdrop-blur-sm border-b border-tan/50 sticky top-0 z-40">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-4 py-4">
             <button
               onClick={() => router.push('/')}
-              className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-taupe bg-cream border border-tan/50 rounded-lg hover:bg-tan"
+              className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-taupe bg-grey border border-tan/50 rounded-lg hover:bg-tan"
             >
               <ArrowLeftIcon className="w-4 h-4 mr-2" />
               메인으로
             </button>
-            <h1 className="text-xl font-bold text-navy">위험 감사</h1>
+            <h1 className="text-xl font-bold text-green">위험 감사</h1>
           </div>
         </div>
       </header>
 
       <main className="py-8 mx-auto max-w-7xl sm:px-6 lg:px-8">
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-navy mb-2">AI 모델 위험 감사 현황</h2>
+          <h2 className="text-3xl font-bold text-green mb-2">AI 모델 위험 감사 현황</h2>
           <p className="text-taupe max-w-3xl mx-auto">
             등록된 AI 모델의 잠재적 위험 요소를 체계적으로 감사하고 관리합니다.
           </p>
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
-          <div className="bg-white p-5 rounded-xl shadow-md border border-tan/30 text-center"><p className="text-sm text-taupe">총 감사</p><p className="text-3xl font-bold text-navy mt-1">{stats.total}</p></div>
-          <div className="bg-white p-5 rounded-xl shadow-md border border-tan/30 text-center"><p className="text-sm text-taupe">진행 중</p><p className="text-3xl font-bold text-navy mt-1">{stats.inProgress}</p></div>
-          <div className="bg-white p-5 rounded-xl shadow-md border border-tan/30 text-center"><p className="text-sm text-taupe">예정</p><p className="text-3xl font-bold text-navy mt-1">{stats.scheduled}</p></div>
+          <div className="bg-white p-5 rounded-xl shadow-md border border-tan/30 text-center"><p className="text-sm text-taupe">총 감사</p><p className="text-3xl font-bold text-green mt-1">{stats.total}</p></div>
+          <div className="bg-white p-5 rounded-xl shadow-md border border-tan/30 text-center"><p className="text-sm text-taupe">진행 중</p><p className="text-3xl font-bold text-green mt-1">{stats.inProgress}</p></div>
+          <div className="bg-white p-5 rounded-xl shadow-md border border-tan/30 text-center"><p className="text-sm text-taupe">예정</p><p className="text-3xl font-bold text-green mt-1">{stats.scheduled}</p></div>
           <div className="bg-white p-5 rounded-xl shadow-md border border-tan/30 text-center"><p className="text-sm text-taupe">고위험</p><p className="text-3xl font-bold text-red-500 mt-1">{stats.highRisk}</p></div>
-          <div className="bg-white p-5 rounded-xl shadow-md border border-tan/30 text-center"><p className="text-sm text-taupe">평균 점수</p><p className="text-3xl font-bold text-navy mt-1">{stats.averageScore}</p></div>
+          <div className="bg-white p-5 rounded-xl shadow-md border border-tan/30 text-center"><p className="text-sm text-taupe">평균 점수</p><p className="text-3xl font-bold text-green mt-1">{stats.averageScore}</p></div>
         </div>
 
         <div className="bg-white p-6 rounded-xl shadow-lg border border-tan/30 mb-8">
@@ -111,14 +111,14 @@ export default function RiskAudit() {
                 placeholder="모델 또는 제공사 검색..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-cream border border-tan/50 rounded-lg focus:ring-slate-blue focus:border-slate-blue text-navy placeholder-taupe"
+                className="w-full pl-10 pr-4 py-2 bg-grey border border-tan/50 rounded-lg focus:ring-slate-blue focus:border-slate-blue text-green placeholder-taupe"
               />
             </div>
             <div>
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-full px-4 py-2 bg-cream border border-tan/50 rounded-lg focus:ring-slate-blue focus:border-slate-blue text-navy"
+                className="w-full px-4 py-2 bg-grey border border-tan/50 rounded-lg focus:ring-slate-blue focus:border-slate-blue text-green"
               >
                 <option value="all">모든 상태</option>
                 <option value="completed">완료</option>
@@ -130,7 +130,7 @@ export default function RiskAudit() {
               <select
                 value={riskFilter}
                 onChange={(e) => setRiskFilter(e.target.value)}
-                className="w-full px-4 py-2 bg-cream border border-tan/50 rounded-lg focus:ring-slate-blue focus:border-slate-blue text-navy"
+                className="w-full px-4 py-2 bg-grey border border-tan/50 rounded-lg focus:ring-slate-blue focus:border-slate-blue text-green"
               >
                 <option value="all">모든 위험도</option>
                 <option value="high">높음</option>
@@ -144,7 +144,7 @@ export default function RiskAudit() {
         <div className="bg-white rounded-xl shadow-lg border border-tan/30 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left text-taupe">
-              <thead className="text-xs text-navy uppercase bg-cream">
+              <thead className="text-xs text-green uppercase bg-grey">
                 <tr>
                   <th scope="col" className="px-6 py-3">모델명</th>
                   <th scope="col" className="px-6 py-3">상태</th>
@@ -159,8 +159,8 @@ export default function RiskAudit() {
                   const statusInfo = getStatusInfo(audit.status);
                   const riskInfo = getRiskInfo(audit.risk);
                   return (
-                    <tr key={audit.id} className="bg-white border-b border-tan/50 hover:bg-cream/50">
-                      <th scope="row" className="px-6 py-4 font-medium text-navy whitespace-nowrap">
+                    <tr key={audit.id} className="bg-white border-b border-tan/50 hover:bg-grey/50">
+                      <th scope="row" className="px-6 py-4 font-medium text-green whitespace-nowrap">
                         <div className="font-semibold">{audit.name}</div>
                         <div className="text-xs text-taupe">{audit.provider} - {audit.version}</div>
                       </th>
@@ -181,7 +181,7 @@ export default function RiskAudit() {
                       </td>
                       <td className="px-6 py-4">{audit.lastUpdate}</td>
                       <td className="px-6 py-4 text-right">
-                        <button className="font-medium text-slate-blue hover:text-navy">상세 보기</button>
+                        <button className="font-medium text-slate-blue hover:text-green">상세 보기</button>
                       </td>
                     </tr>
                   );

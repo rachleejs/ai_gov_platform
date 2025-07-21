@@ -12,6 +12,7 @@ import {
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { useLanguage } from '@/app/contexts/LanguageContext';
+import Link from 'next/link';
 
 export default function GovernanceFramework() {
   const router = useRouter();
@@ -160,7 +161,7 @@ export default function GovernanceFramework() {
   const getStatusInfo = (status: string) => {
     switch (status) {
       case 'active':
-        return { text: '활성', color: 'text-slate-blue bg-slate-blue/10' };
+        return { text: '활성', color: 'text-green bg-green/10' };
       case 'development':
         return { text: '개발 중', color: 'text-taupe bg-tan/50' };
       default:
@@ -168,19 +169,23 @@ export default function GovernanceFramework() {
     }
   };
 
+  const handleTestDB = () => {
+    alert('DB 연결 테스트 완료!');
+  };
+
   return (
-    <div className="bg-cream min-h-screen">
+    <div className="bg-grey min-h-screen">
       <header className="bg-white/80 backdrop-blur-sm border-b border-tan/50 sticky top-0 z-40">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-4 py-4">
-            <button
-              onClick={() => router.push('/')}
-              className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-taupe bg-cream border border-tan/50 rounded-lg hover:bg-tan"
+            <Link
+              href="/"
+              className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-taupe bg-grey border border-tan/50 rounded-lg hover:bg-tan"
             >
               <ArrowLeftIcon className="w-4 h-4 mr-2" />
               메인으로
-            </button>
-            <h1 className="text-xl font-bold text-navy">AI 거버넌스 프레임워크</h1>
+            </Link>
+            <h1 className="text-xl font-bold text-green">AI 거버넌스 프레임워크</h1>
           </div>
         </div>
       </header>
@@ -188,100 +193,99 @@ export default function GovernanceFramework() {
         <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
           <div className="mb-8 bg-white rounded-2xl shadow-lg border border-tan/30 p-8">
             <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-navy mb-2">AI 거버넌스 종합 현황</h2>
+              <h2 className="text-3xl font-bold text-green mb-2">AI 거버넌스 종합 현황</h2>
               <p className="text-taupe max-w-3xl mx-auto">
                 포괄적인 AI 거버넌스 평가를 통해 AI 시스템의 윤리적, 기술적 안전성을 검증하고 개선 방향을 제시합니다.
               </p>
             </div>
 
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="bg-cream rounded-lg p-5 text-center shadow-sm border border-tan/50">
-                <div className="text-3xl font-bold text-slate-blue">{overallStats.activeModels}</div>
+              <div className="bg-grey rounded-lg p-5 text-center shadow-sm border border-tan/50">
+                <div className="text-3xl font-bold text-green">{overallStats.activeModels}</div>
                 <div className="text-sm text-taupe mt-1">평가 모델</div>
               </div>
-              <div className="bg-cream rounded-lg p-5 text-center shadow-sm border border-tan/50">
-                <div className="text-3xl font-bold text-slate-blue">
+              <div className="bg-grey rounded-lg p-5 text-center shadow-sm border border-tan/50">
+                <div className="text-3xl font-bold text-green">
                   {overallStats.completedEvaluations}/{overallStats.totalEvaluations}
                 </div>
                 <div className="text-sm text-taupe mt-1">완료된 평가</div>
               </div>
-              <div className="bg-cream rounded-lg p-5 text-center shadow-sm border border-tan/50">
-                <div className="text-3xl font-bold text-slate-blue">
+              <div className="bg-grey rounded-lg p-5 text-center shadow-sm border border-tan/50">
+                <div className="text-3xl font-bold text-green">
                   {overallStats.totalEvaluations > 0 ? Math.round((overallStats.completedEvaluations / overallStats.totalEvaluations) * 100) : 0}%
                 </div>
                 <div className="text-sm text-taupe mt-1">평가 진행률</div>
               </div>
-              <div className="bg-cream rounded-lg p-5 text-center shadow-sm border-tan/50">
-                <div className="text-3xl font-bold text-slate-blue">{overallStats.averageScore}</div>
+              <div className="bg-grey rounded-lg p-5 text-center shadow-sm border-tan/50">
+                <div className="text-3xl font-bold text-green">{overallStats.averageScore}</div>
                 <div className="text-sm text-taupe mt-1">평균 점수</div>
               </div>
             </div>
           </div>
 
           <div className="mb-8">
-            <h3 className="text-lg font-semibold text-navy mb-4">추천 다음 단계</h3>
+            <h3 className="text-lg font-semibold text-green mb-4">추천 다음 단계</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <button
-                onClick={() => router.push('/governance-framework/ai-ethics-evaluation')}
-                className="group bg-slate-blue text-white p-6 rounded-lg hover:bg-navy hover:shadow-lg transition-all duration-200 hover:scale-105"
+              <Link
+                href="/governance-framework/ai-ethics-evaluation"
+                className="group bg-grey text-white p-6 rounded-lg hover:bg-green hover:shadow-lg transition-all duration-200 hover:scale-105"
               >
                 <div className="flex items-center">
                   <PlayIcon className="h-6 w-6 mr-3" />
                   <div className="text-left">
                     <div className="font-semibold">윤리 평가 시작</div>
-                    <div className="text-slate-blue/50 text-sm group-hover:text-tan">10개 핵심 기준 평가</div>
+                    <div className="text-green/50 text-sm group-hover:text-taupe">10개 핵심 기준 평가</div>
                   </div>
                 </div>
-              </button>
+              </Link>
               
-              <button
-                onClick={() => router.push('/model-comparison')}
-                className="group bg-slate-blue text-white p-6 rounded-lg hover:bg-navy hover:shadow-lg transition-all duration-200 hover:scale-105"
+              <Link
+                href="/model-comparison"
+                className="group bg-grey text-white p-6 rounded-lg hover:bg-green hover:shadow-lg transition-all duration-200 hover:scale-105"
               >
                 <div className="flex items-center">
                   <ChartBarIcon className="h-6 w-6 mr-3" />
                   <div className="text-left">
                     <div className="font-semibold">모델 비교 분석</div>
-                    <div className="text-slate-blue/50 text-sm group-hover:text-tan">다양한 모델 성능 비교</div>
+                    <div className="text-green/50 text-sm group-hover:text-taupe">다양한 모델 성능 비교</div>
                   </div>
                 </div>
-              </button>
+              </Link>
 
-              <button
-                onClick={() => router.push('/process-log')}
-                className="group bg-slate-blue text-white p-6 rounded-lg hover:bg-navy hover:shadow-lg transition-all duration-200 hover:scale-105"
+              <Link
+                href="/process-log"
+                className="group bg-grey text-white p-6 rounded-lg hover:bg-green hover:shadow-lg transition-all duration-200 hover:scale-105"
               >
                 <div className="flex items-center">
                   <DocumentTextIcon className="h-6 w-6 mr-3" />
                   <div className="text-left">
                     <div className="font-semibold">과정 기록 확인</div>
-                    <div className="text-slate-blue/50 text-sm group-hover:text-tan">평가 및 의사결정 추적</div>
+                    <div className="text-green/50 text-sm group-hover:text-taupe">평가 및 의사결정 추적</div>
                   </div>
                 </div>
-              </button>
+              </Link>
             </div>
           </div>
 
           <div>
-            <h3 className="text-xl font-bold text-navy mb-2">평가 체계</h3>
+            <h3 className="text-xl font-bold text-green mb-2">평가 체계</h3>
             <p className="text-taupe mb-6">AI 거버넌스는 여러 평가 체계로 구성되어 있습니다. 각 체계를 통해 종합적인 분석을 수행할 수 있습니다.</p>
             <ul className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {evaluationFrameworks.map((framework, index) => {
                 const statusInfo = getStatusInfo(framework.status);
                 return (
                   <li key={index} className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-200 border border-tan/30">
-                    <button
-                      onClick={() => router.push(framework.route)}
-                      disabled={framework.status === 'development'}
+                    <Link
+                      href={framework.route}
                       className="w-full text-left p-6 group disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex items-center">
-                          <div className="p-3 rounded-lg bg-navy text-white mr-4">
+                          <div className="p-3 rounded-lg bg-green text-white mr-4">
                             <framework.icon className="h-6 w-6" />
                           </div>
                           <div>
-                            <h4 className="text-lg font-semibold text-navy group-hover:text-slate-blue">{framework.name}</h4>
+                            <h4 className="text-lg font-semibold text-green group-hover:text-green">{framework.name}</h4>
                             <p className="text-sm text-taupe">최근 업데이트: {framework.lastUpdated}</p>
                           </div>
                         </div>
@@ -296,30 +300,30 @@ export default function GovernanceFramework() {
                           <span>진행률</span>
                           <span>{framework.completionRate}%</span>
                         </div>
-                        <div className="w-full bg-cream rounded-full h-2">
+                        <div className="w-full bg-grey rounded-full h-2">
                           <div
-                            className="bg-slate-blue h-2 rounded-full"
+                            className="bg-green h-2 rounded-full"
                             style={{ width: `${framework.completionRate}%` }}
                           ></div>
                         </div>
                       </div>
 
                       <div className="mt-4 pt-4 border-t border-tan/50">
-                        <h5 className="text-sm font-semibold text-navy mb-2">주요 평가지표</h5>
+                        <h5 className="text-sm font-semibold text-green mb-2">주요 평가지표</h5>
                         <div className="flex flex-wrap gap-2">
                           {framework.metrics.slice(0, 4).map((metric, i) => (
-                            <span key={i} className="text-xs text-taupe bg-cream px-2 py-1 rounded-md">
+                            <span key={i} className="text-xs text-taupe bg-grey px-2 py-1 rounded-md">
                               {metric}
                             </span>
                           ))}
                           {framework.metrics.length > 4 && (
-                            <span className="text-xs text-taupe bg-cream px-2 py-1 rounded-md">
+                            <span className="text-xs text-taupe bg-grey px-2 py-1 rounded-md">
                               ...
                             </span>
                           )}
                         </div>
                       </div>
-                    </button>
+                    </Link>
                   </li>
                 );
               })}

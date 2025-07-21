@@ -14,7 +14,8 @@
   }
 
   body {
-    @apply bg-gray-50 text-gray-900;
+    /* Set new default background and text color, with larger base font size */
+    @apply bg-grey text-white text-lg;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -44,4 +45,10 @@
   .text-gradient {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-600;
   }
+} 
+
+/* Overrides to convert solid white blocks into outlined blocks with white border only */
+.bg-white {
+  background-color: transparent !important;
+  border: 2px solid #ffffff !important;
 } 
