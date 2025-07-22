@@ -144,7 +144,7 @@ export default function MainDashboard() {
               <ArrowLeftIcon className="w-4 h-4 mr-2" />
                메인으로
             </Link>
-            <h1 className="text-xl font-bold text-green">메인 대시보드</h1>
+            <h1 className="text-xl font-bold text-green">리더보드</h1>
             <div />
            </div>
          </div>

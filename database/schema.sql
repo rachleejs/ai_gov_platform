@@ -190,4 +190,40 @@ CREATE TRIGGER update_audit_logs_updated_at
 INSERT INTO ai_models (name, provider, model_type, description) VALUES
 ('GPT-4-turbo', 'OpenAI', 'Large Language Model', 'OpenAI 최신 대화형 AI 모델'),
 ('Claude-3-Opus', 'Anthropic', 'Large Language Model', 'Anthropic 최고 성능 대화형 AI'),
-('Gemini-2-flash', 'Google', 'Large Language Model', 'Google 차세대 멀티모달 AI 모델'); 
+('Gemini-2-flash', 'Google', 'Large Language Model', 'Google 차세대 멀티모달 AI 모델');
+
+-- 11. 심리학적 평가 결과 테이블
+CREATE TABLE psychological_evaluations (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    model_id UUID REFERENCES ai_models(id) ON DELETE CASCADE,
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    scores JSONB NOT NULL,
+    total_score INTEGER NOT NULL,
+    percentage INTEGER NOT NULL,
+    grade TEXT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- RLS
+ALTER TABLE psychological_evaluations ENABLE ROW LEVEL SECURITY;
+
+-- 정책
+CREATE POLICY "Psychological evaluations are viewable by owner" ON psychological_evaluations
+    FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert their own psychological evaluations" ON psychological_evaluations
+    FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update their own psychological evaluations" ON psychological_evaluations
+    FOR UPDATE USING (auth.uid() = user_id);
+
+-- 인덱스 생성
+CREATE INDEX idx_psychological_evaluations_model_id ON psychological_evaluations(model_id);
+CREATE INDEX idx_psychological_evaluations_user_id ON psychological_evaluations(user_id);
+
+-- 트리거
+CREATE TRIGGER update_psychological_evaluations_updated_at
+    BEFORE UPDATE ON psychological_evaluations
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column(); 

@@ -206,7 +206,7 @@ export default function Home() {
                   <div className="p-9 bg-green group-hover:bg-slate-grey transition-colors rounded-lg">
                     <ChartBarIcon className="h-28 w-28 text-white" />
                   </div>
-                  <span className="text-4xl font-bold group-hover:text-slate-grey transition-colors">대시보드</span>
+                  <span className="text-4xl font-bold group-hover:text-slate-grey transition-colors">리더보드</span>
                 </button>
                 <div className="absolute -bottom-52 left-1/2 -translate-x-1/2 w-64 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
                   <div className="bg-green border-0 shadow-lg p-4">
