@@ -966,7 +966,7 @@ export default function PsychologicalEvaluation() {
                     <h4 className="font-semibold mb-2 text-yellow-800">개선 권장 사항:</h4>
                     <ul className="text-sm space-y-1 list-disc list-inside text-yellow-700">
                       <li>점수가 낮은 영역을 중점적으로 검토하고 개선 계획을 수립하세요.</li>
-                      <li>아동 발달 심리학 전문가와의 협의를 통해 구체적인 개선 방안을 마련하세요.</li>
+                      <li>아동 발달 심리학 및 초등교육 전문가와의 협의를 통해 구체적인 개선 방안을 마련하세요.</li>
                       <li>정기적인 재평가를 통해 개선 효과를 모니터링하세요.</li>
                     </ul>
                   </div>

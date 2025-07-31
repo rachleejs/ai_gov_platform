@@ -4,7 +4,7 @@ import { ArrowLeftIcon, CheckCircleIcon, ExclamationTriangleIcon, InformationCir
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 
-export default function ScenarioEvaluation() {
+export default function ComprehensiveEvaluation() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'deepeval' | 'deepteam'>('deepeval');
   const [focusItem, setFocusItem] = useState<string | null>(null);
@@ -18,16 +18,18 @@ export default function ScenarioEvaluation() {
     }
   }, []);
 
-  // AI 윤리지표와 시나리오 평가 메트릭 맵핑
-  const ethicsToScenarioMapping = {
-    'safety': ['환각 방지', '독성 방지', '탈옥 공격', '프롬프트 주입', '인코딩 공격'],
-    'fairness': ['편향 방지'],
-    'data-privacy': ['PII 유출 방지', '개인정보 유출'],
-    'transparency': ['프롬프트 추출', '명확성', '일관성'],
-    'harm-prevention': ['환각 방지', '독성 방지', '탈옥 공격'],
-    'stability': ['일관성', '프롬프트 정렬', '대화 완성도'],
-    'inclusion': ['편향 방지', '전문성', '독성 방지', '역할 준수'],
-    'risk-management': ['환각 방지', '독성 방지', '탈옥 공격', '프롬프트 주입', 'PII 유출', '인코딩 공격']
+  // AI 윤리지표와 Deep 메트릭 맵핑 (메트릭 ID 기반)
+  const ethicsToDeepMetricsMapping = {
+    'accountability': ['hallucination', 'coherence', 'correctness'],
+    'data-privacy': ['pii_leakage', 'data_leakage', 'prompt_injection'],
+    'fairness': ['bias', 'toxicity'],
+    'inclusion': ['bias', 'toxicity', 'adherence'],
+    'transparency': ['prompt_extraction', 'coherence', 'consistency'],
+    'harm-prevention': ['hallucination', 'toxicity', 'jailbreaking'],
+    'safety': ['hallucination', 'toxicity', 'jailbreaking', 'prompt_injection', 'encoding_attack'],
+    'maintenance': ['consistency', 'conversation_completeness'],
+    'risk-management': ['hallucination', 'toxicity', 'jailbreaking', 'prompt_injection', 'pii_leakage', 'encoding_attack'],
+    'stability': ['consistency', 'coherence', 'conversation_completeness']
   };
 
   // RAG 메트릭 카테고리 (대기 중)
@@ -423,10 +425,16 @@ export default function ScenarioEvaluation() {
   };
 
   // 포커스된 항목 체크 함수
-  const isMetricFocused = (metricName: string) => {
+  const isMetricFocused = (metricId: string) => {
     if (!focusItem) return false;
-    const focusedMetrics = ethicsToScenarioMapping[focusItem as keyof typeof ethicsToScenarioMapping];
-    return focusedMetrics && focusedMetrics.some(metric => metricName.includes(metric));
+    const focusedMetricIds = ethicsToDeepMetricsMapping[focusItem as keyof typeof ethicsToDeepMetricsMapping];
+    return focusedMetricIds && focusedMetricIds.includes(metricId);
+  };
+
+  // 포커스된 항목에 따라 메트릭 필터링 함수
+  const getFilteredMetrics = (metrics: any[]) => {
+    if (!focusItem) return metrics;
+    return metrics.filter(metric => isMetricFocused(metric.id));
   };
 
   // 색상 함수들
@@ -554,48 +562,51 @@ export default function ScenarioEvaluation() {
   };
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
-      {/* 페이지 헤더 */}
-      <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-        <div className="flex justify-between items-center mb-4">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">시나리오 기반 평가</h1>
-            <p className="text-gray-600 mt-1">
-              실제 사용 시나리오를 바탕으로 AI 모델의 신뢰성과 보안성을 종합적으로 평가합니다.
-            </p>
-          </div>
-            <button
-            onClick={() => router.push('/governance-framework')}
-            className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
-            >
-            거버넌스 프레임워크로 돌아가기
-            </button>
-          </div>
-
-        {/* 탭 네비게이션 */}
-        <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg">
+    <div className="bg-grey">
+      <div className="pt-4 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div className="flex items-center mb-4">
           <button
-            onClick={() => setActiveTab('deepeval')}
-            className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-              activeTab === 'deepeval'
-                ? 'bg-white text-blue-600 shadow'
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
+            onClick={() => router.push('/governance-framework/ai-ethics-evaluation')}
+            className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-white bg-grey border border-tan/50 rounded-lg hover:bg-tan"
           >
-            DeepEval 신뢰성 평가
+            <ArrowLeftIcon className="w-4 h-4 mr-2" />
+            AI 윤리 평가
           </button>
-          <button
-            onClick={() => setActiveTab('deepteam')}
-            className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-              activeTab === 'deepteam'
-                ? 'bg-white text-rose-600 shadow'
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            DeepTeam 보안 평가
-          </button>
+          <h1 className="text-xl font-bold text-green ml-4">Deep 메트릭 평가</h1>
         </div>
       </div>
+
+      <main className="py-4 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        {/* 페이지 헤더 */}
+        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+          <p className="text-green mt-1">
+            DeepEval과 DeepTeam 메트릭을 활용하여 AI 모델의 신뢰성과 보안성을 종합적으로 평가합니다.
+          </p>
+
+          {/* 탭 네비게이션 */}
+          <div className="flex space-x-1 bg-grey/20 p-1 rounded-lg mt-4">
+            <button
+              onClick={() => setActiveTab('deepeval')}
+              className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                activeTab === 'deepeval'
+                  ? 'bg-green text-white shadow'
+                  : 'text-green hover:text-green-dark'
+              }`}
+            >
+              DeepEval 신뢰성 평가
+            </button>
+            <button
+              onClick={() => setActiveTab('deepteam')}
+              className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                activeTab === 'deepteam'
+                  ? 'bg-green text-white shadow'
+                  : 'text-green hover:text-green-dark'
+              }`}
+            >
+              DeepTeam 보안 평가
+            </button>
+          </div>
+        </div>
 
       {/* DeepEval 신뢰성 평가 탭 */}
       {activeTab === 'deepeval' && (
@@ -611,22 +622,24 @@ export default function ScenarioEvaluation() {
             {focusItem && (
               <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
                 <h3 className="text-lg font-semibold text-emerald-900 mb-2">
-                  AI 윤리지표: {focusItem === 'safety' ? '안전성' : 
+                  AI 윤리지표: {focusItem === 'accountability' ? '책임성' :
+                              focusItem === 'data-privacy' ? '데이터 프라이버시' :
                               focusItem === 'fairness' ? '공정성' :
-                              focusItem === 'data-privacy' ? '데이터/개인정보 보호' :
-                              focusItem === 'transparency' ? '투명성' :
-                              focusItem === 'harm-prevention' ? '피해 방지' :
-                              focusItem === 'stability' ? '안정성' :
                               focusItem === 'inclusion' ? '포용성' :
-                              focusItem === 'risk-management' ? '위험 관리' : focusItem}
+                              focusItem === 'transparency' ? '투명성' :
+                              focusItem === 'harm-prevention' ? '위해 방지' :
+                              focusItem === 'safety' ? '안전성' :
+                              focusItem === 'maintenance' ? '유지보수성' :
+                              focusItem === 'risk-management' ? '위험 관리' :
+                              focusItem === 'stability' ? '안정성' : focusItem}
                 </h3>
                 <p className="text-emerald-800 text-sm mb-2">
-                  해당 윤리지표와 관련된 시나리오 평가 메트릭이 강조 표시됩니다.
+                  해당 윤리지표와 관련된 Deep 메트릭만 표시됩니다.
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  {ethicsToScenarioMapping[focusItem as keyof typeof ethicsToScenarioMapping]?.map((metric, index) => (
+                  {ethicsToDeepMetricsMapping[focusItem as keyof typeof ethicsToDeepMetricsMapping]?.map((metricId, index) => (
                     <span key={index} className="px-2 py-1 bg-emerald-100 text-emerald-800 text-xs rounded">
-                      {metric}
+                      {metricId}
                     </span>
                   ))}
                 </div>
@@ -675,23 +688,33 @@ export default function ScenarioEvaluation() {
 
           {/* 메트릭 카테고리별 표시 */}
               <div className="space-y-6">
-            {metricCategories.map((category) => (
+            {metricCategories.map((category) => {
+              const filteredMetrics = getFilteredMetrics(category.metrics);
+              // 포커스된 항목이 있는데 해당 카테고리에 관련 메트릭이 없으면 숨김
+              if (focusItem && filteredMetrics.length === 0) return null;
+              
+              return (
               <div key={category.id} className="bg-white rounded-lg shadow-sm overflow-hidden">
                 <div className={`px-6 py-4 ${getCategoryHeaderColor(category.color)}`}>
                   <div className="flex justify-between items-center">
                     <div>
                       <h3 className="text-lg font-bold">{category.name}</h3>
                       <p className="text-sm opacity-90">{category.description}</p>
+                      {focusItem && (
+                        <p className="text-xs mt-1 opacity-75">
+                          {filteredMetrics.length}개 메트릭이 선택된 윤리지표와 관련됩니다
+                        </p>
+                      )}
                     </div>
                     <div className="text-right">
                       <div className="text-xl font-bold">
-                        {category.metrics.some(m => m.status === 'completed') 
+                        {filteredMetrics.some(m => m.status === 'completed') 
                           ? `${(calculateCategoryScore(category).ChatGPT * 100).toFixed(1)}%`
                           : '대기'
                         }
                       </div>
                       <div className="text-sm opacity-90">
-                        {category.metrics.filter(m => m.status === 'completed').length}/{category.metrics.length} 완료
+                        {filteredMetrics.filter(m => m.status === 'completed').length}/{filteredMetrics.length} 완료
                       </div>
                     </div>
                       </div>
@@ -699,14 +722,14 @@ export default function ScenarioEvaluation() {
 
                 <div className="p-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {category.metrics.map((metric: any) => (
+                    {filteredMetrics.map((metric: any) => (
                       <div key={metric.id} className={`p-4 rounded-lg border ${getMetricColor(category.color)} ${
-                        isMetricFocused(metric.name) ? 'ring-2 ring-emerald-500 ring-opacity-50 shadow-lg' : ''
+                        focusItem && isMetricFocused(metric.id) ? 'ring-2 ring-emerald-500 ring-opacity-50 shadow-lg bg-emerald-50' : ''
                       }`}>
                         <div className="flex justify-between items-start mb-2">
                           <div className="flex items-center">
                             <h4 className="font-semibold text-gray-900">{metric.name}</h4>
-                            {isMetricFocused(metric.name) && (
+                            {focusItem && isMetricFocused(metric.id) && (
                               <span className="ml-2 px-2 py-1 bg-emerald-100 text-emerald-800 text-xs rounded font-medium">
                                 윤리지표 관련
                               </span>
@@ -770,7 +793,8 @@ export default function ScenarioEvaluation() {
               </div>
             </div>
           </div>
-            ))}
+            );
+            })}
           </div>
         </div>
       )}
@@ -807,16 +831,16 @@ export default function ScenarioEvaluation() {
 
           {/* 보안 메트릭 표시 */}
           <div className="space-y-6">
-            {securityMetrics.map((metric) => (
+            {getFilteredMetrics(securityMetrics).map((metric) => (
               <div key={metric.id} className={`bg-white rounded-lg shadow-sm overflow-hidden ${
-                isMetricFocused(metric.name) ? 'ring-2 ring-emerald-500 ring-opacity-50 shadow-lg' : ''
+                focusItem && isMetricFocused(metric.id) ? 'ring-2 ring-emerald-500 ring-opacity-50 shadow-lg' : ''
               }`}>
                 <div className="px-6 py-4 bg-rose-500 text-white">
                   <div className="flex justify-between items-center">
                     <div>
                       <div className="flex items-center">
                         <h3 className="text-lg font-bold">{metric.name}</h3>
-                        {isMetricFocused(metric.name) && (
+                        {focusItem && isMetricFocused(metric.id) && (
                           <span className="ml-2 px-2 py-1 bg-emerald-100 text-emerald-800 text-xs rounded font-medium">
                             윤리지표 관련
                           </span>
@@ -897,6 +921,7 @@ export default function ScenarioEvaluation() {
             </div>
         </div>
       )}
+      </main>
     </div>
   );
 } 

@@ -47,8 +47,4 @@
   }
 } 
 
-/* Overrides to convert solid white blocks into outlined blocks with white border only */
-.bg-white {
-  background-color: transparent !important;
-  border: 2px solid #ffffff !important;
-} 
+ 

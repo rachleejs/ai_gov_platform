@@ -16,27 +16,27 @@ export default function MaintenanceEvaluation() {
 
   const evaluationItems = [
     {
-      id: 'update_process',
-      question: t('maintenance.updateProcess'),
-      description: t('maintenance.updateProcessDesc'),
+      id: '업데이트_프로세스',
+      question: '업데이트 프로세스',
+      description: 'AI 시스템의 정기적이고 체계적인 업데이트와 개선 프로세스',
       maxScore: 25
     },
     {
-      id: 'monitoring_system',
-      question: t('maintenance.monitoringSystem'),
-      description: t('maintenance.monitoringSystemDesc'),
+      id: '모니터링_시스템',
+      question: '모니터링 시스템',
+      description: '시스템 성능과 상태를 지속적으로 감시하고 추적하는 체계',
       maxScore: 25
     },
     {
-      id: 'documentation',
-      question: t('maintenance.documentation'),
-      description: t('maintenance.documentationDesc'),
+      id: '문서화',
+      question: '문서화',
+      description: '시스템 운영, 유지보수를 위한 포괄적이고 정확한 문서 관리',
       maxScore: 25
     },
     {
-      id: 'version_control',
-      question: t('maintenance.versionControl'),
-      description: t('maintenance.versionControlDesc'),
+      id: '버전_관리',
+      question: '버전 관리',
+      description: '시스템 변경사항의 체계적 관리와 이전 버전으로의 복구 가능성',
       maxScore: 25
     }
   ];
@@ -106,7 +106,7 @@ export default function MaintenanceEvaluation() {
               className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
             >
               <ArrowLeftIcon className="w-5 h-5 mr-2" />
-              {t('common.backToEthics')}
+              AI 윤리 평가
             </button>
             <h1 className="text-3xl font-bold leading-tight text-gray-900">{t('maintenance.title')}</h1>
           </div>
@@ -282,6 +282,15 @@ export default function MaintenanceEvaluation() {
                       <p className="text-sm text-green-700">{t('common.resultSaved')}</p>
                     </div>
                   </div>
+                </div>
+                
+                <div className="mt-8 flex justify-end">
+                  <button
+                    onClick={() => router.push('/governance-framework/ai-ethics-evaluation/risk-management')}
+                    className="bg-orange text-white font-bold py-2.5 px-6 rounded-lg hover:bg-orange-dark transition-colors"
+                  >
+                    다음으로 →
+                  </button>
                 </div>
               </div>
             </div>

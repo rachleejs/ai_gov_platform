@@ -1,417 +1,297 @@
-# AI 거버넌스 플랫폼 (AI Governance Platform)
+# AI 거버넌스 플랫폼
 
-## 📋 프로젝트 개요
+## 개요
+AI 시스템의 윤리적, 기술적 안전성을 종합적으로 평가하는 플랫폼입니다.
 
-AI 거버넌스 플랫폼은 AI 모델의 효과적인 관리와 모니터링을 위한 통합 웹 플랫폼입니다. 이 플랫폼은 AI 모델의 윤리적 사용, 위험 관리, 성능 평가, 그리고 거버넌스 체계 구축을 지원합니다.
+## 🆕 최신 업데이트: 동적 평가 시스템 & 초등교육 품질평가
 
-## ✨ 주요 기능
+### 🎯 동적 템플릿 기반 평가 시스템 (NEW!)
+- **템플릿 기반 평가**: 미리 정의된 평가 템플릿으로 코드 수정 없이 새로운 평가 지표 추가 가능
+- **4가지 핵심 템플릿**:
+  - **독해력 평가**: 텍스트 이해도, 추론 능력, 표현력 종합 평가
+  - **창의적 글쓰기**: 창의성, 서사 구조, 언어 사용 능력 측정
+  - **논리적 사고**: 논리적 타당성, 문제 해결, 추론 명확성 평가
+  - **언어 분석**: 문법 정확성, 어휘 풍부성, 문체 변화 분석
+- **실시간 평가 실행**: 템플릿 선택 → 모델 선택 → 즉시 평가
+- **확장 가능한 구조**: 새로운 평가 템플릿 추가 및 커스터마이징 지원
 
-### 🔍 메인 대시보드
-- AI 모델 관리 현황 및 주요 지표 모니터링
-- 활성 AI 모델 수, 월간 감사 완료 현황, 리스크 알림, 정책 준수율 추적
-- 실시간 데이터 시각화 및 상태 모니터링
+### 📚 초등교육 품질평가 (Edu-sLLM-Quality)
+- **실제 LLM 모델 연동**: OpenAI, Anthropic, Google, HuggingFace API 지원
+- **3대 평가 지표**: 사실성, 정확성, 구체성 기준 종합 평가
+- **교육 도메인 특화**: 초등 교육과정에 맞춘 평가 알고리즘
+- **실시간 평가**: 모델 선택, 학년/과목별 맞춤 평가
 
-### 📊 모델 비교 분석
-- 다양한 AI 모델(GPT-4, Claude 3, Gemini 1.5 등)의 성능 비교
-- 정확도, 지연시간, 비용 등 주요 성능 지표 비교
-- 다차원 평가 체계:
-  - **윤리 평가지표**: 책임, 데이터/개인정보보호, 공정성, 포용성, 투명성, 피해 방지 등 10개 항목
-  - **심리학적 평가**: 발달심리학, 인지심리학, 사회심리학 기반 평가
-  - **시나리오 기반 종합 평가**: 신뢰성(DeepEval) 및 보안(DeepTeam) 평가 결과를 종합하여 비교
-  - **전문가 정성평가**: 전문가 의견 수렴
+### 평가 체계
 
-### 📈 성능 모니터링
-LM Evaluation Harness를 기반으로 한 AI 모델 성능 추적 및 분석 시스템:
-- **벤치마크 지원 상태 관리**:
-  - **지원 가능 벤치마크 (3개)**: 
-    - **TruthfulQA**: 진실성 및 정확성 평가
-    - **GSM8K**: 수학 문제 해결 능력 평가
-    - **HumanEval**: 코딩 능력 평가
-  - **지원 불가 벤치마크 (3개)**:
-    - **MMLU (Massive Multitask Language Understanding)**: 일반 지식 평가
-    - **HellaSwag**: 상식 추론 능력 평가
-    - **ARC (AI2 Reasoning Challenge)**: 논리적 추론 평가
-- **현실적 성능 모니터링**: 실제 지원 가능한 벤치마크 중심 성능 추적
-- **지원 상태 시각화**: 벤치마크별 지원/비지원 상태 색상 구분 표시
-- **상황별 알림 시스템**: 테스트 준비 완료, 지원 불가 벤치마크 안내 등 현실적 알림
-- **3개 모델 준비 완료**: GPT-4, Claude, Gemini 모델 테스트 준비 상태
+#### 1. 사실성 평가 (Factuality)
+- **임베딩 유사도**: 참조 답안과의 의미적 유사도
+- **참조 중복도**: 핵심 키워드 포함 정도
+- **사실 검증**: 핵심 용어 및 수치 정확성
+- **신뢰도 분석**: 확신도 및 구체성 평가
 
-### 🛡️ 거버넌스 체계
-AI 모델 사용 정책 및 가이드라인 관리 시스템으로, 다음의 핵심 정책 영역을 포함합니다:
+#### 2. 정확성 평가 (Accuracy)
+- **내용 정확도**: 참조 답안과의 내용 일치도
+- **오류 비율**: 명백한 오류 탐지
+- **교과서 일치도**: 교육과정 표준 용어 사용
+- **학습 표준 준수도**: 학년별 적절성
 
-#### 🎯 진행 상황 추적 시스템
-- **평가 항목 기반 진행률**: 모델 개수 대신 구체적인 평가 항목으로 진행 상황 표시
-- **체계별 맞춤 지표**:
-  - **AI 윤리 평가**: 완료된 윤리 기준 개수/총 10개 기준
-  - **심리학적 평가**: 완료된 심리학 이론 개수/총 6개 이론  
-  - **시나리오 기반 평가**: 완료된 메트릭 개수/총 12개 메트릭 (현재 11/12, 92%)
-  - **전문가 자문**: 완료된 단계 개수/총 4개 단계
-- **실시간 퍼센트 표시**: 각 평가 체계별 정확한 완료율 시각화
-- **세부 정보 제공**: 진행률 바 하단에 구체적인 완료 항목 수 표시
+#### 3. 구체성 평가 (Specificity)
+- **세부 수준**: 설명의 단계별 상세함
+- **학습 목표 일치도**: 교육 목표와의 정합성
+- **학생 적합성**: 학년 수준에 맞는 설명
+- **설명 품질**: 논리적 구조와 이해도
 
-#### 📋 AI 윤리 평가지표
-인공지능 시스템의 윤리적 측면을 종합적으로 평가하기 위한 10가지 핵심 기준:
-- **책임성 (Accountability)**: AI 시스템의 결과에 대한 책임 소재 명확성 평가
-- **데이터/개인정보 보호**: 개인정보와 사생활 보호의 적절성 평가
-- **공정성 (Fairness)**: 차별 없는 공정한 작동 여부 평가
-- **포용성 (Inclusion)**: 다양한 관점과 배경에 대한 존중과 포용 평가
-- **투명성 (Transparency)**: 의사결정 과정의 이해 가능성과 설명 가능성 평가
-- **피해 방지 (Harm Prevention)**: 인간과 환경에 대한 해악 방지 평가
-- **안전성 (Safety)**: 사용자의 안전과 편의 보장 평가
-- **유지 보수 (Maintenance)**: 정기적인 유지보수와 업데이트 체계 평가
-- **위험 관리 (Risk Management)**: 위험 식별, 평가 및 관리 과정 평가
-- **안정성 (Stability)**: 안정적 작동과 예측 가능한 결과 제공 평가
+## 🚀 설치 및 설정
 
-각 항목별 상세 평가 기능:
-- **모델별 개별 평가**: GPT-4, Claude-3, Gemini-2.0 등 각 모델별 세부 평가
-- **점수 기반 평가**: 각 기준별 정량적 점수 산정 (최대 100점)
-- **등급 시스템**: A+~F 등급으로 평가 결과 표시
-- **실제 사례 제시**: 좋은 사례와 문제 사례를 통한 구체적 평가 가이드
-- **자동 저장**: 평가 결과 자동 저장 및 이력 관리
+### 1. 환경 변수 설정
 
-#### 🧠 심리학적 접근 평가방안
-아동 발달 심리학 이론을 기반으로 한 종합적 평가 체계:
-- **발달심리학 기반 평가**:
-  - Piaget의 인지발달 이론 (인지적 발달 단계, 동화와 조절, 능동적 학습)
-  - Vygotsky의 사회문화 이론 (근접발달영역, 사회적 상호작용, 언어 발달)
-- **사회심리학 기반 평가**:
-  - 사회 정체성 이론 (긍정적 정체성 형성, 편견 예방, 긍정적 사회 범주화)
-  - 사회 학습 이론 (모델링, 대리학습, 자기효능감)
-- **인지심리학 기반 평가**:
-  - 정보처리 이론 (주의, 기억, 인출)
-  - 인지부하 이론 (내재적, 외재적, 생산적 부하)
-- **Likert 척도 기반 평가**: 5점 척도를 통한 정량적 평가
-- **종합 점수 산정**: 백분율 기반 최종 평가 점수
-- **등급별 권고사항**: 평가 결과에 따른 개선 방향 제시
+`.env.local` 파일에 다음 설정을 추가하세요:
 
-#### 🎯 시나리오 기반 종합 평가
-실제 사용 시나리오를 바탕으로 챗봇의 신뢰성과 보안을 종합적으로 평가합니다. 탭 인터페이스를 통해 DeepEval 신뢰성 평가와 DeepTeam 보안 평가 결과를 전환하며 볼 수 있습니다.
-
-**1. 신뢰성 평가 (DeepEval 기반)**
-- **15개 평가 메트릭으로 종합 평가** (현재 11개 완료, 73% 진행률):
-    - **안전성 메트릭 (4/4 완료)**: 환각 방지, 편향 방지, 독성 방지, PII 유출 방지
-    - **품질 메트릭 (3/3 완료)**: 일관성, 프롬프트 정렬, 명확성
-    - **대화형 메트릭 (4/4 완료)**: 역할 준수, 지식 보유, 대화 완성도, 전문성
-    - **RAG 메트릭 (0/4 대기)**: 충실성, 답변 관련성, 문맥 회상, 문맥 정밀도
-- **5단계 성능 레벨링**: 우수(0.85+), 양호(0.70+), 보통(0.55+), 개선필요(0.40+), 불량(0.40-)
-- **실시간 평가 상태 추적**: 완료/진행중/대기 상태별 관리
-
-**2. 보안 평가 (DeepTeam 기반)**
-- **10가지 보안 메트릭**으로 공격 및 취약점 시나리오에 대한 모델의 저항성 평가:
-    - **공격 시나리오 (5개)**: 탈옥(Jailbreaking), 프롬프트 인젝션, 간접 프롬프트 주입, 불법 콘텐츠 생성, 과도한 에이전시
-    - **취약점 시나리오 (5개)**: 개인정보 유출(PII Leakage), 비밀 노출, 서비스 거부, 경쟁 정보 유출, 저작권 침해
-- **상세 메트릭별 분석**: 각 메트릭에 대한 설명, 심각도, 평가 기준, 모델별 저항성 점수 및 등급 제공
-- **동적 시각화**: 평가 결과에 따라 동적으로 색상이 변경되는 성능 바 제공
-
-#### 👨‍💼 전문가 자문 평가
-AI 윤리 및 아동 발달 전문가들의 정성적 평가와 권고사항
-
-### 🔍 모델 감사
-- **LLM 중심 감사 체계**: 언어모델 전용 감사 시스템으로 집중
-- **모델 종류별 분류 시스템**:
-  - **범용 대화 모델**: GPT-4, GPT-3.5, Claude-3-opus, Claude-3-sonnet, Gemini, PaLM-2
-  - **효율성 최적화 모델**: Claude-3-haiku (속도 최적화)
-  - **오픈소스 추론 모델**: Llama-3-70b (대용량 추론)
-  - **경량 추론 모델**: Llama-3-8b (효율성 중심)
-  - **기업용 대화 모델**: Cohere Command (비즈니스 특화)
-- **현실적 감사 상태 관리**:
-  - 주요 3개 모델 (GPT-4, Claude-3-opus, Gemini): 진행중
-  - 나머지 7개 모델: 예정 상태
-- **리스크 수준별 분류**: 높음/중간/낮음/미정
-- **10개 LLM 모델 감사 대상**: 이미지/음성 생성 모델 제외
-
-### 📝 과정 기록
-- 거버넌스 프레임워크 개발 과정 기록
-- 프로젝트 진행 상황 추적
-- 작업 카테고리별 분류 (설계, 평가, 개발, 분석)
-- 상태별 진행 현황 관리
-
-### 🔐 인증 시스템
-- **Supabase Auth 통합**: 이메일 기반 회원가입/로그인 시스템
-- **게스트 로그인**: 임시 사용자 계정으로 플랫폼 체험 가능
-- **역할 기반 권한 관리**: 관리자/전문가/일반 사용자 권한 구분
-- **실시간 인증 상태 관리**: React Context를 통한 전역 인증 상태 관리
-
-### 🌐 다국어 지원
-- **한국어/영어 언어 전환**: 실시간 언어 변경 지원
-- **언어 설정 유지**: 브라우저 로컬스토리지를 통한 언어 설정 저장
-- **동적 번역 시스템**: React Context 기반 번역 시스템
-- **확장 가능한 구조**: 새로운 언어 추가 용이
-
-### 💾 데이터베이스 관리
-- **Supabase PostgreSQL**: 클라우드 기반 관계형 데이터베이스
-- **실시간 데이터 동기화**: Supabase 실시간 기능 활용
-- **타입 안전성**: TypeScript 기반 데이터베이스 타입 정의
-- **서비스 계층 구조**: 모듈화된 데이터베이스 서비스 함수
-
-## 🛠️ 기술 스택
-
-### Frontend
-- **Next.js 14.1.0**: React 기반 풀스택 프레임워크
-- **React 18.2.0**: 사용자 인터페이스 라이브러리
-- **TypeScript 5.3.3**: 정적 타입 지원
-- **Tailwind CSS 3.4.1**: 유틸리티 우선 CSS 프레임워크
-- **Heroicons 2.1.1**: 아이콘 라이브러리
-
-### Backend & Database
-- **Supabase 2.51.0**: PostgreSQL 기반 백엔드 서비스
-- **Supabase Auth**: 사용자 인증 및 권한 관리
-- **PostgreSQL**: 관계형 데이터베이스 (Supabase를 통해 관리)
-
-### 개발 도구
-- **PostCSS 8.4.35**: CSS 후처리기
-- **Autoprefixer 10.4.17**: CSS 벤더 프리픽스 자동 추가
-
-### 추가 기능
-- **다국어 지원**: 한국어/영어 언어 전환 시스템
-- **인증 시스템**: 로그인/회원가입 및 게스트 로그인
-- **상태 관리**: React Context API 기반 전역 상태 관리
-
-## 🚀 시작하기
-
-### 설치 요구사항
-- Node.js 18.0.0 이상
-- npm 또는 yarn
-
-### 설치 및 실행
-
-1. **프로젝트 클론**
 ```bash
-git clone <repository-url>
-cd ai-governance-platform
+# Database (필수)
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+
+# Model API Keys (선택사항 - 없으면 시뮬레이션 모드로 동작)
+OPENAI_API_KEY=your_openai_api_key
+ANTHROPIC_API_KEY=your_anthropic_api_key
+GOOGLE_API_KEY=your_google_gemini_api_key
+HUGGINGFACE_API_KEY=your_huggingface_api_key
 ```
 
-2. **의존성 설치**
+### 2. 데이터베이스 설정
+
+Supabase Dashboard에서 다음 SQL을 실행하여 테이블을 생성하세요:
+
+```sql
+-- 초등교육 품질평가 결과 테이블
+CREATE TABLE educational_quality_evaluations (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    model_id UUID REFERENCES ai_models(id) ON DELETE CASCADE,
+    grade_level TEXT NOT NULL,
+    subject TEXT NOT NULL,
+    factuality_score INTEGER NOT NULL,
+    accuracy_score INTEGER NOT NULL,
+    specificity_score INTEGER NOT NULL,
+    overall_score INTEGER NOT NULL,
+    evaluation_details JSONB,
+    evaluation_results JSONB,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- 인덱스 생성
+CREATE INDEX idx_educational_quality_evaluations_model_id ON educational_quality_evaluations(model_id);
+CREATE INDEX idx_educational_quality_evaluations_grade_level ON educational_quality_evaluations(grade_level);
+CREATE INDEX idx_educational_quality_evaluations_subject ON educational_quality_evaluations(subject);
+CREATE INDEX idx_educational_quality_evaluations_created_at ON educational_quality_evaluations(created_at);
+
+-- RLS 정책
+ALTER TABLE educational_quality_evaluations ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view educational quality evaluations" ON educational_quality_evaluations
+    FOR SELECT USING (auth.role() = 'authenticated');
+
+CREATE POLICY "Users can insert educational quality evaluations" ON educational_quality_evaluations
+    FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+
+CREATE POLICY "Users can update their educational quality evaluations" ON educational_quality_evaluations
+    FOR UPDATE USING (auth.role() = 'authenticated');
+
+-- 트리거
+CREATE TRIGGER set_updated_at_educational_quality_evaluations
+    BEFORE UPDATE ON educational_quality_evaluations
+    FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+```
+
+### 3. 의존성 설치 및 실행
+
 ```bash
 npm install
-# 또는
-yarn install
-```
-
-3. **환경 변수 설정**
-   
-   `.env.local` 파일을 생성하고 다음 내용을 추가하세요:
-   ```env
-   NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
-   ```
-
-4. **데이터베이스 설정**
-   
-   Supabase 프로젝트를 생성하고 `database/schema.sql` 파일의 내용을 Supabase SQL Editor에서 실행하세요.
-   
-   **참고**: 아직 Supabase 설정이 없어도 대부분의 기능을 LocalStorage 기반으로 체험할 수 있습니다.
-
-5. **개발 서버 실행**
-```bash
 npm run dev
-# 또는
-yarn dev
 ```
 
-6. **브라우저에서 확인**
+## 📊 사용법
+
+### 🎯 동적 템플릿 기반 평가 실행
+
+1. **커스텀 설정** 페이지 접속 (`/evaluation-data`)
+2. **템플릿 평가 시작** 버튼 클릭
+3. 평가 설정:
+   - **카테고리 선택**: 인지적 사고, 창의적 사고, 논리적 사고, 언어 분석
+   - **템플릿 선택**: 원하는 평가 템플릿 클릭 (독해력, 창의적 글쓰기 등)
+   - **모델 선택**: 평가할 AI 모델 선택
+4. **평가 시작** 버튼 클릭
+5. 실시간 결과 확인:
+   - 총점 및 등급
+   - 세부 지표별 점수
+   - 질문별 모델 응답 분석
+
+### 📚 초등교육 품질평가 실행
+
+1. **거버넌스 프레임워크** 페이지 접속
+2. **초등교육 품질평가 (Edu-sLLM-Quality)** 카드 클릭
+3. 평가 설정:
+   - 모델 선택 (등록된 AI 모델 중 선택)
+   - 학년 선택 (1-6학년)
+   - 과목 선택 (수학, 국어, 과학, 사회, 영어)
+4. **평가 시작** 버튼 클릭
+5. 결과 확인 및 분석
+
+### API 사용
+
+#### 동적 평가 시스템 API
+
+```javascript
+// 사용 가능한 템플릿 조회
+const templates = await fetch('/api/evaluation/dynamic');
+
+// 동적 평가 실행
+const response = await fetch('/api/evaluation/dynamic', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    modelId: 'your-model-id',
+    templateId: 'reading_comprehension' // 또는 creative_writing, logical_reasoning, linguistic_analysis
+  })
+});
+
+// 평가 결과 예시
+const result = await response.json();
+console.log(result.data.totalScore); // 총점
+console.log(result.data.grade); // 등급
+console.log(result.data.detailedScores); // 세부 점수
 ```
-http://localhost:3000
+
+#### 초등교육 품질평가 API
+
+```javascript
+// 평가 실행
+const response = await fetch('/api/evaluation/educational-quality', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    modelId: 'your-model-id',
+    gradeLevel: '3',
+    subject: 'math'
+  })
+});
+
+// 결과 조회
+const results = await fetch('/api/evaluation/educational-quality?modelId=your-model-id');
 ```
 
-### 사용 가능한 스크립트
+## 🎯 지원 모델
 
-```bash
-# 개발 서버 실행
-npm run dev
+### 실제 API 연동 지원
+- **OpenAI**: GPT-4, GPT-3.5-turbo
+- **Anthropic**: Claude-3-sonnet
+- **Google**: Gemini-pro
+- **HuggingFace**: 다양한 오픈소스 모델
 
-# 프로덕션 빌드
-npm run build
+### 폴백 시뮬레이션
+API 키가 없거나 호출 실패시 자동으로 시뮬레이션 모드로 전환됩니다.
 
-# 프로덕션 서버 실행
-npm run start
+## 🔬 평가 알고리즘
 
-# 린터 실행
-npm run lint
-```
+### LLM Evaluation Framework 기반
+- 원본 프레임워크: `/Users/ijisoo/Documents/model_evaluation/reference_projects/llm-evaluation-framework-main`
+- 3가지 핵심 지표를 TypeScript로 재구현
+- 한국어 교육과정에 특화된 평가 로직
+
+### 평가 과정
+1. **모델 호출**: 선택한 모델에 교육용 질문 전송
+2. **응답 수집**: 각 질문별 모델 응답 취합
+3. **다차원 평가**: 사실성, 정확성, 구체성 개별 평가
+4. **종합 점수**: 가중평균을 통한 최종 점수 산출
+5. **상세 분석**: 세부 지표별 점수 및 개선 방향 제시
+
+## 📈 성능 지표
+
+### 평가 기준
+- **우수**: 90점 이상
+- **양호**: 80-89점
+- **보통**: 70-79점
+- **개선필요**: 70점 미만
+
+### 실시간 통계
+- 모델별 평가 현황
+- 과목별 성능 비교
+- 학년별 적합성 분석
+- 시간대별 성능 변화
+
+## 🔧 기술 스택
+
+### Frontend
+- **Next.js 14**: React 프레임워크
+- **TypeScript**: 타입 안전성
+- **Tailwind CSS**: 스타일링
+- **React Hooks**: 상태 관리
+
+### Backend
+- **Next.js API Routes**: 서버리스 API
+- **Supabase**: 데이터베이스 및 인증
+- **PostgreSQL**: 데이터 저장
+
+### 평가 엔진
+- **LLM API 연동**: 다중 제공업체 지원
+- **평가 메트릭**: 교육 특화 알고리즘
+- **실시간 처리**: 비동기 평가 처리
 
 ## 📁 프로젝트 구조
 
 ```
 ai-governance-platform/
-├── app/                          # Next.js App Router
-│   ├── globals.css              # 전역 스타일
-│   ├── layout.tsx               # 루트 레이아웃
-│   ├── page.tsx                 # 메인 페이지
-│   ├── components/              # 공통 컴포넌트
-│   │   └── LanguageSwitcher.tsx # 다국어 지원 컴포넌트
-│   ├── contexts/                # React Context 관리
-│   │   ├── AuthContext.tsx      # 인증 상태 관리
-│   │   └── LanguageContext.tsx  # 언어 설정 관리
-│   ├── login/                   # 로그인 페이지
-│   │   └── page.tsx
-│   ├── signup/                  # 회원가입 페이지
-│   │   └── page.tsx
-│   ├── main-dashboard/          # 메인 대시보드
-│   │   └── page.tsx
-│   ├── model-comparison/        # 모델 비교 분석
-│   │   └── page.tsx
-│   ├── performance-monitoring/  # 성능 모니터링
-│   │   └── page.tsx            # LM Evaluation Harness 기반 성능 추적
-│   ├── governance-framework/    # 거버넌스 체계
-│   │   ├── page.tsx            # 거버넌스 메인 페이지
-│   │   ├── ai-ethics-evaluation/    # AI 윤리 평가지표
-│   │   │   ├── page.tsx            # 윤리 평가 메인 페이지
-│   │   │   ├── accountability/     # 책임성 평가
-│   │   │   │   └── page.tsx
-│   │   │   ├── data-privacy/       # 데이터/개인정보 보호 평가
-│   │   │   │   └── page.tsx
-│   │   │   ├── fairness/           # 공정성 평가
-│   │   │   │   └── page.tsx
-│   │   │   ├── inclusion/          # 포용성 평가
-│   │   │   │   └── page.tsx
-│   │   │   ├── transparency/       # 투명성 평가
-│   │   │   │   └── page.tsx
-│   │   │   ├── harm-prevention/    # 피해 방지 평가
-│   │   │   │   └── page.tsx
-│   │   │   ├── safety/             # 안전성 평가
-│   │   │   │   └── page.tsx
-│   │   │   ├── maintenance/        # 유지보수 평가
-│   │   │   │   └── page.tsx
-│   │   │   ├── risk-management/    # 위험 관리 평가
-│   │   │   │   └── page.tsx
-│   │   │   └── stability/          # 안정성 평가
-│   │   │       └── page.tsx
-│   │   ├── psychological-evaluation/    # 심리학적 평가
-│   │   │   └── page.tsx            # 발달/사회/인지 심리학 기반 평가
-│   │   └── scenario-evaluation/    # 시나리오 기반 평가
-│   │       └── page.tsx            # DeepEval/DeepTeam 기반 종합 평가
-│   ├── risk-audit/             # 모델 감사
-│   │   └── page.tsx
-│   └── process-log/            # 과정 기록
-│       └── page.tsx
-├── lib/                        # 유틸리티 및 설정
-│   ├── database.ts             # 데이터베이스 서비스 함수
-│   └── supabase.ts             # Supabase 클라이언트 설정
-├── database/                   # 데이터베이스 관련 파일
-│   └── schema.sql              # 데이터베이스 스키마
-├── package.json                # 프로젝트 설정 및 의존성
-├── tsconfig.json              # TypeScript 설정
-├── tailwind.config.js         # Tailwind CSS 설정
-├── postcss.config.js          # PostCSS 설정
-└── next-env.d.ts             # Next.js 타입 정의
+├── app/
+│   ├── api/
+│   │   └── evaluation/
+│   │       ├── dynamic/
+│   │       │   └── route.ts              # 동적 평가 API 엔드포인트
+│   │       └── educational-quality/
+│   │           └── route.ts              # 초등교육 평가 API
+│   ├── governance-framework/
+│   │   ├── template-evaluation/
+│   │   │   └── page.tsx                  # 템플릿 기반 평가 UI
+│   │   └── educational-quality-evaluation/
+│   │       └── page.tsx                  # 초등교육 평가 UI
+│   ├── evaluation-data/
+│   │   └── page.tsx                      # 커스텀 설정 페이지
+│   └── components/                       # 공통 컴포넌트
+├── lib/
+│   ├── modelApi.ts                      # 실제 모델 API 연동
+│   ├── evaluationMetrics.ts             # 평가 지표 알고리즘
+│   ├── evaluationTemplates.ts           # 동적 평가 템플릿 정의
+│   ├── dynamicEvaluationEngine.ts       # 동적 평가 실행 엔진
+│   └── supabase/                        # 데이터베이스 연결
+├── database/
+│   └── schema.sql                       # DB 스키마
+└── README.md                            # 프로젝트 문서
 ```
 
-## 🎨 사용자 인터페이스
+## 🚨 주의사항
 
-- **반응형 디자인**: 모바일, 태블릿, 데스크톱 모든 기기에서 최적화
-- **모던 UI/UX**: Tailwind CSS를 활용한 깔끔하고 직관적인 인터페이스
-- **다크/라이트 테마**: 사용자 선호에 따른 테마 지원
-- **다국어 지원**: 한국어/영어 실시간 언어 전환 시스템
-- **접근성**: 웹 접근성 가이드라인 준수
-- **실시간 상태 관리**: React Context를 통한 일관된 사용자 경험
+### API 사용량
+- 실제 모델 API 사용시 비용 발생 가능
+- 평가당 약 3-5개 질문으로 제한
+- 토큰 사용량 모니터링 권장
 
-## 📈 개발 진행 상황
+### 데이터 보안
+- 평가 결과는 데이터베이스에 저장
+- API 키는 환경 변수로 관리
+- RLS(Row Level Security) 적용
 
-### 🏗️ 완료된 주요 단계
+## 🤝 기여
 
-#### 1단계: 기반 구축 (2025년 5월)
-- 거버넌스 프레임워크 초기 설계
-- 10가지 윤리 평가지표 정의
-- 심리학 기반 체크리스트 개발
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
 
-#### 2단계: 평가 시스템 고도화 (2025년 6월)
-- AI 윤리 평가 기준 사용자 중심 전환
-- DeepEval 기반 시나리오 평가 시스템 구축
-- 평가 메트릭 7개→12개→15개로 확장
-- 메트릭 카테고리 분류 체계 구축
+## 📜 라이센스
 
-#### 3단계: 사용자 경험 개선 (2025년 6월)
-- UI/UX 파스텔 톤 색상 시스템 전환
-- 카테고리별 통합 색상 시스템 구축
-- 모델 비교 페이지 시나리오 평가 통합
-
-#### 4단계: 통합 대시보드 구축 (2025년 6월)
-- 메인 대시보드 실시간 데이터 연동
-- 평가 진행 상황 시각화 시스템
-- 스마트 액션 센터 및 모델별 종합 점수 대시보드
-
-#### 5단계: 거버넌스 시스템 완성 (2025년 7월)
-- 거버넌스 프레임워크 페이지 인터랙티브 개선
-- 실시간 통계 및 진행률 시스템
-- 모델 감사 시스템 완전 리뉴얼
-
-#### 6단계: 실제 평가 데이터 통합 (2025년 7월)
-- **종합 평가 결과 데이터 통합**: 안전성 메트릭 3개 (환각 방지, 편향 방지, 독성 방지) 실제 점수 반영
-- **품질 메트릭 평가 데이터 통합**: 명확성, PII 유출 방지, 전문성 메트릭 실제 점수 추가
-- **일관성 및 정렬 메트릭 통합**: 일관성, 프롬프트 정렬 메트릭 실제 점수 통합
-- **대화형 메트릭 평가 데이터 통합**: 역할 준수, 지식 보유, 대화 완성도 메트릭 실제 점수 추가
-- **5단계 성능 레벨링 시스템**: 평가 점수 기반 우수/양호/보통/개선필요/불량 분류 체계
-- **메트릭 카테고리 순서 최적화**: 사용자 경험 개선을 위한 순서 재정렬
-- **실시간 평가 진행률 시스템**: 11/15 메트릭 완료 상태 실시간 반영
-
-#### 7단계: 시스템 현실화 및 사용성 개선 (2025년 7월)
-- **성능 모니터링 현실화**: 벤치마크 지원/비지원 상태 명확 구분, 실제 테스트 가능한 3개 벤치마크 집중
-- **모델 감사 시스템 정리**: LLM 전용 감사로 범위 집중, 5가지 모델 종류 분류 체계 구축
-- **거버넌스 진행률 개선**: 모델 개수 기반에서 평가 항목 기반 진행률로 전환
-- **상태 관리 현실화**: 실제 작업 진행 상황 반영한 모델별 상태 업데이트
-- **사용자 경험 최적화**: 각 페이지별 현실적이고 구체적인 정보 표시 체계 구축
-
-#### 8단계: 보안 평가 시스템 통합 및 고도화 (2025년 7월)
-- **DeepTeam 보안 평가 프레임워크 통합**: 기존 DeepEval 신뢰성 평가에 더해 DeepTeam 보안 평가 시스템을 도입하여 종합적인 모델 평가 체계 구축
-- **보안 평가 지표 상세 연동**: 10가지 보안 메트릭(탈옥, PII 유출 등)에 대한 실제 평가 데이터 연동 및 시각화
-- **UI/UX 개선**: 시나리오 평가 및 모델 비교 페이지에 탭 인터페이스를 도입하여 신뢰성/보안 평가 결과를 분리하여 볼 수 있도록 개선
-- **동적 결과 시각화**: 모델별 보안 등급, 저항성 점수, 심각도 등을 포함한 상세 분석 뷰 제공
-
-#### 9단계: 인증 시스템 및 데이터베이스 통합 (2025년 7월)
-- **Supabase 통합**: PostgreSQL 기반 클라우드 데이터베이스 연동 및 실시간 데이터 동기화 시스템 구축
-- **인증 시스템 구현**: 이메일 기반 회원가입/로그인 시스템 및 게스트 로그인 기능 추가
-- **역할 기반 권한 관리**: 관리자/전문가/일반 사용자 권한 구분 및 접근 제어 시스템
-- **다국어 지원**: 한국어/영어 언어 전환 시스템 및 동적 번역 프레임워크 구축
-- **데이터베이스 스키마 설계**: 사용자, AI 모델, 평가 결과, 감사 로그 등 핵심 데이터 구조 정의
-- **프로젝트 구조 정리**: 불필요한 파일 정리 및 깔끔한 코드베이스 구조 확립
-
-### 🔄 현재 진행 중
-- **RAG 메트릭 평가 시스템 구축**: 충실성, 답변 관련성, 문맥 회상, 문맥 정밀도 4개 메트릭 대기
-- **LM Evaluation Harness 실제 테스트**: 지원 가능한 3개 벤치마크 실제 실행 준비
-- **모델 감사 진행**: 주요 3개 모델 (GPT-4, Claude-3-opus, Gemini) 감사 진행 중
-- **과정 기록 시스템 고도화**: 개발 과정 타임라인 및 상세 기록 시스템 구축
-
-## 📈 향후 계획
-
-### 🎯 단기 목표 (1-2개월)
-- [ ] **RAG 메트릭 평가 완료**: 충실성, 답변 관련성, 문맥 회상, 문맥 정밀도 4개 메트릭 평가로 15개 메트릭 100% 완성
-- [ ] **LM Evaluation Harness 실제 테스트 실행**: 지원 가능한 3개 벤치마크 실제 점수 수집
-- [ ] **모델 감사 완료**: 진행 중인 3개 주요 모델 감사 완료 및 나머지 7개 모델 감사 착수
-- [ ] **데이터베이스 완전 연동**: LocalStorage 기반 임시 데이터를 Supabase로 완전 이관   
-
-### 🚀 중기 목표 (3-6개월)
-- [ ] **전문가 정성평가 시스템**: AI 윤리 및 아동 발달 전문가 평가 플랫폼 구축
-- [ ] **실시간 API 연동**: 실제 AI 모델 API와 직접 연동한 자동 평가 시스템
-- [ ] **고급 분석 대시보드**: 시계열 분석, 트렌드 예측, 성능 비교 리포트 기능
-- [ ] **다국어 지원 확장**: 중국어, 일본어 등 추가 언어 지원 확대
-
-### 🌟 장기 목표 (6개월+)
-- [ ] **고급 권한 관리 시스템**: 세분화된 권한 구조 및 감사 승인 워크플로우
-- [ ] **실시간 알림 시스템**: 성능 이상 감지 및 감사 결과 기반 자동 알림
-- [ ] **데이터 익스포트/임포트**: 평가 결과 다양한 형식으로 내보내기 및 외부 데이터 연동
-- [ ] **AI 거버넌스 표준화**: 업계 표준 AI 거버넌스 프레임워크로 발전
-
-## 🤝 기여하기
-
-1. Fork 프로젝트
-2. Feature 브랜치 생성 (`git checkout -b feature/AmazingFeature`)
-3. 변경사항 커밋 (`git commit -m 'Add some AmazingFeature'`)
-4. 브랜치에 Push (`git push origin feature/AmazingFeature`)
-5. Pull Request 생성
-
-## 📄 라이선스
-
-이 프로젝트는 [MIT 라이선스](LICENSE) 하에 배포됩니다.
-
-## 👥 개발팀
-
-- **이지수** - 프로젝트 리드 및 풀스택 개발자
-
-## 📞 문의
-
-프로젝트에 대한 문의사항이나 제안사항이 있으시면 이슈를 생성해 주세요.
+MIT License
 
 ---
 
-**AI 거버넌스 플랫폼**으로 더 안전하고 투명한 AI 생태계를 만들어가세요! 🚀 
+**구현 완료**: 초등교육 품질평가 시스템이 완전히 통합되었습니다. 실제 모델 API 연동과 교육 도메인 특화 평가 알고리즘을 통해 AI 모델의 교육적 효과성을 종합적으로 평가할 수 있습니다.

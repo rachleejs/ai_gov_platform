@@ -100,142 +100,138 @@ export default function AIEthicsEvaluation() {
   };
 
   // 시나리오 기반 평가에서 테스트하는 항목들
-  const scenarioEvaluationItems = ['safety', 'fairness', 'data-privacy', 'transparency', 'harm-prevention', 'stability', 'inclusion', 'risk-management'];
+  const scenarioEvaluationItems = ['accountability', 'safety', 'fairness', 'data-privacy', 'transparency', 'harm-prevention', 'stability', 'inclusion', 'risk-management', 'maintenance'];
 
   return (
-    <div className="py-10">
-      <header>
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between">
-            <button
-              onClick={() => router.push('/governance-framework')}
-              className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
-            >
-              <ArrowLeftIcon className="w-5 h-5 mr-2" />
-              거버넌스 프레임워크로 돌아가기
-            </button>
-            <h1 className="text-3xl font-bold leading-tight text-gray-900">AI 윤리 평가</h1>
-          </div>
+    <div className="bg-grey">
+      <div className="pt-4 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div className="flex items-center mb-4">
+          <button
+            onClick={() => router.push('/governance-framework')}
+            className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-white bg-grey border border-tan/50 rounded-lg hover:bg-tan"
+          >
+            <ArrowLeftIcon className="w-4 h-4 mr-2" />
+            거버넌스 프레임워크로 돌아가기
+          </button>
+          <h1 className="text-xl font-bold text-green ml-4">AI 윤리 평가</h1>
         </div>
-      </header>
+      </div>
 
-      <main>
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          {/* 개요 섹션 */}
-          <div className="mt-8 bg-white shadow rounded-lg">
-            <div className="px-6 py-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">개요</h2>
-              <p className="text-gray-600 mb-4">
-                AI 윤리 평가는 AI 시스템의 윤리적 측면을 종합적으로 평가하여 안전하고 신뢰할 수 있는 AI 개발을 지원합니다.
+      <main className="py-4 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        {/* 개요 섹션 */}
+        <div className="mt-4 bg-white shadow rounded-lg">
+          <div className="px-6 py-6">
+            <h2 className="text-xl font-semibold text-green mb-4">개요</h2>
+            <p className="text-white mb-4">
+              AI 윤리 평가는 AI 시스템의 윤리적 측면을 종합적으로 평가하여 안전하고 신뢰할 수 있는 AI 개발을 지원합니다.
+            </p>
+            <div className="bg-green/10 border border-green/20 rounded-md p-4 mb-4">
+              <h3 className="text-lg font-medium text-green mb-2">평가 방법</h3>
+              <ul className="text-sm text-white space-y-1">
+                <li>• 각 평가 기준별 상세 체크리스트 검토</li>
+                <li>• 정량적/정성적 평가 지표 분석</li>
+                <li>• 시나리오 기반 실제 사례 테스트</li>
+                <li>• 초등교육 전문가 검토 및 피드백 반영</li>
+              </ul>
+            </div>
+            <div className="bg-green/10 border border-green/20 rounded-md p-4">
+              <h3 className="text-lg font-medium text-green mb-2">시나리오 기반 평가</h3>
+              <p className="text-sm text-white mb-2">
+                실제 사용 시나리오를 통해 AI 시스템의 윤리적 판단과 행동을 평가합니다.
               </p>
-              <div className="bg-blue-50 border border-blue-200 rounded-md p-4 mb-4">
-                <h3 className="text-lg font-medium text-blue-900 mb-2">평가 방법</h3>
-                <ul className="text-sm text-blue-800 space-y-1">
-                  <li>• 각 평가 기준별 상세 체크리스트 검토</li>
-                  <li>• 정량적/정성적 평가 지표 분석</li>
-                  <li>• 시나리오 기반 실제 사례 테스트</li>
-                  <li>• 전문가 검토 및 피드백 반영</li>
-                </ul>
-              </div>
-              <div className="bg-emerald-50 border border-emerald-200 rounded-md p-4">
-                <h3 className="text-lg font-medium text-emerald-900 mb-2">시나리오 기반 평가</h3>
-                <p className="text-sm text-emerald-800 mb-2">
-                  실제 사용 시나리오를 통해 AI 시스템의 윤리적 판단과 행동을 평가합니다.
-                </p>
-                <p className="text-xs text-emerald-700">
-                  💡 시나리오는 실제 사용 환경을 반영하여 지속적으로 업데이트됩니다.
-                </p>
-              </div>
+              <p className="text-xs text-white">
+                💡 시나리오는 실제 사용 환경을 반영하여 지속적으로 업데이트됩니다.
+              </p>
             </div>
           </div>
+        </div>
 
-          {/* 평가 기준 목록 */}
-          <div className="mt-8 space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">평가 기준</h2>
-            <p className="text-gray-600 mb-4">
-              AI 시스템의 윤리적 측면을 평가하기 위한 10가지 핵심 기준입니다.
-            </p>
-            {evaluationCriteria.map((criterion) => (
-              <div 
-                key={criterion.id} 
-                className="bg-white shadow rounded-lg hover:shadow-md transition-shadow"
-              >
-                <div className="px-6 py-6">
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center">
-                        <span className="inline-flex items-center justify-center w-8 h-8 bg-indigo-100 text-indigo-800 text-sm font-medium rounded-full mr-3">
-                          {criterion.id}
-                        </span>
-                        <h3 className="text-lg font-semibold text-gray-900">{criterion.name}</h3>
-                      </div>
-                      <p className="mt-3 text-gray-600">{criterion.description}</p>
-                      
-                      {/* 액션 버튼들 */}
-                      <div className="mt-4 flex flex-wrap gap-2">
+        {/* 평가 기준 목록 */}
+        <div className="mt-8 space-y-6">
+          <h2 className="text-2xl font-bold text-green">평가 기준</h2>
+          <p className="text-white mb-4">
+            AI 시스템의 윤리적 측면을 평가하기 위한 10가지 핵심 기준입니다.
+          </p>
+          {evaluationCriteria.map((criterion) => (
+            <div 
+              key={criterion.id} 
+              className="bg-white shadow rounded-lg hover:shadow-md transition-shadow"
+            >
+              <div className="px-6 py-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center">
+                      <span className="inline-flex items-center justify-center w-8 h-8 bg-green/20 text-green text-sm font-medium rounded-full mr-3">
+                        {criterion.id}
+                      </span>
+                      <h3 className="text-lg font-semibold text-green">{criterion.name}</h3>
+                    </div>
+                    <p className="mt-3 text-white">{criterion.description}</p>
+                    
+                    {/* 액션 버튼들 */}
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <button
+                        onClick={() => handleCriterionClick(criterion.slug)}
+                        className="inline-flex items-center px-3 py-2 border border-green/30 text-sm font-medium rounded-md text-green bg-green/10 hover:bg-green/20 transition-colors"
+                      >
+                        <ChevronRightIcon className="w-4 h-4 mr-1" />
+                        상세 평가
+                      </button>
+                      {scenarioEvaluationItems.includes(criterion.slug) && (
                         <button
-                          onClick={() => handleCriterionClick(criterion.slug)}
-                          className="inline-flex items-center px-3 py-2 border border-indigo-300 text-sm font-medium rounded-md text-indigo-700 bg-indigo-50 hover:bg-indigo-100 transition-colors"
+                          onClick={() => handleScenarioEvaluationClick(criterion.slug)}
+                          className="inline-flex items-center px-3 py-2 border border-green/30 text-sm font-medium rounded-md text-green bg-green/10 hover:bg-green/20 transition-colors"
                         >
-                          <ChevronRightIcon className="w-4 h-4 mr-1" />
-                          상세 평가
+                          <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                          </svg>
+                          Deep 메트릭 평가
                         </button>
-                        {scenarioEvaluationItems.includes(criterion.slug) && (
-                          <button
-                            onClick={() => handleScenarioEvaluationClick(criterion.slug)}
-                            className="inline-flex items-center px-3 py-2 border border-emerald-300 text-sm font-medium rounded-md text-emerald-700 bg-emerald-50 hover:bg-emerald-100 transition-colors"
-                          >
-                            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-                            </svg>
-                            시나리오 기반 평가
-                          </button>
-                        )}
-                      </div>
+                      )}
                     </div>
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
+        </div>
 
-          {/* 평가 진행 안내 */}
-          <div className="mt-8 bg-gradient-to-r from-indigo-50 to-blue-50 border border-indigo-200 rounded-lg">
-            <div className="px-6 py-6">
-              <h2 className="text-xl font-semibold text-indigo-900 mb-4">평가 진행 방법</h2>
-              <div className="space-y-4">
-                <div className="flex items-start">
-                  <div className="flex-shrink-0">
-                    <span className="inline-flex items-center justify-center w-8 h-8 bg-indigo-100 text-indigo-800 text-sm font-medium rounded-full">
-                      1
-                    </span>
-                  </div>
-                  <div className="ml-4">
-                    <h3 className="text-lg font-medium text-indigo-900">평가 기준 선택</h3>
-                    <p className="text-indigo-700">위의 10개 평가 기준 중 하나를 클릭하여 상세 페이지로 이동합니다.</p>
-                  </div>
+        {/* 평가 진행 안내 */}
+        <div className="mt-8 bg-green/10 border border-green/20 rounded-lg">
+          <div className="px-6 py-6">
+            <h2 className="text-xl font-semibold text-green mb-4">평가 진행 방법</h2>
+            <div className="space-y-4">
+              <div className="flex items-start">
+                <div className="flex-shrink-0">
+                  <span className="inline-flex items-center justify-center w-8 h-8 bg-green/20 text-green text-sm font-medium rounded-full">
+                    1
+                  </span>
                 </div>
-                <div className="flex items-start">
-                  <div className="flex-shrink-0">
-                    <span className="inline-flex items-center justify-center w-8 h-8 bg-indigo-100 text-indigo-800 text-sm font-medium rounded-full">
-                      2
-                    </span>
-                  </div>
-                  <div className="ml-4">
-                    <h3 className="text-lg font-medium text-indigo-900">모델 선택 및 평가</h3>
-                    <p className="text-indigo-700">평가할 AI 모델을 선택하고 해당 기준에 따라 평가를 진행합니다.</p>
-                  </div>
+                <div className="ml-4">
+                  <h3 className="text-lg font-medium text-green">평가 기준 선택</h3>
+                  <p className="text-white">위의 10개 평가 기준 중 하나를 클릭하여 상세 페이지로 이동합니다.</p>
                 </div>
-                <div className="flex items-start">
-                  <div className="flex-shrink-0">
-                    <span className="inline-flex items-center justify-center w-8 h-8 bg-indigo-100 text-indigo-800 text-sm font-medium rounded-full">
-                      3
-                    </span>
-                  </div>
-                  <div className="ml-4">
-                    <h3 className="text-lg font-medium text-indigo-900">결과 확인</h3>
-                    <p className="text-indigo-700">평가 결과는 모델 비교 분석 페이지에서 확인할 수 있습니다.</p>
-                  </div>
+              </div>
+              <div className="flex items-start">
+                <div className="flex-shrink-0">
+                  <span className="inline-flex items-center justify-center w-8 h-8 bg-green/20 text-green text-sm font-medium rounded-full">
+                    2
+                  </span>
+                </div>
+                <div className="ml-4">
+                  <h3 className="text-lg font-medium text-green">모델 선택 및 평가</h3>
+                  <p className="text-white">평가할 AI 모델을 선택하고 해당 기준에 따라 평가를 진행합니다.</p>
+                </div>
+              </div>
+              <div className="flex items-start">
+                <div className="flex-shrink-0">
+                  <span className="inline-flex items-center justify-center w-8 h-8 bg-green/20 text-green text-sm font-medium rounded-full">
+                    3
+                  </span>
+                </div>
+                <div className="ml-4">
+                  <h3 className="text-lg font-medium text-green">결과 확인</h3>
+                  <p className="text-white">평가 결과는 모델 비교 분석 페이지에서 확인할 수 있습니다.</p>
                 </div>
               </div>
             </div>

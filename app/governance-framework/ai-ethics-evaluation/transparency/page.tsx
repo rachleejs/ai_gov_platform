@@ -16,27 +16,27 @@ export default function TransparencyEvaluation() {
 
   const evaluationItems = [
     {
-      id: 'decision_explanation',
-      question: t('transparency.decisionExplanation'),
-      description: t('transparency.decisionExplanationDesc'),
+      id: '의사결정_설명',
+      question: '의사결정 설명',
+      description: 'AI 시스템이 특정 결정에 도달한 과정과 근거를 명확히 설명하는 능력',
       maxScore: 25
     },
     {
-      id: 'data_transparency',
-      question: t('transparency.dataTransparency'),
-      description: t('transparency.dataTransparencyDesc'),
+      id: '데이터_투명성',
+      question: '데이터 투명성',
+      description: '사용된 학습 데이터의 출처, 범위, 품질에 대한 투명한 공개',
       maxScore: 25
     },
     {
-      id: 'model_transparency',
-      question: t('transparency.modelTransparency'),
-      description: t('transparency.modelTransparencyDesc'),
+      id: '모델_투명성',
+      question: '모델 투명성',
+      description: 'AI 모델의 구조, 알고리즘, 한계에 대한 명확한 정보 제공',
       maxScore: 25
     },
     {
-      id: 'process_transparency',
-      question: t('transparency.processTransparency'),
-      description: t('transparency.processTransparencyDesc'),
+      id: '프로세스_투명성',
+      question: '프로세스 투명성',
+      description: 'AI 시스템의 개발, 배포, 운영 과정에 대한 투명한 공개',
       maxScore: 25
     }
   ];
@@ -106,7 +106,7 @@ export default function TransparencyEvaluation() {
               className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
             >
               <ArrowLeftIcon className="w-5 h-5 mr-2" />
-              {t('common.backToEthics')}
+              AI 윤리 평가
             </button>
             <h1 className="text-3xl font-bold leading-tight text-gray-900">{t('transparency.title')}</h1>
           </div>
@@ -282,6 +282,15 @@ export default function TransparencyEvaluation() {
                       <p className="text-sm text-green-700">{t('common.resultSaved')}</p>
                     </div>
                   </div>
+                </div>
+                
+                <div className="mt-8 flex justify-end">
+                  <button
+                    onClick={() => router.push('/governance-framework/ai-ethics-evaluation/harm-prevention')}
+                    className="bg-orange text-white font-bold py-2.5 px-6 rounded-lg hover:bg-orange-dark transition-colors"
+                  >
+                    다음으로 →
+                  </button>
                 </div>
               </div>
             </div>

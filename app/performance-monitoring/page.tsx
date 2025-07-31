@@ -160,20 +160,17 @@ const PerformanceMonitoringPage = () => {
   }
   
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-800">
-      <div className="bg-white shadow-sm">
-        <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <button
-              onClick={() => router.push('/')}
-              className="flex items-center space-x-2 text-sm font-medium text-gray-600 hover:text-gray-900"
-            >
-              <ArrowLeftIcon className="h-5 w-5" />
-              <span>뒤로가기</span>
-            </button>
-            <h1 className="text-xl font-bold">성능 모니터링</h1>
-            <div className="w-24"></div>
-          </div>
+    <div className="bg-grey">
+      <div className="pt-4 px-4 sm:px-6 lg:px-8 max-w-screen-xl mx-auto">
+        <div className="flex items-center mb-4">
+          <button
+            onClick={() => router.push('/')}
+            className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-white bg-grey border border-tan/50 rounded-lg hover:bg-tan"
+          >
+            <ArrowLeftIcon className="h-5 w-5 mr-2" />
+            메인으로
+          </button>
+          <h1 className="text-xl font-bold text-green ml-4">성능 모니터링</h1>
         </div>
       </div>
 
@@ -181,16 +178,16 @@ const PerformanceMonitoringPage = () => {
         <div className="bg-white rounded-xl shadow-md p-4 mb-6">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center space-x-4">
-              <span className="font-semibold">모델 선택:</span>
-              <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg">
+              <span className="font-semibold text-green">모델 선택:</span>
+              <div className="flex space-x-1 bg-grey/20 p-1 rounded-lg">
                 {models.map(model => (
                   <button
                     key={model.id}
                     onClick={() => setSelectedModel(model.id)}
                     className={`px-3 py-1 text-sm rounded-md transition-colors ${
                       selectedModel === model.id
-                        ? 'bg-indigo-600 text-white shadow'
-                        : 'hover:bg-gray-200'
+                        ? 'bg-green text-white shadow'
+                        : 'hover:bg-grey/30 text-green'
                     }`}
                   >
                     {model.name}
@@ -199,16 +196,16 @@ const PerformanceMonitoringPage = () => {
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <span className="font-semibold">시간 범위:</span>
-              <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg">
+              <span className="font-semibold text-green">시간 범위:</span>
+              <div className="flex space-x-1 bg-grey/20 p-1 rounded-lg">
                 {timeRanges.map(range => (
                   <button
                     key={range.id}
                     onClick={() => setSelectedTimeRange(range.id)}
                     className={`px-3 py-1 text-sm rounded-md transition-colors ${
                       selectedTimeRange === range.id
-                        ? 'bg-indigo-600 text-white shadow'
-                        : 'hover:bg-gray-200'
+                        ? 'bg-green text-white shadow'
+                        : 'hover:bg-grey/30 text-green'
                     }`}
                   >
                     {range.name}
@@ -223,10 +220,10 @@ const PerformanceMonitoringPage = () => {
           {performanceMetrics.map((metric, index) => (
             <div key={index} className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300">
               <div className="flex items-center justify-between mb-2">
-                <h3 className="text-lg font-semibold">{metric.name}</h3>
-                <metric.icon className="h-6 w-6 text-gray-400" />
+                <h3 className="text-lg font-semibold text-green">{metric.name}</h3>
+                <metric.icon className="h-6 w-6 text-grey" />
               </div>
-              <p className="text-3xl font-bold text-indigo-600">{metric.value}</p>
+              <p className="text-3xl font-bold text-green">{metric.value}</p>
               <p
                 className={`text-sm mt-1 font-semibold ${
                   metric.changeType === 'positive' ? 'text-green-500' : 'text-red-500'
@@ -243,13 +240,13 @@ const PerformanceMonitoringPage = () => {
 
         <div className="mt-8">
           <h2 className="text-xl font-semibold mb-4 flex items-center">
-            <ListBulletIcon className="h-6 w-6 mr-2 text-indigo-600" />
+            <ListBulletIcon className="h-6 w-6 mr-2 text-green" />
             최근 활동 로그
           </h2>
           <div className="bg-white p-6 rounded-xl shadow-md">
             <div className="space-y-3">
               {recentLogs.map(log => (
-                <div key={log.id} className="flex items-center justify-between text-sm p-2 rounded-lg hover:bg-gray-50">
+                <div key={log.id} className="flex items-center justify-between text-sm p-2 rounded-lg hover:bg-grey/10">
                   <div className="flex items-center space-x-3">
                     <span
                       className={`font-mono text-xs px-2 py-1 rounded-full ${getLogTypeClass(
@@ -258,21 +255,21 @@ const PerformanceMonitoringPage = () => {
                     >
                       {log.type}
                     </span>
-                    <p className="text-gray-700">{log.message}</p>
+                    <p className="text-grey-700">{log.message}</p>
                   </div>
-                  <span className="text-gray-500 font-mono text-xs">{log.timestamp}</span>
+                  <span className="text-grey-500 font-mono text-xs">{log.timestamp}</span>
                 </div>
               ))}
             </div>
             <div className="mt-4 text-center">
-              <button className="text-indigo-600 hover:underline text-sm font-medium">
+              <button className="text-green hover:underline text-sm font-medium">
                 전체 로그 보기
               </button>
             </div>
           </div>
         </div>
 
-        <div className="mt-8 p-4 bg-blue-50 text-blue-700 rounded-lg flex items-start">
+        <div className="mt-8 p-4 bg-green/10 text-green rounded-lg flex items-start">
           <InformationCircleIcon className="h-5 w-5 mr-3 flex-shrink-0 mt-0.5" />
           <div>
             <h3 className="font-semibold">성능 최적화 제안</h3>

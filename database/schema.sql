@@ -20,6 +20,24 @@ CREATE TABLE ai_models (
     provider TEXT NOT NULL,
     model_type TEXT NOT NULL,
     description TEXT,
+    -- 버전 및 사양 정보
+    version TEXT,
+    context_window INTEGER DEFAULT 4096,
+    max_tokens INTEGER DEFAULT 2048,
+    -- API 관련 정보
+    api_endpoint TEXT,
+    api_key_required BOOLEAN DEFAULT true,
+    authentication_type TEXT DEFAULT 'Bearer',
+    -- 지원 기능
+    supports_streaming BOOLEAN DEFAULT false,
+    supported_formats JSONB DEFAULT '["text"]'::jsonb, -- ["text", "image", "audio"]
+    -- 비용 정보 (토큰당 USD)
+    input_cost_per_token DECIMAL(10,8),
+    output_cost_per_token DECIMAL(10,8),
+    -- 사용자 정의 모델 여부
+    is_custom_model BOOLEAN DEFAULT false,
+    custom_config JSONB, -- 사용자 정의 모델 설정
+    -- 기본 정보
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
     is_active BOOLEAN DEFAULT true
@@ -187,10 +205,33 @@ CREATE TRIGGER update_audit_logs_updated_at
     EXECUTE FUNCTION update_updated_at_column();
 
 -- 10. 기본 AI 모델 데이터 삽입 (필수 3개만)
-INSERT INTO ai_models (name, provider, model_type, description) VALUES
-('GPT-4-turbo', 'OpenAI', 'Large Language Model', 'OpenAI 최신 대화형 AI 모델'),
-('Claude-3-Opus', 'Anthropic', 'Large Language Model', 'Anthropic 최고 성능 대화형 AI'),
-('Gemini-2-flash', 'Google', 'Large Language Model', 'Google 차세대 멀티모달 AI 모델');
+INSERT INTO ai_models (
+    name, provider, model_type, description, version, 
+    context_window, max_tokens, api_endpoint, api_key_required,
+    supports_streaming, supported_formats, 
+    input_cost_per_token, output_cost_per_token, is_custom_model
+) VALUES
+(
+    'GPT-4-turbo', 'OpenAI', 'Large Language Model', 
+    'OpenAI 최신 대화형 AI 모델', '2024-04-09',
+    128000, 4096, 'https://api.openai.com/v1/chat/completions', true,
+    true, '["text", "image"]'::jsonb,
+    0.00001, 0.00003, false
+),
+(
+    'Claude-3-Opus', 'Anthropic', 'Large Language Model', 
+    'Anthropic 최고 성능 대화형 AI', '20240229',
+    200000, 4096, 'https://api.anthropic.com/v1/messages', true,
+    true, '["text", "image"]'::jsonb,
+    0.000015, 0.000075, false
+),
+(
+    'Gemini-2-flash', 'Google', 'Large Language Model', 
+    'Google 차세대 멀티모달 AI 모델', '2.0',
+    1048576, 8192, 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent', true,
+    false, '["text", "image", "audio", "video"]'::jsonb,
+    0.000000375, 0.0000015, false
+);
 
 -- 11. 심리학적 평가 결과 테이블
 CREATE TABLE psychological_evaluations (
@@ -227,3 +268,42 @@ CREATE TRIGGER update_psychological_evaluations_updated_at
     BEFORE UPDATE ON psychological_evaluations
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column(); 
+
+-- 초등교육 품질평가 결과 테이블
+CREATE TABLE educational_quality_evaluations (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    model_id UUID REFERENCES ai_models(id) ON DELETE CASCADE,
+    grade_level TEXT NOT NULL,
+    subject TEXT NOT NULL,
+    factuality_score INTEGER NOT NULL,
+    accuracy_score INTEGER NOT NULL,
+    specificity_score INTEGER NOT NULL,
+    overall_score INTEGER NOT NULL,
+    evaluation_details JSONB,
+    evaluation_results JSONB,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- 초등교육 품질평가 결과 테이블 인덱스
+CREATE INDEX idx_educational_quality_evaluations_model_id ON educational_quality_evaluations(model_id);
+CREATE INDEX idx_educational_quality_evaluations_grade_level ON educational_quality_evaluations(grade_level);
+CREATE INDEX idx_educational_quality_evaluations_subject ON educational_quality_evaluations(subject);
+CREATE INDEX idx_educational_quality_evaluations_created_at ON educational_quality_evaluations(created_at);
+
+-- 초등교육 품질평가 결과 테이블 RLS 정책
+ALTER TABLE educational_quality_evaluations ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view educational quality evaluations" ON educational_quality_evaluations
+    FOR SELECT USING (auth.role() = 'authenticated');
+
+CREATE POLICY "Users can insert educational quality evaluations" ON educational_quality_evaluations
+    FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+
+CREATE POLICY "Users can update their educational quality evaluations" ON educational_quality_evaluations
+    FOR UPDATE USING (auth.role() = 'authenticated');
+
+-- 초등교육 품질평가 결과 테이블 updated_at 트리거
+CREATE TRIGGER set_updated_at_educational_quality_evaluations
+    BEFORE UPDATE ON educational_quality_evaluations
+    FOR EACH ROW EXECUTE FUNCTION set_updated_at(); 

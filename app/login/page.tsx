@@ -7,7 +7,7 @@ import Link from 'next/link';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, guestLogin } = useAuth();
+  const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -33,29 +33,10 @@ export default function LoginPage() {
     }
   };
 
-  const handleGuestLogin = async () => {
-    setIsLoading(true);
-    setError('');
-
-    try {
-      const success = await guestLogin();
-      if (success) {
-        router.push('/main-dashboard');
-      } else {
-        setError('게스트 로그인에 실패했습니다.');
-      }
-    } catch (err) {
-      setError('게스트 로그인 중 오류가 발생했습니다.');
-      console.error('Guest login error:', err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50">
+    <div className="flex items-center justify-center min-h-screen bg-grey/20">
       <div className="p-8 bg-white rounded-lg shadow-md w-96">
-        <h1 className="text-2xl font-bold mb-6 text-center text-gradient">로그인</h1>
+        <h1 className="text-2xl font-bold mb-6 text-center text-green">로그인</h1>
         {error && (
           <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg">
             {error}
@@ -71,7 +52,7 @@ export default function LoginPage() {
               id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="input"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green/50 focus:border-green"
               required
               disabled={isLoading}
             />
@@ -85,14 +66,14 @@ export default function LoginPage() {
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="input"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green/50 focus:border-green"
               required
               disabled={isLoading}
             />
           </div>
           <button
             type="submit"
-            className="btn btn-primary w-full mb-4"
+            className="w-full bg-green text-white font-semibold py-2 rounded-lg hover:bg-green/90 transition-colors mb-4"
             disabled={isLoading}
           >
             {isLoading ? '로그인 중...' : '로그인'}
@@ -109,16 +90,16 @@ export default function LoginPage() {
         </div>
 
         <button
-          onClick={handleGuestLogin}
-          className="w-full mb-4 btn bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200"
+          onClick={() => router.push('/non-member-login')}
+          className="w-full mb-4 bg-grey/20 text-gray-700 hover:bg-grey/30 border border-gray-200 font-semibold py-2 rounded-lg transition-colors"
           disabled={isLoading}
         >
-          게스트로 시작하기
+          비회원으로 시작하기
         </button>
 
         <p className="text-center text-sm text-gray-600">
           계정이 없으신가요?{' '}
-          <Link href="/signup" className="text-primary hover:text-primary/90 font-medium">
+          <Link href="/signup" className="text-green hover:text-green/90 font-medium">
             회원가입
           </Link>
         </p>

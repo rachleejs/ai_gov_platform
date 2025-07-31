@@ -16,27 +16,27 @@ export default function DataPrivacyEvaluation() {
 
   const evaluationItems = [
     {
-      id: 'data_collection',
-      question: t('dataPrivacy.dataCollection'),
-      description: t('dataPrivacy.dataCollectionDesc'),
+      id: '데이터_수집',
+      question: '데이터 수집',
+      description: '개인정보 수집 시 목적 명시 및 동의 절차의 적절성',
       maxScore: 25
     },
     {
-      id: 'data_protection',
-      question: t('dataPrivacy.dataProtection'),
-      description: t('dataPrivacy.dataProtectionDesc'),
+      id: '데이터_보호',
+      question: '데이터 보호',
+      description: '수집된 개인정보의 암호화 및 보안 관리 체계',
       maxScore: 25
     },
     {
-      id: 'data_usage',
-      question: t('dataPrivacy.dataUsage'),
-      description: t('dataPrivacy.dataUsageDesc'),
+      id: '데이터_사용',
+      question: '데이터 사용',
+      description: '수집 목적 범위 내에서의 데이터 활용 및 제3자 제공 통제',
       maxScore: 25
     },
     {
-      id: 'data_rights',
-      question: t('dataPrivacy.dataRights'),
-      description: t('dataPrivacy.dataRightsDesc'),
+      id: '데이터_권리',
+      question: '데이터 권리',
+      description: '개인정보 열람, 정정, 삭제 등 정보주체 권리 보장',
       maxScore: 25
     }
   ];
@@ -106,7 +106,7 @@ export default function DataPrivacyEvaluation() {
               className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
             >
               <ArrowLeftIcon className="w-5 h-5 mr-2" />
-              {t('common.backToEthics')}
+              ← AI 윤리 평가
             </button>
             <h1 className="text-3xl font-bold leading-tight text-gray-900">{t('dataPrivacy.title')}</h1>
           </div>
@@ -282,6 +282,15 @@ export default function DataPrivacyEvaluation() {
                       <p className="text-sm text-green-700">{t('common.resultSaved')}</p>
                     </div>
                   </div>
+                </div>
+                
+                <div className="mt-8 flex justify-end">
+                  <button
+                    onClick={() => router.push('/governance-framework/ai-ethics-evaluation/fairness')}
+                    className="bg-orange text-white font-bold py-2.5 px-6 rounded-lg hover:bg-orange-dark transition-colors"
+                  >
+                    다음으로 →
+                  </button>
                 </div>
               </div>
             </div>

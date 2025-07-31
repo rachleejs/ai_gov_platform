@@ -7,9 +7,8 @@ module.exports = {
     extend: {
       colors: {
         grey: '#909090',
-        tan: '#D8C4B6',
-        taupe: '#967E76',
-        'slate-blue': '#3E5879',
+        lime: '#B9F101',
+        orange:'#FF9D00',        
         green: '#00473B',
       },
       backgroundImage: {

@@ -9,14 +9,14 @@ interface User {
   name: string;
   email: string;
   isGuest?: boolean;
-  role?: 'admin' | 'expert' | 'user';
+  role?: 'admin' | 'educational_quality' | 'user';
 }
 
 interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<boolean>;
   signup: (name: string, email: string, password: string) => Promise<boolean>;
-  guestLogin: () => Promise<boolean>;
+  nonMemberLogin: (name: string, dateOfBirth: string) => Promise<boolean>;
   logout: () => void;
   isLoading: boolean;
 }
@@ -211,21 +211,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const guestLogin = async (): Promise<boolean> => {
+  const nonMemberLogin = async (name: string, dateOfBirth: string): Promise<boolean> => {
     setIsLoading(true);
     try {
       // 게스트 사용자를 위한 임시 이메일 생성 (더 안전한 도메인 사용)
       const guestEmail = `guest_${Date.now()}@example.com`;
       const guestPassword = 'guest_password_' + Date.now();
       
-      console.log('Starting guest login process:', { guestEmail });
+      console.log('Starting non-member login process:', { guestEmail });
       
       const { data, error } = await supabase.auth.signUp({
         email: guestEmail,
         password: guestPassword,
         options: {
           data: {
-            name: '게스트'
+            name,
+            date_of_birth: dateOfBirth
           }
         }
       });
@@ -233,13 +234,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.log('Guest login response:', { data, error });
 
       if (error) {
-        console.error('Guest login error:', error);
-        alert(`게스트 로그인 오류: ${error.message}`);
+        console.error('Non-member login error:', error);
+        alert(`비회원 로그인 중 오류가 발생했습니다: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
         return false;
       }
 
       if (data.user) {
-        console.log('Guest user created successfully:', data.user);
+        console.log('Non-member user created successfully:', data.user);
         
         // 게스트 사용자 프로필 생성 (UPSERT 사용)
         const { error: profileError } = await supabase
@@ -248,15 +249,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             {
               id: data.user.id,
               email: guestEmail,
-              name: '게스트',
+              name,
               role: 'user',
               is_guest: true
             }
           ]);
 
         if (profileError) {
-          console.error('Guest profile creation error:', profileError);
-          alert(`게스트 프로필 생성 오류: ${profileError.message}`);
+          console.error('Non-member profile creation error:', profileError);
+          alert(`비회원 프로필 생성 오류: ${profileError.message}`);
           // 프로필 생성 실패해도 게스트 로그인은 성공한 것으로 처리
         }
 
@@ -267,8 +268,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.log('No user returned from guest login');
       return false;
     } catch (error) {
-      console.error('Guest login error:', error);
-      alert(`게스트 로그인 중 오류가 발생했습니다: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
+      console.error('Non-member login error:', error);
+      alert(`비회원 로그인 중 오류가 발생했습니다: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
       return false;
     } finally {
       setIsLoading(false);
@@ -291,7 +292,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     user,
     login,
     signup,
-    guestLogin,
+    nonMemberLogin,
     logout,
     isLoading
   };

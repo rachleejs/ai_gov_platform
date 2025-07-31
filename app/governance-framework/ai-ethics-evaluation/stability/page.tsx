@@ -16,27 +16,27 @@ export default function StabilityEvaluation() {
 
   const evaluationItems = [
     {
-      id: 'system_reliability',
-      question: t('stability.systemReliability'),
-      description: t('stability.systemReliabilityDesc'),
+      id: '시스템_안정성',
+      question: '시스템 안정성',
+      description: '예측 불가능한 상황에서도 일관되고 신뢰할 수 있는 시스템 동작',
       maxScore: 25
     },
     {
-      id: 'error_handling',
-      question: t('stability.errorHandling'),
-      description: t('stability.errorHandlingDesc'),
+      id: '오류_처리',
+      question: '오류 처리',
+      description: '예외 상황 발생 시 시스템의 우아한 실패와 복구 능력',
       maxScore: 25
     },
     {
-      id: 'performance_consistency',
-      question: t('stability.performanceConsistency'),
-      description: t('stability.performanceConsistencyDesc'),
+      id: '성능_일관성',
+      question: '성능 일관성',
+      description: '시간과 환경 변화에 관계없이 동일한 수준의 성능 유지',
       maxScore: 25
     },
     {
-      id: 'resource_management',
-      question: t('stability.resourceManagement'),
-      description: t('stability.resourceManagementDesc'),
+      id: '자원_관리',
+      question: '자원 관리',
+      description: '메모리, CPU 등 시스템 자원의 효율적이고 안정적인 관리',
       maxScore: 25
     }
   ];
@@ -106,7 +106,7 @@ export default function StabilityEvaluation() {
               className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
             >
               <ArrowLeftIcon className="w-5 h-5 mr-2" />
-              {t('common.backToEthics')}
+              AI 윤리 평가
             </button>
             <h1 className="text-3xl font-bold leading-tight text-gray-900">{t('stability.title')}</h1>
           </div>
@@ -281,6 +281,18 @@ export default function StabilityEvaluation() {
                       <h3 className="text-sm font-medium text-green-800">{t('common.evaluationComplete')}</h3>
                       <p className="text-sm text-green-700">{t('common.resultSaved')}</p>
                     </div>
+                  </div>
+                </div>
+                
+                <div className="mt-8 flex justify-between">
+                  <button
+                    onClick={() => router.push('/governance-framework/ai-ethics-evaluation')}
+                    className="bg-green text-white font-bold py-2.5 px-6 rounded-lg hover:bg-green-dark transition-colors"
+                  >
+                    ← 평가 목록으로
+                  </button>
+                  <div className="bg-gradient-to-r from-green to-lime text-white font-bold py-2.5 px-8 rounded-lg shadow-lg">
+                    🎉 AI 윤리 평가 완료!
                   </div>
                 </div>
               </div>

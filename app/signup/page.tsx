@@ -42,9 +42,9 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50">
+    <div className="flex items-center justify-center min-h-screen bg-grey/20">
       <div className="p-8 bg-white rounded-lg shadow-md w-96">
-        <h1 className="text-2xl font-bold mb-6 text-center text-gradient">회원가입</h1>
+        <h1 className="text-2xl font-bold mb-6 text-center text-green">회원가입</h1>
         {error && (
           <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg">
             {error}
@@ -60,7 +60,7 @@ export default function SignupPage() {
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="input"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green/50 focus:border-green"
               required
               disabled={isLoading}
             />
@@ -74,7 +74,7 @@ export default function SignupPage() {
               id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="input"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green/50 focus:border-green"
               required
               disabled={isLoading}
             />
@@ -88,7 +88,7 @@ export default function SignupPage() {
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="input"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green/50 focus:border-green"
               required
               disabled={isLoading}
             />
@@ -102,26 +102,25 @@ export default function SignupPage() {
               id="confirmPassword"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="input"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green/50 focus:border-green"
               required
               disabled={isLoading}
             />
           </div>
           <button
             type="submit"
-            className="btn btn-primary w-full mb-4"
+            className="w-full bg-green text-white font-semibold py-2 rounded-lg hover:bg-green/90 transition-colors mb-4"
             disabled={isLoading}
           >
-            {isLoading ? '가입 중...' : '회원가입'}
+            {isLoading ? '회원가입 중...' : '회원가입'}
           </button>
+          <p className="text-center text-sm text-gray-600">
+            이미 계정이 있으신가요?{' '}
+            <Link href="/login" className="text-green hover:text-green/90 font-medium">
+              로그인
+            </Link>
+          </p>
         </form>
-
-        <p className="text-center text-sm text-gray-600">
-          이미 계정이 있으신가요?{' '}
-          <Link href="/login" className="text-primary hover:text-primary/90 font-medium">
-            로그인
-          </Link>
-        </p>
       </div>
     </div>
   );
