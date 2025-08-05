@@ -176,7 +176,7 @@ export default function AccountabilityEvaluation() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <button
-              onClick={() => router.push('/governance-framework/ai-ethics-evaluation')}
+              onClick={() => router.push('/governance-framework/evaluations/ai-ethics')}
               className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-white bg-grey border border-tan/50 rounded-lg hover:bg-tan"
             >
               <ArrowLeftIcon className="w-4 h-4 mr-2" />
@@ -284,7 +284,7 @@ export default function AccountabilityEvaluation() {
                   {isSaving ? t('common.saving') : t('common.save')}
                 </button>
                 <button
-                  onClick={() => router.push('/governance-framework/ai-ethics-evaluation/data-privacy')}
+                  onClick={() => router.push('/governance-framework/evaluations/ai-ethics/data-privacy')}
                   className="bg-orange text-white font-bold py-2.5 px-6 rounded-lg hover:bg-orange-dark transition-colors"
                 >
                   다음으로 →

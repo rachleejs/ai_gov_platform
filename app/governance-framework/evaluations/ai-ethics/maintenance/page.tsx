@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 import { useLanguage } from '@/app/contexts/LanguageContext';
 import { useActiveModels } from '@/lib/hooks/useActiveModels';
 
-export default function SafetyEvaluation() {
+export default function MaintenanceEvaluation() {
   const router = useRouter();
   const { t } = useLanguage();
   const [selectedModel, setSelectedModel] = useState<string>('');
@@ -16,34 +16,34 @@ export default function SafetyEvaluation() {
 
   const evaluationItems = [
     {
-      id: '보안_조치',
-      question: '보안 조치',
-      description: '외부 공격과 침입으로부터 시스템을 보호하는 보안 체계',
+      id: '업데이트_프로세스',
+      question: '업데이트 프로세스',
+      description: 'AI 시스템의 정기적이고 체계적인 업데이트와 개선 프로세스',
       maxScore: 25
     },
     {
-      id: '데이터_보호',
-      question: '데이터 보호',
-      description: '사용자 데이터와 시스템 정보의 안전한 저장 및 전송 보장',
+      id: '모니터링_시스템',
+      question: '모니터링 시스템',
+      description: '시스템 성능과 상태를 지속적으로 감시하고 추적하는 체계',
       maxScore: 25
     },
     {
-      id: '시스템_신뢰성',
-      question: '시스템 신뢰성',
-      description: '예측 가능하고 일관된 시스템 성능과 안정적인 운영',
+      id: '문서화',
+      question: '문서화',
+      description: '시스템 운영, 유지보수를 위한 포괄적이고 정확한 문서 관리',
       maxScore: 25
     },
     {
-      id: '사고_대응',
-      question: '사고 대응',
-      description: '보안 사고나 시스템 장애 발생 시 신속하고 효과적인 대응 체계',
+      id: '버전_관리',
+      question: '버전 관리',
+      description: '시스템 변경사항의 체계적 관리와 이전 버전으로의 복구 가능성',
       maxScore: 25
     }
   ];
 
   useEffect(() => {
     if (selectedModel) {
-      const savedScores = localStorage.getItem(`ethics-safety-${selectedModel}`);
+      const savedScores = localStorage.getItem(`ethics-maintenance-${selectedModel}`);
       if (savedScores) {
         setScores(JSON.parse(savedScores));
       } else {
@@ -54,7 +54,7 @@ export default function SafetyEvaluation() {
 
   useEffect(() => {
     if (selectedModel && Object.keys(scores).length > 0) {
-      localStorage.setItem(`ethics-safety-${selectedModel}`, JSON.stringify(scores));
+      localStorage.setItem(`ethics-maintenance-${selectedModel}`, JSON.stringify(scores));
       updateEthicsOverallScore();
     }
   }, [scores, selectedModel]);
@@ -62,7 +62,7 @@ export default function SafetyEvaluation() {
   const updateEthicsOverallScore = () => {
     const totalScore = Object.values(scores).reduce((sum, score) => sum + score, 0);
     const ethicsScores = JSON.parse(localStorage.getItem(`ethics-overall-${selectedModel}`) || '{}');
-    ethicsScores.safety = totalScore;
+    ethicsScores.maintenance = totalScore;
     localStorage.setItem(`ethics-overall-${selectedModel}`, JSON.stringify(ethicsScores));
   };
 
@@ -102,13 +102,13 @@ export default function SafetyEvaluation() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <button
-              onClick={() => router.push('/governance-framework/ai-ethics-evaluation')}
+              onClick={() => router.push('/governance-framework/evaluations/ai-ethics')}
               className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
             >
               <ArrowLeftIcon className="w-5 h-5 mr-2" />
               AI 윤리 평가
             </button>
-            <h1 className="text-3xl font-bold leading-tight text-gray-900">{t('safety.title')}</h1>
+            <h1 className="text-3xl font-bold leading-tight text-gray-900">{t('maintenance.title')}</h1>
           </div>
         </div>
       </header>
@@ -117,36 +117,36 @@ export default function SafetyEvaluation() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mt-8 bg-white shadow rounded-lg">
             <div className="px-6 py-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('safety.overview')}</h2>
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('maintenance.overview')}</h2>
               <p className="text-gray-600 mb-4">
-                {t('safety.overviewDescription')}
+                {t('maintenance.overviewDescription')}
               </p>
               
               <div className="bg-amber-50 border border-amber-200 rounded-lg p-6 mb-6">
-                <h3 className="text-lg font-semibold text-amber-900 mb-3">{t('safety.importance')}</h3>
+                <h3 className="text-lg font-semibold text-amber-900 mb-3">{t('maintenance.importance')}</h3>
                 <div className="space-y-3">
                   <div className="flex items-start">
                     <div className="w-2 h-2 bg-amber-400 rounded-full mt-2 mr-3 flex-shrink-0"></div>
                     <p className="text-amber-800">
-                      <strong>{t('safety.systemSecurity')}:</strong> {t('safety.systemSecurityDesc')}
+                      <strong>{t('maintenance.systemStability')}:</strong> {t('maintenance.systemStabilityDesc')}
                     </p>
                   </div>
                   <div className="flex items-start">
                     <div className="w-2 h-2 bg-amber-400 rounded-full mt-2 mr-3 flex-shrink-0"></div>
                     <p className="text-amber-800">
-                      <strong>{t('safety.dataIntegrity')}:</strong> {t('safety.dataIntegrityDesc')}
+                      <strong>{t('maintenance.continuousImprovement')}:</strong> {t('maintenance.continuousImprovementDesc')}
                     </p>
                   </div>
                   <div className="flex items-start">
                     <div className="w-2 h-2 bg-amber-400 rounded-full mt-2 mr-3 flex-shrink-0"></div>
                     <p className="text-amber-800">
-                      <strong>{t('safety.userProtection')}:</strong> {t('safety.userProtectionDesc')}
+                      <strong>{t('maintenance.knowledgeManagement')}:</strong> {t('maintenance.knowledgeManagementDesc')}
                     </p>
                   </div>
                   <div className="flex items-start">
                     <div className="w-2 h-2 bg-amber-400 rounded-full mt-2 mr-3 flex-shrink-0"></div>
                     <p className="text-amber-800">
-                      <strong>{t('safety.incidentManagement')}:</strong> {t('safety.incidentManagementDesc')}
+                      <strong>{t('maintenance.qualityAssurance')}:</strong> {t('maintenance.qualityAssuranceDesc')}
                     </p>
                   </div>
                 </div>
@@ -158,19 +158,19 @@ export default function SafetyEvaluation() {
                   <div className="space-y-2">
                     <h4 className="font-medium text-blue-800">✅ {t('common.goodCases')}</h4>
                     <ul className="text-sm text-blue-700 space-y-1">
-                      <li>• {t('safety.goodCase1')}</li>
-                      <li>• {t('safety.goodCase2')}</li>
-                      <li>• {t('safety.goodCase3')}</li>
-                      <li>• {t('safety.goodCase4')}</li>
+                      <li>• {t('maintenance.goodCase1')}</li>
+                      <li>• {t('maintenance.goodCase2')}</li>
+                      <li>• {t('maintenance.goodCase3')}</li>
+                      <li>• {t('maintenance.goodCase4')}</li>
                     </ul>
                   </div>
                   <div className="space-y-2">
                     <h4 className="font-medium text-red-800">❌ {t('common.badCases')}</h4>
                     <ul className="text-sm text-red-700 space-y-1">
-                      <li>• {t('safety.badCase1')}</li>
-                      <li>• {t('safety.badCase2')}</li>
-                      <li>• {t('safety.badCase3')}</li>
-                      <li>• {t('safety.badCase4')}</li>
+                      <li>• {t('maintenance.badCase1')}</li>
+                      <li>• {t('maintenance.badCase2')}</li>
+                      <li>• {t('maintenance.badCase3')}</li>
+                      <li>• {t('maintenance.badCase4')}</li>
                     </ul>
                   </div>
                 </div>
@@ -286,7 +286,7 @@ export default function SafetyEvaluation() {
                 
                 <div className="mt-8 flex justify-end">
                   <button
-                    onClick={() => router.push('/governance-framework/ai-ethics-evaluation/maintenance')}
+                    onClick={() => router.push('/governance-framework/evaluations/ai-ethics/risk-management')}
                     className="bg-orange text-white font-bold py-2.5 px-6 rounded-lg hover:bg-orange-dark transition-colors"
                   >
                     다음으로 →

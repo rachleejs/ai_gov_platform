@@ -10,20 +10,23 @@ import {
   DocumentTextIcon,
   MagnifyingGlassIcon,
   ShieldCheckIcon,
+  AcademicCapIcon,
+  CpuChipIcon,
+  CheckCircleIcon,
 } from '@heroicons/react/24/outline';
-import { Radar } from 'react-chartjs-2';
-import { Chart as ChartJS, RadialLinearScale, PointElement, LineElement, Filler, Title, Tooltip, Legend } from 'chart.js';
+import { Radar, Doughnut } from 'react-chartjs-2';
+import { Chart as ChartJS, RadialLinearScale, PointElement, LineElement, Filler, Title, Tooltip, Legend, ArcElement } from 'chart.js';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 
-ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Title, Tooltip, Legend);
+ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Title, Tooltip, Legend, ArcElement);
 
 // 평가 항목 정의
 const ethicsCriteria = [
-  'accountability', 'data-privacy', 'fairness', 'inclusion', 'transparency', 
-  'harm-prevention', 'safety', 'maintenance', 'risk-management', 'stability'
+  '책임성', '데이터 프라이버시', '공정성', '포용성', '투명성', 
+  '위해 방지', '안전성', '유지보수성', '위험 관리', '안정성'
 ];
 
 const psychologyCriteria = [
@@ -33,6 +36,14 @@ const psychologyCriteria = [
 
 const scenarioCriteria = [
   'RAG 메트릭', '안전성 메트릭', '품질 메트릭', '대화형 메트릭'
+];
+
+const deepMetricsCriteria = [
+  '일관성 평가', '정확성 평가', '편향성 탐지', '해석가능성'
+];
+
+const educationalQualityCriteria = [
+  '교육과정 적합성', '발달단계 적절성', '학습 효과성', '안전성 검증'
 ];
 
 export default function MainDashboard() {
@@ -52,6 +63,8 @@ export default function MainDashboard() {
     ethics: ethicsCriteria.map(c => ({ name: c, completed: 0, total: 0, percentage: 0 })),
     psychology: psychologyCriteria.map(c => ({ name: c, completed: 0, total: 0, percentage: 0 })),
     scenario: scenarioCriteria.map(c => ({ name: c, completed: 0, total: 0, percentage: 0 })),
+    deepMetrics: deepMetricsCriteria.map(c => ({ name: c, completed: 0, total: 0, percentage: 0 })),
+    educationalQuality: educationalQualityCriteria.map(c => ({ name: c, completed: 0, total: 0, percentage: 0 })),
   });
   const [modelScores, setModelScores] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -209,7 +222,9 @@ export default function MainDashboard() {
           setEvaluationStatus({
             ethics: ethicsStatus,
             psychology: psychologyStatus,
-            scenario: evaluationStatus.scenario // 기존 값 유지
+            scenario: evaluationStatus.scenario, // 기존 값 유지
+            deepMetrics: evaluationStatus.deepMetrics, // 기존 값 유지
+            educationalQuality: evaluationStatus.educationalQuality // 기존 값 유지
           });
         } catch (error) {
           console.error("평가 현황 계산 중 오류:", error);
@@ -276,10 +291,10 @@ export default function MainDashboard() {
               trend: 'up' 
             },
             { 
-              name: '시나리오 평가 평균점수', 
-              value: `${Math.round(avgScenarioScore)}점`, 
-              change: `${Math.round(avgScenarioScore)}점`, 
-              trend: 'neutral' 
+              name: '평균 심리학 점수', 
+              value: `${Math.round(modelScores.reduce((sum, s) => sum + s.psychology, 0) / modelScores.length || 0)}점`, 
+              change: `+${Math.round(modelScores.reduce((sum, s) => sum + s.psychology, 0) / modelScores.length || 0)}점`, 
+              trend: 'up' 
             },
           ]);
         } catch (error) {
@@ -289,7 +304,7 @@ export default function MainDashboard() {
             { name: '평가 완료 모델', value: `0/${models.length}`, change: '0', trend: 'neutral' },
             { name: '전체 평가 진행률', value: '0%', change: '0%', trend: 'neutral' },
             { name: '평균 윤리 점수', value: '0점', change: '0점', trend: 'neutral' },
-            { name: '시나리오 평가 평균점수', value: '0점', change: '0점', trend: 'neutral' },
+            { name: '평균 심리학 점수', value: '0점', change: '0점', trend: 'neutral' },
           ]);
         }
         
@@ -327,24 +342,24 @@ export default function MainDashboard() {
         label: '모델 A',
         data: [75, 60, 85, 70, 65, 80],
         fill: true,
-        backgroundColor: 'rgba(0, 71, 59, 0.2)',
-        borderColor: '#00473B',
+        backgroundColor: 'rgba(255, 166, 0, 0.57)',
+        borderColor: 'rgba(255, 166, 0, 0.7)',
         borderWidth: 2,
       },
       {
         label: '모델 B',
         data: [50, 80, 70, 60, 75, 55],
         fill: true,
-        backgroundColor: 'rgba(0, 106, 88, 0.2)',
-        borderColor: '#006A58',
+        backgroundColor: 'rgba(255, 191, 0, 0.56)',
+        borderColor: 'rgba(255, 140, 0, 0.5)',
         borderWidth: 2,
       },
       {
         label: '모델 C',
         data: [90, 65, 55, 85, 60, 70],
         fill: true,
-        backgroundColor: 'rgba(0, 135, 113, 0.2)',
-        borderColor: '#008771',
+        backgroundColor: 'rgba(255, 208, 0, 0.75)',
+        borderColor: 'rgba(255, 100, 0, 0.3)',
         borderWidth: 2,
       },
     ],
@@ -378,6 +393,40 @@ export default function MainDashboard() {
     return 'text-gray-600';
   };
 
+  // 도넛차트 컴포넌트
+  const CircularMetric = ({ title, value, percentage }: { title: string, value: string, percentage: number }) => {
+    const chartData = {
+      datasets: [{
+        data: [percentage, 100 - percentage],
+        backgroundColor: ['#FFA500', '#f3f4f6'],
+        borderWidth: 0,
+      }],
+    };
+
+    const chartOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '70%',
+      plugins: {
+        legend: { display: false },
+        tooltip: { enabled: false },
+      },
+    };
+
+    return (
+      <div className="flex flex-col items-center">
+        <div className="relative w-24 h-24 mb-3">
+          <Doughnut data={chartData} options={chartOptions} />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="text-lg font-bold text-green">{percentage}%</span>
+          </div>
+        </div>
+        <h3 className="text-sm font-semibold text-green mb-1 text-center">{title}</h3>
+        <p className="text-lg font-bold text-green">{value}</p>
+      </div>
+    );
+  };
+
   interface EvaluationItem {
     name: string;
     completed: number;
@@ -385,27 +434,76 @@ export default function MainDashboard() {
     percentage: number;
   }
 
-  const EvaluationSection = ({ title, data, icon: Icon }: { title: string, data: EvaluationItem[], icon: React.ElementType }) => (
-    <div className="!bg-white p-6 rounded-xl shadow-lg border border-gray-200">
-      <div className="flex items-center mb-4">
-        <Icon className="w-6 h-6 text-green mr-3" />
-        <h3 className="text-lg font-semibold text-green">{title}</h3>
+  // 새로운 평가 섹션 컴포넌트 - 원형 진행률과 체크리스트 스타일
+  const ModernEvaluationSection = ({ title, data, icon: Icon }: { title: string, data: EvaluationItem[], icon: React.ElementType }) => {
+    const averagePercentage = data.length > 0 ? Math.round(data.reduce((sum, item) => sum + item.percentage, 0) / data.length) : 0;
+    
+    return (
+      <div className="bg-transparent p-8 rounded-2xl transition-all duration-300 border border-orange h-80">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center">
+            <div className={`w-14 h-14 bg-transparent rounded-xl flex items-center justify-center mr-4`}>
+              <Icon className="w-8 h-8 text-white" />
+            </div>
+            <div>
+              <h3 className="text-xl font-semibold text-white">{title}</h3>
+              <p className="text-base text-white/80">진행률 {averagePercentage}%</p>
+            </div>
+          </div>
+          <div className="relative w-20 h-20">
+            <svg className="w-20 h-20 transform -rotate-90" viewBox="0 0 100 100">
+              <circle
+                cx="50"
+                cy="50"
+                r="35"
+                stroke="rgba(255, 255, 255, 0.2)"
+                strokeWidth="6"
+                fill="transparent"
+              />
+              <circle
+                cx="50"
+                cy="50"
+                r="35"
+                stroke="#FFA500"
+                strokeWidth="6"
+                fill="transparent"
+                strokeDasharray={`${averagePercentage * 2.2} 220`}
+                strokeLinecap="round"
+              />
+            </svg>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="text-base font-bold text-white">{averagePercentage}%</span>
+            </div>
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-1 gap-2 max-h-32 overflow-y-auto">
+          {data.map((item, index) => (
+            <div key={item.name} className="flex items-center justify-between p-2 rounded-lg hover:bg-white/10 transition-colors">
+              <div className="flex items-center space-x-3">
+                <div className={`w-3 h-3 rounded-full ${
+                  item.percentage >= 75 ? 'bg-green-400' : 
+                  item.percentage >= 50 ? 'bg-yellow-400' : 
+                  item.percentage >= 25 ? 'bg-orange-400' : 'bg-red-400'
+                }`}></div>
+                <span className="text-sm text-white" title={item.name}>
+                  {item.name}
+                </span>
+              </div>
+              <span className="text-sm font-medium text-white/80">{item.percentage}%</span>
+            </div>
+          ))}
+        </div>
+        
+        <div className="mt-4 pt-4 border-t border-orange/30">
+          <div className="flex justify-between text-sm text-white/80">
+            <span>완료: {data.reduce((sum, item) => sum + item.completed, 0)}</span>
+            <span>전체: {data.reduce((sum, item) => sum + item.total, 0)}</span>
+          </div>
+        </div>
       </div>
-      <ul className="space-y-3">
-        {data.map((item) => (
-          <li key={item.name}>
-            <div className="flex justify-between items-center text-sm mb-1">
-              <span className="text-gray-600">{item.name.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</span>
-              <span className="font-medium text-green">{item.percentage}%</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div className="bg-green h-2 rounded-full" style={{ width: `${item.percentage}%` }}></div>
-            </div>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
+    );
+  };
   
   return (
     <div className="bg-lime min-h-screen">
@@ -413,7 +511,7 @@ export default function MainDashboard() {
         <div className="flex items-center mb-4">
           <Link
             href="/"
-            className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-gray-700 bg-grey/50 border border-grey/50 rounded-lg hover:bg-grey"
+            className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-gray-700 bg-grey/50 border border-grey/50 roun ded-lg hover:bg-grey"
           >
             <ArrowLeftIcon className="w-4 h-4 mr-2" />
              메인으로
@@ -440,22 +538,32 @@ export default function MainDashboard() {
         ) : (
           <>
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-6">
-              {metrics.map((metric, index) => (
-                <div key={index} className="!bg-white p-5 rounded-xl shadow-md border border-grey/30">
-                  <p className="text-sm text-gray-600">{metric.name}</p>
-                  <p className="text-3xl font-bold text-green mt-1">{metric.value}</p>
-                  <div className={`flex items-center text-sm mt-2 ${getTrendColor(metric.trend)}`}>
-                    {renderTrendIcon(metric.trend)}
-                    <span className="ml-1">{metric.change}</span>
-                  </div>
-                </div>
-              ))}
+              <CircularMetric 
+                title="평가 완료 모델" 
+                value={metrics[0].value} 
+                percentage={models.length > 0 ? Math.round((parseInt(metrics[0].value.split('/')[0]) / models.length) * 100) : 0}
+              />
+              <CircularMetric 
+                title="평균 종합 점수" 
+                value={`${Math.round((parseInt(metrics[2].value.replace('점', '')) + parseInt(metrics[3].value.replace('점', ''))) / 2)}점`}
+                percentage={Math.round((parseInt(metrics[2].value.replace('점', '')) + parseInt(metrics[3].value.replace('점', ''))) / 2)}
+              />
+              <CircularMetric 
+                title="평균 윤리 점수" 
+                value={metrics[2].value} 
+                percentage={parseInt(metrics[2].value.replace('점', ''))}
+              />
+              <CircularMetric 
+                title="전체 평가 진행률" 
+                value={metrics[1].value} 
+                percentage={parseInt(metrics[1].value.replace('%', ''))}
+              />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2 !bg-white p-6 rounded-xl shadow-md border border-grey/30">
+              <div className="lg:col-span-2">
                 <h3 className="text-lg font-semibold text-green mb-4">모델별 종합 점수</h3>
-                <div className="relative h-[450px] w-full">
+                <div className="relative h-[500px] w-full">
                   {modelScores.length > 0 ? (
                     <Radar data={chartData} options={chartOptions} />
                   ) : (
@@ -465,36 +573,69 @@ export default function MainDashboard() {
                   )}
                 </div>
               </div>
-              <div className="bg-orange p-6 rounded-xl shadow-md border border-grey/30">
-                <h3 className="text-lg font-semibold text-green mb-4">리더보드 바로가기</h3>
-                <ul className="space-y-3">
-                  {[
-                    { name: '종합 리더보드', href: '/leaderboard', icon: ChartBarIcon },
-                    { name: '윤리 점수 랭킹', href: '/leaderboard', icon: ShieldCheckIcon },
-                    { name: '심리학 점수 랭킹', href: '/leaderboard', icon: DocumentTextIcon },
-                    { name: '시나리오 점수 랭킹', href: '/leaderboard', icon: ClipboardDocumentListIcon },
-                  ].map((item) => (
-                    <li key={item.name}>
-                      <Link
-                        href={item.href}
-                        className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-grey/20 transition-colors group"
-                      >
+              <div className="space-y-3">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-green">종합 리더보드</h3>
+                  <Link
+                    href="/leaderboard"
+                    className="text-sm text-orange hover:text-orange-dark transition-colors"
+                  >
+                    전체보기 →
+                  </Link>
+                </div>
+                <div className="space-y-3">
+                  {models.slice(0, 5).map((model, index) => {
+                    const totalScore = (model.ethicsScore || 0) + (model.psychologyScore || 0) + (model.scenarioScore || 0);
+                    return (
+                      <div key={model.id} className="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
                         <div className="flex items-center">
-                          <item.icon className="w-5 h-5 text-green mr-3" />
-                          <span className="text-sm font-medium text-green">{item.name}</span>
+                          <span className="w-6 h-6 rounded-full bg-green text-white flex items-center justify-center mr-3 text-xs">
+                            {index + 1}
+                          </span>
+                          <div>
+                            <div className="text-sm font-medium text-gray-900">{model.name}</div>
+                            <div className="text-xs text-gray-500">{model.provider}</div>
+                          </div>
                         </div>
-                        <ChevronRightIcon className="w-4 h-4 text-grey group-hover:text-green" />
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
+                        <span className="font-bold text-green">{totalScore}점</span>
+                      </div>
+                    );
+                  })}
+                  {models.length === 0 && (
+                    <div className="text-center text-gray-500 py-4">평가된 모델이 없습니다</div>
+                  )}
+                </div>
               </div>
             </div>
 
-            <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <EvaluationSection title="AI 윤리 평가 현황" data={evaluationStatus.ethics} icon={ShieldCheckIcon} />
-              <EvaluationSection title="심리학적 안정성 평가 현황" data={evaluationStatus.psychology} icon={DocumentTextIcon} />
-              <EvaluationSection title="시나리오 기반 평가 현황" data={evaluationStatus.scenario} icon={ChartBarIcon} />
+            <div className="mt-8">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-green">평가 현황</h2>
+                <div className="text-sm text-gray-500">실시간 업데이트</div>
+              </div>
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <ModernEvaluationSection 
+                  title="AI 윤리" 
+                  data={evaluationStatus.ethics} 
+                  icon={ShieldCheckIcon} 
+                />
+                <ModernEvaluationSection 
+                  title="심리학적 접근" 
+                  data={evaluationStatus.psychology} 
+                  icon={DocumentTextIcon} 
+                />
+                <ModernEvaluationSection 
+                  title="Deep 메트릭" 
+                  data={evaluationStatus.deepMetrics} 
+                  icon={CpuChipIcon} 
+                />
+                <ModernEvaluationSection 
+                  title="초등교육 품질" 
+                  data={evaluationStatus.educationalQuality} 
+                  icon={AcademicCapIcon} 
+                />
+              </div>
             </div>
           </>
         )}

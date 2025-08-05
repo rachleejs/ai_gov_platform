@@ -566,7 +566,7 @@ export default function ComprehensiveEvaluation() {
       <div className="pt-4 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="flex items-center mb-4">
           <button
-            onClick={() => router.push('/governance-framework/ai-ethics-evaluation')}
+            onClick={() => router.push('/governance-framework/evaluations/ai-ethics')}
             className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-white bg-grey border border-tan/50 rounded-lg hover:bg-tan"
           >
             <ArrowLeftIcon className="w-4 h-4 mr-2" />

@@ -157,7 +157,7 @@ export default function Home() {
               </div>
               <div className="group relative">
                 <button
-                  onClick={(e) => handleNavigation('/evaluation-data', e)}
+                  onClick={(e) => handleNavigation('/add-custom', e)}
                   className="flex flex-col items-center gap-4 text-green group"
                 >
                   <div className="p-5 md:p-6 lg:p-9 xl:p-12 bg-green group-hover:bg-lime transition-colors rounded-full hover:cursor-pointer hover:scale-110 hover:shadow-lg hover:bg-lime">

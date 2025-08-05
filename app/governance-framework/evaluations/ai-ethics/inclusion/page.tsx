@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 import { useLanguage } from '@/app/contexts/LanguageContext';
 import { useActiveModels } from '@/lib/hooks/useActiveModels';
 
-export default function TransparencyEvaluation() {
+export default function InclusionEvaluation() {
   const router = useRouter();
   const { t } = useLanguage();
   const [selectedModel, setSelectedModel] = useState<string>('');
@@ -16,34 +16,34 @@ export default function TransparencyEvaluation() {
 
   const evaluationItems = [
     {
-      id: '의사결정_설명',
-      question: '의사결정 설명',
-      description: 'AI 시스템이 특정 결정에 도달한 과정과 근거를 명확히 설명하는 능력',
+      id: '접근성',
+      question: '접근성',
+      description: '장애인, 고령자 등 다양한 사용자가 AI 시스템을 쉽게 사용할 수 있는 정도',
       maxScore: 25
     },
     {
-      id: '데이터_투명성',
-      question: '데이터 투명성',
-      description: '사용된 학습 데이터의 출처, 범위, 품질에 대한 투명한 공개',
+      id: '문화적_민감성',
+      question: '문화적 민감성',
+      description: '다양한 문화적 배경과 가치관을 고려한 응답과 서비스 제공',
       maxScore: 25
     },
     {
-      id: '모델_투명성',
-      question: '모델 투명성',
-      description: 'AI 모델의 구조, 알고리즘, 한계에 대한 명확한 정보 제공',
+      id: '언어_지원',
+      question: '언어 지원',
+      description: '다국어 및 지역 언어에 대한 포괄적 지원과 이해 능력',
       maxScore: 25
     },
     {
-      id: '프로세스_투명성',
-      question: '프로세스 투명성',
-      description: 'AI 시스템의 개발, 배포, 운영 과정에 대한 투명한 공개',
+      id: '사용자_다양성',
+      question: '사용자 다양성',
+      description: '연령, 성별, 교육 수준 등 다양한 사용자 특성을 고려한 설계',
       maxScore: 25
     }
   ];
 
   useEffect(() => {
     if (selectedModel) {
-      const savedScores = localStorage.getItem(`ethics-transparency-${selectedModel}`);
+      const savedScores = localStorage.getItem(`ethics-inclusion-${selectedModel}`);
       if (savedScores) {
         setScores(JSON.parse(savedScores));
       } else {
@@ -54,7 +54,7 @@ export default function TransparencyEvaluation() {
 
   useEffect(() => {
     if (selectedModel && Object.keys(scores).length > 0) {
-      localStorage.setItem(`ethics-transparency-${selectedModel}`, JSON.stringify(scores));
+      localStorage.setItem(`ethics-inclusion-${selectedModel}`, JSON.stringify(scores));
       updateEthicsOverallScore();
     }
   }, [scores, selectedModel]);
@@ -62,7 +62,7 @@ export default function TransparencyEvaluation() {
   const updateEthicsOverallScore = () => {
     const totalScore = Object.values(scores).reduce((sum, score) => sum + score, 0);
     const ethicsScores = JSON.parse(localStorage.getItem(`ethics-overall-${selectedModel}`) || '{}');
-    ethicsScores.transparency = totalScore;
+    ethicsScores.inclusion = totalScore;
     localStorage.setItem(`ethics-overall-${selectedModel}`, JSON.stringify(ethicsScores));
   };
 
@@ -102,13 +102,13 @@ export default function TransparencyEvaluation() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <button
-              onClick={() => router.push('/governance-framework/ai-ethics-evaluation')}
+              onClick={() => router.push('/governance-framework/evaluations/ai-ethics')}
               className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
             >
               <ArrowLeftIcon className="w-5 h-5 mr-2" />
               AI 윤리 평가
             </button>
-            <h1 className="text-3xl font-bold leading-tight text-gray-900">{t('transparency.title')}</h1>
+            <h1 className="text-3xl font-bold leading-tight text-gray-900">{t('inclusion.title')}</h1>
           </div>
         </div>
       </header>
@@ -117,36 +117,36 @@ export default function TransparencyEvaluation() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mt-8 bg-white shadow rounded-lg">
             <div className="px-6 py-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('transparency.overview')}</h2>
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('inclusion.overview')}</h2>
               <p className="text-gray-600 mb-4">
-                {t('transparency.overviewDescription')}
+                {t('inclusion.overviewDescription')}
               </p>
               
               <div className="bg-amber-50 border border-amber-200 rounded-lg p-6 mb-6">
-                <h3 className="text-lg font-semibold text-amber-900 mb-3">{t('transparency.importance')}</h3>
+                <h3 className="text-lg font-semibold text-amber-900 mb-3">{t('inclusion.importance')}</h3>
                 <div className="space-y-3">
                   <div className="flex items-start">
                     <div className="w-2 h-2 bg-amber-400 rounded-full mt-2 mr-3 flex-shrink-0"></div>
                     <p className="text-amber-800">
-                      <strong>{t('transparency.userUnderstanding')}:</strong> {t('transparency.userUnderstandingDesc')}
+                      <strong>{t('inclusion.universalAccess')}:</strong> {t('inclusion.universalAccessDesc')}
                     </p>
                   </div>
                   <div className="flex items-start">
                     <div className="w-2 h-2 bg-amber-400 rounded-full mt-2 mr-3 flex-shrink-0"></div>
                     <p className="text-amber-800">
-                      <strong>{t('transparency.trustBuilding')}:</strong> {t('transparency.trustBuildingDesc')}
+                      <strong>{t('inclusion.culturalDiversity')}:</strong> {t('inclusion.culturalDiversityDesc')}
                     </p>
                   </div>
                   <div className="flex items-start">
                     <div className="w-2 h-2 bg-amber-400 rounded-full mt-2 mr-3 flex-shrink-0"></div>
                     <p className="text-amber-800">
-                      <strong>{t('transparency.accountability')}:</strong> {t('transparency.accountabilityDesc')}
+                      <strong>{t('inclusion.userEmpowerment')}:</strong> {t('inclusion.userEmpowermentDesc')}
                     </p>
                   </div>
                   <div className="flex items-start">
                     <div className="w-2 h-2 bg-amber-400 rounded-full mt-2 mr-3 flex-shrink-0"></div>
                     <p className="text-amber-800">
-                      <strong>{t('transparency.improvement')}:</strong> {t('transparency.improvementDesc')}
+                      <strong>{t('inclusion.socialImpact')}:</strong> {t('inclusion.socialImpactDesc')}
                     </p>
                   </div>
                 </div>
@@ -158,19 +158,19 @@ export default function TransparencyEvaluation() {
                   <div className="space-y-2">
                     <h4 className="font-medium text-blue-800">✅ {t('common.goodCases')}</h4>
                     <ul className="text-sm text-blue-700 space-y-1">
-                      <li>• {t('transparency.goodCase1')}</li>
-                      <li>• {t('transparency.goodCase2')}</li>
-                      <li>• {t('transparency.goodCase3')}</li>
-                      <li>• {t('transparency.goodCase4')}</li>
+                      <li>• {t('inclusion.goodCase1')}</li>
+                      <li>• {t('inclusion.goodCase2')}</li>
+                      <li>• {t('inclusion.goodCase3')}</li>
+                      <li>• {t('inclusion.goodCase4')}</li>
                     </ul>
                   </div>
                   <div className="space-y-2">
                     <h4 className="font-medium text-red-800">❌ {t('common.badCases')}</h4>
                     <ul className="text-sm text-red-700 space-y-1">
-                      <li>• {t('transparency.badCase1')}</li>
-                      <li>• {t('transparency.badCase2')}</li>
-                      <li>• {t('transparency.badCase3')}</li>
-                      <li>• {t('transparency.badCase4')}</li>
+                      <li>• {t('inclusion.badCase1')}</li>
+                      <li>• {t('inclusion.badCase2')}</li>
+                      <li>• {t('inclusion.badCase3')}</li>
+                      <li>• {t('inclusion.badCase4')}</li>
                     </ul>
                   </div>
                 </div>
@@ -286,7 +286,7 @@ export default function TransparencyEvaluation() {
                 
                 <div className="mt-8 flex justify-end">
                   <button
-                    onClick={() => router.push('/governance-framework/ai-ethics-evaluation/harm-prevention')}
+                    onClick={() => router.push('/governance-framework/evaluations/ai-ethics/transparency')}
                     className="bg-orange text-white font-bold py-2.5 px-6 rounded-lg hover:bg-orange-dark transition-colors"
                   >
                     다음으로 →

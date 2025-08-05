@@ -14,6 +14,10 @@ import { useState, useEffect } from 'react';
 import { useLanguage } from '@/app/contexts/LanguageContext';
 import Link from 'next/link';
 import { useAuth } from '@/app/contexts/AuthContext';
+import { Doughnut } from 'react-chartjs-2';
+import { Chart as ChartJS, ArcElement } from 'chart.js';
+
+ChartJS.register(ArcElement);
 
 export default function GovernanceFramework() {
   const router = useRouter();
@@ -34,7 +38,7 @@ export default function GovernanceFramework() {
     {
       id: 'ai-ethics',
       name: t('governance.aiEthics.name'),
-      route: '/governance-framework/ai-ethics-evaluation',
+      route: '/governance-framework/evaluations/ai-ethics',
       lastUpdated: '2025-07-01',
       status: 'active',
       description: t('governance.aiEthics.description'),
@@ -53,7 +57,7 @@ export default function GovernanceFramework() {
     {
       id: 'psychology',
       name: t('governance.psychology.name'),
-      route: '/governance-framework/psychological-evaluation',
+      route: '/governance-framework/evaluations/psychological',
       lastUpdated: '2025-06-20',
       status: 'active',
       description: t('governance.psychology.description'),
@@ -71,7 +75,7 @@ export default function GovernanceFramework() {
     {
       id: 'scenario',
       name: 'Deep 메트릭 평가',
-      route: '/governance-framework/scenario-evaluation',
+      route: '/governance-framework/evaluations/scenario',
       lastUpdated: '2025-07-01',
       status: 'active',
       description: 'DeepEval과 DeepTeam 메트릭을 통한 AI 모델의 종합적 성능과 안전성을 평가합니다.',
@@ -83,8 +87,8 @@ export default function GovernanceFramework() {
     },
     {
       id: 'edu-quality',
-      name: '초등교육 품질평가 (Edu-sLLM-Quality)',
-      route: '/governance-framework/educational-quality-evaluation',
+      name: '초등교육 품질평가',
+      route: '/governance-framework/evaluations/educational-quality',
       lastUpdated: '2025-07-01',
       status: 'active',
       description: '초등 교육 도메인에 특화된 AI 모델의 출력 품질을 사실성, 정확성, 구체성 기준으로 평가합니다.',
@@ -218,6 +222,40 @@ export default function GovernanceFramework() {
     }
   };
 
+  // 도넛차트 컴포넌트
+  const CircularMetric = ({ title, value, percentage }: { title: string, value: string, percentage: number }) => {
+    const chartData = {
+      datasets: [{
+        data: [percentage, 100 - percentage],
+        backgroundColor: ['#FFA500', '#f3f4f6'],
+        borderWidth: 0,
+      }],
+    };
+
+    const chartOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '70%',
+      plugins: {
+        legend: { display: false },
+        tooltip: { enabled: false },
+      },
+    };
+
+    return (
+      <div className="flex flex-col items-center">
+        <div className="relative w-40 h-40 mb-4">
+          <Doughnut data={chartData} options={chartOptions} />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="text-2xl font-bold text-green">{percentage}%</span>
+          </div>
+        </div>
+        <h3 className="text-[16pt] font-semibold text-green mb-1 text-center">{title}</h3>
+        <p className="text-[18pt] font-bold text-green">{value}</p>
+      </div>
+    );
+  };
+
   const handleTestDB = () => {
     alert('DB 연결 테스트 완료!');
   };
@@ -238,122 +276,89 @@ export default function GovernanceFramework() {
       </div>
 
       <main className="py-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
-        <div className="mb-8 !bg-white rounded-2xl shadow-lg border border-tan/30 p-8">
+        <div className="mb-8 p-8">
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-green mb-2">AI 프레임워크 종합 현황</h2>
-            <p className="text-white max-w-3xl mx-auto">
+            <h2 className="text-[32pt] font-bold text-green mb-2">AI 프레임워크 종합 현황</h2>
+            <p className="text-[14pt] text-grey max-w-3xl mx-auto mt-6 tracking-wide">
               포괄적인 평가를 통해 AI 시스템의 윤리적, 기술적 안전성을 검증하고 개선 방향을 제시합니다.
             </p>
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="bg-grey rounded-lg p-5 text-center shadow-sm border border-tan/50">
-              <div className="text-3xl font-bold text-green">{overallStats.activeModels}</div>
-              <div className="text-sm text-white mt-1">평가 모델</div>
-            </div>
-            <div className="bg-grey rounded-lg p-5 text-center shadow-sm border border-tan/50">
-              <div className="text-3xl font-bold text-green">
-                {overallStats.completedEvaluations}/{overallStats.totalEvaluations}
-              </div>
-              <div className="text-sm text-white mt-1">완료된 평가</div>
-            </div>
-            <div className="bg-grey rounded-lg p-5 text-center shadow-sm border border-tan/50">
-              <div className="text-3xl font-bold text-green">
-                {overallStats.totalEvaluations > 0 ? Math.round((overallStats.completedEvaluations / overallStats.totalEvaluations) * 100) : 0}%
-              </div>
-              <div className="text-sm text-white mt-1">평가 진행률</div>
-            </div>
-            <div className="bg-grey rounded-lg p-5 text-center shadow-sm border border-tan/50">
-              <div className="text-3xl font-bold text-green">{overallStats.averageScore}</div>
-              <div className="text-sm text-white mt-1">평균 점수</div>
-            </div>
-          </div>
-        </div>
-
-        <div className="mb-8">
-          <h3 className="text-lg font-semibold text-green mb-4">추천 다음 단계</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Link
-              href="/governance-framework/ai-ethics-evaluation"
-              className="group bg-white text-green p-6 rounded-lg hover:shadow-lg transition-all duration-200 hover:scale-105"
-            >
-              <div className="flex items-center">
-                <PlayIcon className="h-6 w-6 mr-3" />
-                <div className="text-left">
-                  <div className="font-semibold">윤리 평가 시작</div>
-                  <div className="text-green text-sm">10개 핵심 기준 평가</div>
-                </div>
-              </div>
-            </Link>
-            
-            <Link
-              href="/model-comparison"
-              className="group bg-white text-green p-6 rounded-lg hover:shadow-lg transition-all duration-200 hover:scale-105"
-            >
-              <div className="flex items-center">
-                <ChartBarIcon className="h-6 w-6 mr-3" />
-                <div className="text-left">
-                  <div className="font-semibold">모델 비교 분석</div>
-                  <div className="text-green text-sm">다양한 모델 성능 비교</div>
-                </div>
-              </div>
-            </Link>
-
-
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-10">
+            <CircularMetric 
+              title="평가 모델" 
+              value={overallStats.activeModels.toString()} 
+              percentage={overallStats.activeModels > 0 ? Math.round((overallStats.activeModels / 10) * 100) : 0}
+            />
+            <CircularMetric 
+              title="완료된 평가" 
+              value={`${overallStats.completedEvaluations}/${overallStats.totalEvaluations}`}
+              percentage={overallStats.totalEvaluations > 0 ? Math.round((overallStats.completedEvaluations / overallStats.totalEvaluations) * 100) : 0}
+            />
+            <CircularMetric 
+              title="평가 진행률" 
+              value={`${overallStats.totalEvaluations > 0 ? Math.round((overallStats.completedEvaluations / overallStats.totalEvaluations) * 100) : 0}%`}
+              percentage={overallStats.totalEvaluations > 0 ? Math.round((overallStats.completedEvaluations / overallStats.totalEvaluations) * 100) : 0}
+            />
+            <CircularMetric 
+              title="평균 점수" 
+              value={overallStats.averageScore.toString()}
+              percentage={overallStats.averageScore}
+            />
           </div>
         </div>
 
         <div>
           <h3 className="text-xl font-bold text-green mb-2">평가 체계</h3>
-          <p className="text-white mb-6">AI 거버넌스는 여러 평가 체계로 구성되어 있습니다. 각 체계를 통해 종합적인 분석을 수행할 수 있습니다.</p>
-          <ul className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <p className="text-green mb-6">AI 거버넌스는 여러 평가 체계로 구성되어 있습니다. 각 체계를 통해 종합적인 분석을 수행할 수 있습니다.</p>
+          <ul className="grid grid-cols-1 md:grid-cols-2 gap-10">
             {evaluationFrameworks.map((framework, index) => {
               const statusInfo = getStatusInfo(framework.status);
               return (
-                <li key={index} className="bg-orange rounded-xl shadow-md hover:shadow-xl transition-all duration-200 border border-green/30 min-h-[280px]">
+                <li key={index} className="bg-transparent rounded-xl shadow-md hover:shadow-xl transition-all duration-200 border border-orange border-4 min-h-[280px]">
                   <Link
                     href={framework.route}
                     className="w-full text-left p-8 group disabled:opacity-50 disabled:cursor-not-allowed block h-full"
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex items-center">
-                        <div className="p-3 rounded-lg bg-green-dark/30 text-white mr-4">
-                          <framework.icon className="h-6 w-6" />
+                        <div className="p-3 rounded-lg bg-green-dark/30 text-green mr-4">
+                          <framework.icon className="h-10 w-10" />
                         </div>
                         <div>
-                          <h4 className="text-lg font-semibold text-white group-hover:text-white">{framework.name}</h4>
-                          <p className="text-sm text-white/70">최근 업데이트: {framework.lastUpdated}</p>
+                          <h4 className="text-[18pt] font-semibold text-green group-hover:text-white">{framework.name}</h4>
+                          <p className="text-[14pt] text-grey">최근 업데이트: {framework.lastUpdated}</p>
                         </div>
                       </div>
-                      <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${framework.status === 'active' ? 'bg-white/20 text-white' : 'text-white bg-tan/50'}`}>
+                      <span className={`text-[12pt] font-semibold px-2.5 py-1 rounded-full ${framework.status === 'active' ? 'bg-white/20 text-green' : 'text-white bg-white'}`}>
                         {statusInfo.text}
                       </span>
                     </div>
-                    <p className="mt-4 text-sm text-white">{framework.description}</p>
+                    <p className="mt-4 text-[14pt] text-grey">{framework.description}</p>
                     
                     <div className="mt-4">
-                      <div className="flex justify-between text-sm text-white mb-1">
+                      <div className="flex justify-between text-[14pt] text-grey mb-1">
                         <span>진행률</span>
                         <span>{framework.completionRate}%</span>
                       </div>
                       <div className="w-full bg-green-dark rounded-full h-2">
                         <div
-                          className="!bg-white h-2 rounded-full"
+                          className="bg-orange h-2 rounded-full"
                           style={{ width: `${framework.completionRate}%` }}
                         ></div>
                       </div>
                     </div>
 
                     <div className="mt-4 pt-4 border-t border-white/20">
-                      <h5 className="text-sm font-semibold text-white mb-2">주요 평가지표</h5>
+                      <h5 className="text-[16pt] font-semibold text-grey mb-2">주요 평가지표</h5>
                       <div className="flex flex-wrap gap-2">
                         {framework.metrics.slice(0, 4).map((metric, i) => (
-                          <span key={i} className="text-xs text-white bg-green-dark/30 px-2 py-1 rounded-md">
+                          <span key={i} className="text-[12pt] text-grey bg-green-dark/30 px-2 py-1 rounded-md">
                             {metric}
                           </span>
                         ))}
                         {framework.metrics.length > 4 && (
-                          <span className="text-xs text-white bg-green-dark/30 px-2 py-1 rounded-md">
+                          <span className="text-[12pt] text-white bg-green-dark/30 px-2 py-1 rounded-md">
                             ...
                           </span>
                         )}

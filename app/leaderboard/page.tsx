@@ -30,8 +30,8 @@ export default function Leaderboard() {
     fetchModels();
   }, []);
 
-  return (
-    <div className="bg-lime min-h-screen">
+  return ( 
+    <div className="bg-orange min-h-screen">
       <div className="pt-4 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="flex items-center mb-4">
           <Link
@@ -52,25 +52,25 @@ export default function Leaderboard() {
           </div>
         ) : (
           <div className="space-y-6">
-            <div className="!bg-white p-6 rounded-xl shadow-md border border-grey/30">
+            <div className="bg-transparent p-6 rounded-xl shadow-md border border-grey">
               <h2 className="text-xl font-semibold text-green mb-6">종합 성능 리더보드</h2>
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead>
                     <tr>
-                      <th className="px-6 py-3 !bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">순위</th>
-                      <th className="px-6 py-3 !bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">모델명</th>
-                      <th className="px-6 py-3 !bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">제공업체</th>
-                      <th className="px-6 py-3 !bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">윤리 점수</th>
-                      <th className="px-6 py-3 !bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">심리학 점수</th>
-                      <th className="px-6 py-3 !bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">시나리오 점수</th>
-                      <th className="px-6 py-3 !bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">종합 점수</th>
+                      <th className="px-6 py-3 bg-transparent text-left text-xs font-medium text-gray-500 uppercase tracking-wider">순위</th>
+                      <th className="px-6 py-3 bg-transparent text-left text-xs font-medium text-gray-500 uppercase tracking-wider">모델명</th>
+                      <th className="px-6 py-3 bg-transparent text-left text-xs font-medium text-gray-500 uppercase tracking-wider">제공업체</th>
+                      <th className="px-6 py-3 bg-transparent text-left text-xs font-medium text-gray-500 uppercase tracking-wider">윤리 점수</th>
+                      <th className="px-6 py-3 bg-transparent text-left text-xs font-medium text-gray-500 uppercase tracking-wider">심리학 점수</th>
+                      <th className="px-6 py-3 bg-transparent text-left text-xs font-medium text-gray-500 uppercase tracking-wider">시나리오 점수</th>
+                      <th className="px-6 py-3 bg-transparent text-left text-xs font-medium text-gray-500 uppercase tracking-wider">종합 점수</th>
                     </tr>
                   </thead>
-                  <tbody className="!bg-white divide-y divide-gray-200">
+                  <tbody className="bg-transparent divide-y divide-gray-200">
                     {models.length > 0 ? (
                       models.map((model, index) => (
-                        <tr key={model.id} className={index % 2 === 0 ? '!bg-white' : '!bg-gray-50'}>
+                        <tr key={model.id}>
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{index + 1}</td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{model.name}</td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{model.provider || 'Unknown'}</td>
@@ -81,7 +81,7 @@ export default function Leaderboard() {
                             {model.totalScore || ((model.ethicsScore || 0) + (model.psychologyScore || 0) + (model.scenarioScore || 0))}
                           </td>
                         </tr>
-                      ))
+                      )) 
                     ) : (
                       <tr>
                         <td colSpan={7} className="px-6 py-4 text-center text-sm text-gray-500">
@@ -95,7 +95,7 @@ export default function Leaderboard() {
             </div>
             
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="!bg-white p-6 rounded-xl shadow-md border border-grey/30">
+              <div className="bg-transparent p-6 rounded-xl shadow-md border border-grey">
                 <h3 className="text-lg font-semibold text-green mb-4">윤리 점수 리더보드</h3>
                 <ul className="space-y-3">
                   {models.length > 0 ? (
@@ -117,7 +117,7 @@ export default function Leaderboard() {
                 </ul>
               </div>
 
-              <div className="!bg-white p-6 rounded-xl shadow-md border border-grey/30">
+              <div className="bg-transparent p-6 rounded-xl shadow-md border border-grey">
                 <h3 className="text-lg font-semibold text-green mb-4">심리학 점수 리더보드</h3>
                 <ul className="space-y-3">
                   {models.length > 0 ? (
@@ -139,7 +139,7 @@ export default function Leaderboard() {
                 </ul>
               </div>
 
-              <div className="!bg-white p-6 rounded-xl shadow-md border border-grey/30">
+              <div className="bg-transparent p-6 rounded-xl shadow-md border border-grey">
                 <h3 className="text-lg font-semibold text-green mb-4">시나리오 점수 리더보드</h3>
                 <ul className="space-y-3">
                   {models.length > 0 ? (

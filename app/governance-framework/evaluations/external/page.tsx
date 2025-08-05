@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeftIcon, PlayIcon, ClockIcon, CheckCircleIcon, CogIcon } from '@heroicons/react/24/outline';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '@/app/contexts/AuthContext';
 
 interface ExternalEvaluation {
   id: string;
@@ -205,7 +205,7 @@ export default function ExternalEvaluationPage() {
         <div className="pt-4 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
           <div className="flex items-center mb-4">
             <button
-              onClick={() => router.push('/evaluation-data')}
+              onClick={() => router.push('/add-custom')}
               className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-white bg-grey border border-tan/50 rounded-lg hover:bg-slate-grey hover:text-white transition-colors"
             >
               <ArrowLeftIcon className="w-4 h-4 mr-2" />
@@ -268,7 +268,7 @@ export default function ExternalEvaluationPage() {
       <div className="pt-4 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="flex items-center mb-4">
           <button
-            onClick={() => router.push('/evaluation-data')}
+            onClick={() => router.push('/add-custom')}
             className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-white bg-grey border border-tan/50 rounded-lg hover:bg-slate-grey hover:text-white transition-colors"
           >
             <ArrowLeftIcon className="w-4 h-4 mr-2" />

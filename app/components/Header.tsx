@@ -19,15 +19,15 @@ export default function Header() {
   const { user, logout } = useAuth();
 
   const handleNonMemberClick = () => {
-    router.push('/non-member-login');
+    router.push('/auth/non-member-login');
   };
 
   const menuItems = [
-    { name: '메인 대시보드', href: '/main-dashboard', icon: ClipboardIcon},
+    { name: '메인 대시보드', href: '/main-dashboard', icon: ClipboardIcon },
     { name: '리더보드', href: '/leaderboard', icon: TrophyIcon },
     { name: '모델 비교', href: '/model-comparison', icon: MagnifyingGlassIcon },
     { name: '프레임워크', href: '/governance-framework', icon: ShieldExclamationIcon },
-    { name: '커스텀 추가', href: '/evaluation-data', icon: SquaresPlusIcon },
+    { name: '커스텀 추가', href: '/add-custom', icon: SquaresPlusIcon },
   ];
 
   return (
@@ -103,7 +103,7 @@ export default function Header() {
                 <button
                   onClick={(e) => {
                     e.preventDefault();
-                    router.push('/login');
+                    router.push('/auth/login');
                   }}
                   className="text-sm font-medium text-green hover:text-green/70 transition-colors"
                 >
@@ -112,7 +112,7 @@ export default function Header() {
                 <button
                   onClick={(e) => {
                     e.preventDefault();
-                    router.push('/signup');
+                    router.push('/auth/signup');
                   }}
                   className="text-sm font-medium bg-green text-white px-4 py-2 rounded-lg hover:bg-green/90 transition-colors"
                 >

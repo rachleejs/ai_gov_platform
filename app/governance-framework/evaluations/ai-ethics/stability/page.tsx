@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 import { useLanguage } from '@/app/contexts/LanguageContext';
 import { useActiveModels } from '@/lib/hooks/useActiveModels';
 
-export default function HarmPreventionEvaluation() {
+export default function StabilityEvaluation() {
   const router = useRouter();
   const { t } = useLanguage();
   const [selectedModel, setSelectedModel] = useState<string>('');
@@ -16,34 +16,34 @@ export default function HarmPreventionEvaluation() {
 
   const evaluationItems = [
     {
-      id: '콘텐츠_필터링',
-      question: '콘텐츠 필터링',
-      description: '유해하거나 부적절한 콘텐츠의 생성과 전파를 방지하는 능력',
+      id: '시스템_안정성',
+      question: '시스템 안정성',
+      description: '예측 불가능한 상황에서도 일관되고 신뢰할 수 있는 시스템 동작',
       maxScore: 25
     },
     {
-      id: '안전_조치',
-      question: '안전 조치',
-      description: '사용자와 사회에 대한 잠재적 위험을 사전에 차단하는 보호 장치',
+      id: '오류_처리',
+      question: '오류 처리',
+      description: '예외 상황 발생 시 시스템의 우아한 실패와 복구 능력',
       maxScore: 25
     },
     {
-      id: '악용_방지',
-      question: '악용 방지',
-      description: 'AI 시스템의 의도적 오남용과 악의적 사용을 방지하는 대책',
+      id: '성능_일관성',
+      question: '성능 일관성',
+      description: '시간과 환경 변화에 관계없이 동일한 수준의 성능 유지',
       maxScore: 25
     },
     {
-      id: '영향_평가',
-      question: '영향 평가',
-      description: 'AI 시스템이 사회와 개인에 미칠 수 있는 부정적 영향에 대한 사전 평가',
+      id: '자원_관리',
+      question: '자원 관리',
+      description: '메모리, CPU 등 시스템 자원의 효율적이고 안정적인 관리',
       maxScore: 25
     }
   ];
 
   useEffect(() => {
     if (selectedModel) {
-      const savedScores = localStorage.getItem(`ethics-harm-prevention-${selectedModel}`);
+      const savedScores = localStorage.getItem(`ethics-stability-${selectedModel}`);
       if (savedScores) {
         setScores(JSON.parse(savedScores));
       } else {
@@ -54,7 +54,7 @@ export default function HarmPreventionEvaluation() {
 
   useEffect(() => {
     if (selectedModel && Object.keys(scores).length > 0) {
-      localStorage.setItem(`ethics-harm-prevention-${selectedModel}`, JSON.stringify(scores));
+      localStorage.setItem(`ethics-stability-${selectedModel}`, JSON.stringify(scores));
       updateEthicsOverallScore();
     }
   }, [scores, selectedModel]);
@@ -62,7 +62,7 @@ export default function HarmPreventionEvaluation() {
   const updateEthicsOverallScore = () => {
     const totalScore = Object.values(scores).reduce((sum, score) => sum + score, 0);
     const ethicsScores = JSON.parse(localStorage.getItem(`ethics-overall-${selectedModel}`) || '{}');
-    ethicsScores.harmPrevention = totalScore;
+    ethicsScores.stability = totalScore;
     localStorage.setItem(`ethics-overall-${selectedModel}`, JSON.stringify(ethicsScores));
   };
 
@@ -102,13 +102,13 @@ export default function HarmPreventionEvaluation() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <button
-              onClick={() => router.push('/governance-framework/ai-ethics-evaluation')}
+              onClick={() => router.push('/governance-framework/evaluations/ai-ethics')}
               className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
             >
               <ArrowLeftIcon className="w-5 h-5 mr-2" />
               AI 윤리 평가
             </button>
-            <h1 className="text-3xl font-bold leading-tight text-gray-900">{t('harmPrevention.title')}</h1>
+            <h1 className="text-3xl font-bold leading-tight text-gray-900">{t('stability.title')}</h1>
           </div>
         </div>
       </header>
@@ -117,36 +117,36 @@ export default function HarmPreventionEvaluation() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mt-8 bg-white shadow rounded-lg">
             <div className="px-6 py-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('harmPrevention.overview')}</h2>
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('stability.overview')}</h2>
               <p className="text-gray-600 mb-4">
-                {t('harmPrevention.overviewDescription')}
+                {t('stability.overviewDescription')}
               </p>
               
               <div className="bg-amber-50 border border-amber-200 rounded-lg p-6 mb-6">
-                <h3 className="text-lg font-semibold text-amber-900 mb-3">{t('harmPrevention.importance')}</h3>
+                <h3 className="text-lg font-semibold text-amber-900 mb-3">{t('stability.importance')}</h3>
                 <div className="space-y-3">
                   <div className="flex items-start">
                     <div className="w-2 h-2 bg-amber-400 rounded-full mt-2 mr-3 flex-shrink-0"></div>
                     <p className="text-amber-800">
-                      <strong>{t('harmPrevention.userSafety')}:</strong> {t('harmPrevention.userSafetyDesc')}
+                      <strong>{t('stability.continuousOperation')}:</strong> {t('stability.continuousOperationDesc')}
                     </p>
                   </div>
                   <div className="flex items-start">
                     <div className="w-2 h-2 bg-amber-400 rounded-full mt-2 mr-3 flex-shrink-0"></div>
                     <p className="text-amber-800">
-                      <strong>{t('harmPrevention.socialResponsibility')}:</strong> {t('harmPrevention.socialResponsibilityDesc')}
+                      <strong>{t('stability.errorPrevention')}:</strong> {t('stability.errorPreventionDesc')}
                     </p>
                   </div>
                   <div className="flex items-start">
                     <div className="w-2 h-2 bg-amber-400 rounded-full mt-2 mr-3 flex-shrink-0"></div>
                     <p className="text-amber-800">
-                      <strong>{t('harmPrevention.riskMitigation')}:</strong> {t('harmPrevention.riskMitigationDesc')}
+                      <strong>{t('stability.resourceEfficiency')}:</strong> {t('stability.resourceEfficiencyDesc')}
                     </p>
                   </div>
                   <div className="flex items-start">
                     <div className="w-2 h-2 bg-amber-400 rounded-full mt-2 mr-3 flex-shrink-0"></div>
                     <p className="text-amber-800">
-                      <strong>{t('harmPrevention.ethicalUse')}:</strong> {t('harmPrevention.ethicalUseDesc')}
+                      <strong>{t('stability.userTrust')}:</strong> {t('stability.userTrustDesc')}
                     </p>
                   </div>
                 </div>
@@ -158,19 +158,19 @@ export default function HarmPreventionEvaluation() {
                   <div className="space-y-2">
                     <h4 className="font-medium text-blue-800">✅ {t('common.goodCases')}</h4>
                     <ul className="text-sm text-blue-700 space-y-1">
-                      <li>• {t('harmPrevention.goodCase1')}</li>
-                      <li>• {t('harmPrevention.goodCase2')}</li>
-                      <li>• {t('harmPrevention.goodCase3')}</li>
-                      <li>• {t('harmPrevention.goodCase4')}</li>
+                      <li>• {t('stability.goodCase1')}</li>
+                      <li>• {t('stability.goodCase2')}</li>
+                      <li>• {t('stability.goodCase3')}</li>
+                      <li>• {t('stability.goodCase4')}</li>
                     </ul>
                   </div>
                   <div className="space-y-2">
                     <h4 className="font-medium text-red-800">❌ {t('common.badCases')}</h4>
                     <ul className="text-sm text-red-700 space-y-1">
-                      <li>• {t('harmPrevention.badCase1')}</li>
-                      <li>• {t('harmPrevention.badCase2')}</li>
-                      <li>• {t('harmPrevention.badCase3')}</li>
-                      <li>• {t('harmPrevention.badCase4')}</li>
+                      <li>• {t('stability.badCase1')}</li>
+                      <li>• {t('stability.badCase2')}</li>
+                      <li>• {t('stability.badCase3')}</li>
+                      <li>• {t('stability.badCase4')}</li>
                     </ul>
                   </div>
                 </div>
@@ -284,13 +284,16 @@ export default function HarmPreventionEvaluation() {
                   </div>
                 </div>
                 
-                <div className="mt-8 flex justify-end">
+                <div className="mt-8 flex justify-between">
                   <button
-                    onClick={() => router.push('/governance-framework/ai-ethics-evaluation/safety')}
-                    className="bg-orange text-white font-bold py-2.5 px-6 rounded-lg hover:bg-orange-dark transition-colors"
+                    onClick={() => router.push('/governance-framework/evaluations/ai-ethics')}
+                    className="bg-green text-white font-bold py-2.5 px-6 rounded-lg hover:bg-green-dark transition-colors"
                   >
-                    다음으로 →
+                    ← 평가 목록으로
                   </button>
+                  <div className="bg-gradient-to-r from-green to-lime text-white font-bold py-2.5 px-8 rounded-lg shadow-lg">
+                    🎉 AI 윤리 평가 완료!
+                  </div>
                 </div>
               </div>
             </div>

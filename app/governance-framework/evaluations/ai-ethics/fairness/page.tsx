@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 import { useLanguage } from '@/app/contexts/LanguageContext';
 import { useActiveModels } from '@/lib/hooks/useActiveModels';
 
-export default function StabilityEvaluation() {
+export default function FairnessEvaluation() {
   const router = useRouter();
   const { t } = useLanguage();
   const [selectedModel, setSelectedModel] = useState<string>('');
@@ -16,34 +16,34 @@ export default function StabilityEvaluation() {
 
   const evaluationItems = [
     {
-      id: '시스템_안정성',
-      question: '시스템 안정성',
-      description: '예측 불가능한 상황에서도 일관되고 신뢰할 수 있는 시스템 동작',
+      id: '편향_탐지',
+      question: '편향 탐지',
+      description: 'AI 시스템의 결과에서 나타날 수 있는 편향성을 식별하고 측정하는 능력',
       maxScore: 25
     },
     {
-      id: '오류_처리',
-      question: '오류 처리',
-      description: '예외 상황 발생 시 시스템의 우아한 실패와 복구 능력',
+      id: '공평한_대우',
+      question: '공평한 대우',
+      description: '모든 사용자와 그룹에게 동등한 기회와 결과를 제공하는 정도',
       maxScore: 25
     },
     {
-      id: '성능_일관성',
-      question: '성능 일관성',
-      description: '시간과 환경 변화에 관계없이 동일한 수준의 성능 유지',
+      id: '대표성',
+      question: '대표성',
+      description: '다양한 인구 집단과 사용자 그룹을 고려한 포용적 설계',
       maxScore: 25
     },
     {
-      id: '자원_관리',
-      question: '자원 관리',
-      description: '메모리, CPU 등 시스템 자원의 효율적이고 안정적인 관리',
+      id: '공정성_모니터링',
+      question: '공정성 모니터링',
+      description: '지속적인 공정성 평가 및 개선을 위한 모니터링 체계',
       maxScore: 25
     }
   ];
 
   useEffect(() => {
     if (selectedModel) {
-      const savedScores = localStorage.getItem(`ethics-stability-${selectedModel}`);
+      const savedScores = localStorage.getItem(`ethics-fairness-${selectedModel}`);
       if (savedScores) {
         setScores(JSON.parse(savedScores));
       } else {
@@ -54,7 +54,7 @@ export default function StabilityEvaluation() {
 
   useEffect(() => {
     if (selectedModel && Object.keys(scores).length > 0) {
-      localStorage.setItem(`ethics-stability-${selectedModel}`, JSON.stringify(scores));
+      localStorage.setItem(`ethics-fairness-${selectedModel}`, JSON.stringify(scores));
       updateEthicsOverallScore();
     }
   }, [scores, selectedModel]);
@@ -62,7 +62,7 @@ export default function StabilityEvaluation() {
   const updateEthicsOverallScore = () => {
     const totalScore = Object.values(scores).reduce((sum, score) => sum + score, 0);
     const ethicsScores = JSON.parse(localStorage.getItem(`ethics-overall-${selectedModel}`) || '{}');
-    ethicsScores.stability = totalScore;
+    ethicsScores.fairness = totalScore;
     localStorage.setItem(`ethics-overall-${selectedModel}`, JSON.stringify(ethicsScores));
   };
 
@@ -102,13 +102,13 @@ export default function StabilityEvaluation() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <button
-              onClick={() => router.push('/governance-framework/ai-ethics-evaluation')}
+              onClick={() => router.push('/governance-framework/evaluations/ai-ethics')}
               className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
             >
               <ArrowLeftIcon className="w-5 h-5 mr-2" />
               AI 윤리 평가
             </button>
-            <h1 className="text-3xl font-bold leading-tight text-gray-900">{t('stability.title')}</h1>
+            <h1 className="text-3xl font-bold leading-tight text-gray-900">{t('fairness.title')}</h1>
           </div>
         </div>
       </header>
@@ -117,36 +117,36 @@ export default function StabilityEvaluation() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mt-8 bg-white shadow rounded-lg">
             <div className="px-6 py-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('stability.overview')}</h2>
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('fairness.overview')}</h2>
               <p className="text-gray-600 mb-4">
-                {t('stability.overviewDescription')}
+                {t('fairness.overviewDescription')}
               </p>
               
               <div className="bg-amber-50 border border-amber-200 rounded-lg p-6 mb-6">
-                <h3 className="text-lg font-semibold text-amber-900 mb-3">{t('stability.importance')}</h3>
+                <h3 className="text-lg font-semibold text-amber-900 mb-3">{t('fairness.importance')}</h3>
                 <div className="space-y-3">
                   <div className="flex items-start">
                     <div className="w-2 h-2 bg-amber-400 rounded-full mt-2 mr-3 flex-shrink-0"></div>
                     <p className="text-amber-800">
-                      <strong>{t('stability.continuousOperation')}:</strong> {t('stability.continuousOperationDesc')}
+                      <strong>{t('fairness.equalAccess')}:</strong> {t('fairness.equalAccessDesc')}
                     </p>
                   </div>
                   <div className="flex items-start">
                     <div className="w-2 h-2 bg-amber-400 rounded-full mt-2 mr-3 flex-shrink-0"></div>
                     <p className="text-amber-800">
-                      <strong>{t('stability.errorPrevention')}:</strong> {t('stability.errorPreventionDesc')}
+                      <strong>{t('fairness.biasElimination')}:</strong> {t('fairness.biasEliminationDesc')}
                     </p>
                   </div>
                   <div className="flex items-start">
                     <div className="w-2 h-2 bg-amber-400 rounded-full mt-2 mr-3 flex-shrink-0"></div>
                     <p className="text-amber-800">
-                      <strong>{t('stability.resourceEfficiency')}:</strong> {t('stability.resourceEfficiencyDesc')}
+                      <strong>{t('fairness.socialJustice')}:</strong> {t('fairness.socialJusticeDesc')}
                     </p>
                   </div>
                   <div className="flex items-start">
                     <div className="w-2 h-2 bg-amber-400 rounded-full mt-2 mr-3 flex-shrink-0"></div>
                     <p className="text-amber-800">
-                      <strong>{t('stability.userTrust')}:</strong> {t('stability.userTrustDesc')}
+                      <strong>{t('fairness.diversity')}:</strong> {t('fairness.diversityDesc')}
                     </p>
                   </div>
                 </div>
@@ -158,19 +158,19 @@ export default function StabilityEvaluation() {
                   <div className="space-y-2">
                     <h4 className="font-medium text-blue-800">✅ {t('common.goodCases')}</h4>
                     <ul className="text-sm text-blue-700 space-y-1">
-                      <li>• {t('stability.goodCase1')}</li>
-                      <li>• {t('stability.goodCase2')}</li>
-                      <li>• {t('stability.goodCase3')}</li>
-                      <li>• {t('stability.goodCase4')}</li>
+                      <li>• {t('fairness.goodCase1')}</li>
+                      <li>• {t('fairness.goodCase2')}</li>
+                      <li>• {t('fairness.goodCase3')}</li>
+                      <li>• {t('fairness.goodCase4')}</li>
                     </ul>
                   </div>
                   <div className="space-y-2">
                     <h4 className="font-medium text-red-800">❌ {t('common.badCases')}</h4>
                     <ul className="text-sm text-red-700 space-y-1">
-                      <li>• {t('stability.badCase1')}</li>
-                      <li>• {t('stability.badCase2')}</li>
-                      <li>• {t('stability.badCase3')}</li>
-                      <li>• {t('stability.badCase4')}</li>
+                      <li>• {t('fairness.badCase1')}</li>
+                      <li>• {t('fairness.badCase2')}</li>
+                      <li>• {t('fairness.badCase3')}</li>
+                      <li>• {t('fairness.badCase4')}</li>
                     </ul>
                   </div>
                 </div>
@@ -284,16 +284,13 @@ export default function StabilityEvaluation() {
                   </div>
                 </div>
                 
-                <div className="mt-8 flex justify-between">
+                <div className="mt-8 flex justify-end">
                   <button
-                    onClick={() => router.push('/governance-framework/ai-ethics-evaluation')}
-                    className="bg-green text-white font-bold py-2.5 px-6 rounded-lg hover:bg-green-dark transition-colors"
+                    onClick={() => router.push('/governance-framework/evaluations/ai-ethics/inclusion')}
+                    className="bg-orange text-white font-bold py-2.5 px-6 rounded-lg hover:bg-orange-dark transition-colors"
                   >
-                    ← 평가 목록으로
+                    다음으로 →
                   </button>
-                  <div className="bg-gradient-to-r from-green to-lime text-white font-bold py-2.5 px-8 rounded-lg shadow-lg">
-                    🎉 AI 윤리 평가 완료!
-                  </div>
                 </div>
               </div>
             </div>

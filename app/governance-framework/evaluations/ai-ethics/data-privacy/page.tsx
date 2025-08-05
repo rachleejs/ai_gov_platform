@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 import { useLanguage } from '@/app/contexts/LanguageContext';
 import { useActiveModels } from '@/lib/hooks/useActiveModels';
 
-export default function MaintenanceEvaluation() {
+export default function DataPrivacyEvaluation() {
   const router = useRouter();
   const { t } = useLanguage();
   const [selectedModel, setSelectedModel] = useState<string>('');
@@ -16,34 +16,34 @@ export default function MaintenanceEvaluation() {
 
   const evaluationItems = [
     {
-      id: '업데이트_프로세스',
-      question: '업데이트 프로세스',
-      description: 'AI 시스템의 정기적이고 체계적인 업데이트와 개선 프로세스',
+      id: '데이터_수집',
+      question: '데이터 수집',
+      description: '개인정보 수집 시 목적 명시 및 동의 절차의 적절성',
       maxScore: 25
     },
     {
-      id: '모니터링_시스템',
-      question: '모니터링 시스템',
-      description: '시스템 성능과 상태를 지속적으로 감시하고 추적하는 체계',
+      id: '데이터_보호',
+      question: '데이터 보호',
+      description: '수집된 개인정보의 암호화 및 보안 관리 체계',
       maxScore: 25
     },
     {
-      id: '문서화',
-      question: '문서화',
-      description: '시스템 운영, 유지보수를 위한 포괄적이고 정확한 문서 관리',
+      id: '데이터_사용',
+      question: '데이터 사용',
+      description: '수집 목적 범위 내에서의 데이터 활용 및 제3자 제공 통제',
       maxScore: 25
     },
     {
-      id: '버전_관리',
-      question: '버전 관리',
-      description: '시스템 변경사항의 체계적 관리와 이전 버전으로의 복구 가능성',
+      id: '데이터_권리',
+      question: '데이터 권리',
+      description: '개인정보 열람, 정정, 삭제 등 정보주체 권리 보장',
       maxScore: 25
     }
   ];
 
   useEffect(() => {
     if (selectedModel) {
-      const savedScores = localStorage.getItem(`ethics-maintenance-${selectedModel}`);
+      const savedScores = localStorage.getItem(`ethics-data-privacy-${selectedModel}`);
       if (savedScores) {
         setScores(JSON.parse(savedScores));
       } else {
@@ -54,7 +54,7 @@ export default function MaintenanceEvaluation() {
 
   useEffect(() => {
     if (selectedModel && Object.keys(scores).length > 0) {
-      localStorage.setItem(`ethics-maintenance-${selectedModel}`, JSON.stringify(scores));
+      localStorage.setItem(`ethics-data-privacy-${selectedModel}`, JSON.stringify(scores));
       updateEthicsOverallScore();
     }
   }, [scores, selectedModel]);
@@ -62,7 +62,7 @@ export default function MaintenanceEvaluation() {
   const updateEthicsOverallScore = () => {
     const totalScore = Object.values(scores).reduce((sum, score) => sum + score, 0);
     const ethicsScores = JSON.parse(localStorage.getItem(`ethics-overall-${selectedModel}`) || '{}');
-    ethicsScores.maintenance = totalScore;
+    ethicsScores.dataPrivacy = totalScore;
     localStorage.setItem(`ethics-overall-${selectedModel}`, JSON.stringify(ethicsScores));
   };
 
@@ -102,13 +102,13 @@ export default function MaintenanceEvaluation() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <button
-              onClick={() => router.push('/governance-framework/ai-ethics-evaluation')}
+              onClick={() => router.push('/governance-framework/evaluations/ai-ethics')}
               className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
             >
               <ArrowLeftIcon className="w-5 h-5 mr-2" />
-              AI 윤리 평가
+              ← AI 윤리 평가
             </button>
-            <h1 className="text-3xl font-bold leading-tight text-gray-900">{t('maintenance.title')}</h1>
+            <h1 className="text-3xl font-bold leading-tight text-gray-900">{t('dataPrivacy.title')}</h1>
           </div>
         </div>
       </header>
@@ -117,36 +117,36 @@ export default function MaintenanceEvaluation() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mt-8 bg-white shadow rounded-lg">
             <div className="px-6 py-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('maintenance.overview')}</h2>
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('dataPrivacy.overview')}</h2>
               <p className="text-gray-600 mb-4">
-                {t('maintenance.overviewDescription')}
+                {t('dataPrivacy.overviewDescription')}
               </p>
               
               <div className="bg-amber-50 border border-amber-200 rounded-lg p-6 mb-6">
-                <h3 className="text-lg font-semibold text-amber-900 mb-3">{t('maintenance.importance')}</h3>
+                <h3 className="text-lg font-semibold text-amber-900 mb-3">{t('dataPrivacy.importance')}</h3>
                 <div className="space-y-3">
                   <div className="flex items-start">
                     <div className="w-2 h-2 bg-amber-400 rounded-full mt-2 mr-3 flex-shrink-0"></div>
                     <p className="text-amber-800">
-                      <strong>{t('maintenance.systemStability')}:</strong> {t('maintenance.systemStabilityDesc')}
+                      <strong>{t('dataPrivacy.userPrivacy')}:</strong> {t('dataPrivacy.userPrivacyDesc')}
                     </p>
                   </div>
                   <div className="flex items-start">
                     <div className="w-2 h-2 bg-amber-400 rounded-full mt-2 mr-3 flex-shrink-0"></div>
                     <p className="text-amber-800">
-                      <strong>{t('maintenance.continuousImprovement')}:</strong> {t('maintenance.continuousImprovementDesc')}
+                      <strong>{t('dataPrivacy.legalCompliance')}:</strong> {t('dataPrivacy.legalComplianceDesc')}
                     </p>
                   </div>
                   <div className="flex items-start">
                     <div className="w-2 h-2 bg-amber-400 rounded-full mt-2 mr-3 flex-shrink-0"></div>
                     <p className="text-amber-800">
-                      <strong>{t('maintenance.knowledgeManagement')}:</strong> {t('maintenance.knowledgeManagementDesc')}
+                      <strong>{t('dataPrivacy.dataControl')}:</strong> {t('dataPrivacy.dataControlDesc')}
                     </p>
                   </div>
                   <div className="flex items-start">
                     <div className="w-2 h-2 bg-amber-400 rounded-full mt-2 mr-3 flex-shrink-0"></div>
                     <p className="text-amber-800">
-                      <strong>{t('maintenance.qualityAssurance')}:</strong> {t('maintenance.qualityAssuranceDesc')}
+                      <strong>{t('dataPrivacy.transparency')}:</strong> {t('dataPrivacy.transparencyDesc')}
                     </p>
                   </div>
                 </div>
@@ -158,19 +158,19 @@ export default function MaintenanceEvaluation() {
                   <div className="space-y-2">
                     <h4 className="font-medium text-blue-800">✅ {t('common.goodCases')}</h4>
                     <ul className="text-sm text-blue-700 space-y-1">
-                      <li>• {t('maintenance.goodCase1')}</li>
-                      <li>• {t('maintenance.goodCase2')}</li>
-                      <li>• {t('maintenance.goodCase3')}</li>
-                      <li>• {t('maintenance.goodCase4')}</li>
+                      <li>• {t('dataPrivacy.goodCase1')}</li>
+                      <li>• {t('dataPrivacy.goodCase2')}</li>
+                      <li>• {t('dataPrivacy.goodCase3')}</li>
+                      <li>• {t('dataPrivacy.goodCase4')}</li>
                     </ul>
                   </div>
                   <div className="space-y-2">
                     <h4 className="font-medium text-red-800">❌ {t('common.badCases')}</h4>
                     <ul className="text-sm text-red-700 space-y-1">
-                      <li>• {t('maintenance.badCase1')}</li>
-                      <li>• {t('maintenance.badCase2')}</li>
-                      <li>• {t('maintenance.badCase3')}</li>
-                      <li>• {t('maintenance.badCase4')}</li>
+                      <li>• {t('dataPrivacy.badCase1')}</li>
+                      <li>• {t('dataPrivacy.badCase2')}</li>
+                      <li>• {t('dataPrivacy.badCase3')}</li>
+                      <li>• {t('dataPrivacy.badCase4')}</li>
                     </ul>
                   </div>
                 </div>
@@ -286,7 +286,7 @@ export default function MaintenanceEvaluation() {
                 
                 <div className="mt-8 flex justify-end">
                   <button
-                    onClick={() => router.push('/governance-framework/ai-ethics-evaluation/risk-management')}
+                    onClick={() => router.push('/governance-framework/evaluations/ai-ethics/fairness')}
                     className="bg-orange text-white font-bold py-2.5 px-6 rounded-lg hover:bg-orange-dark transition-colors"
                   >
                     다음으로 →

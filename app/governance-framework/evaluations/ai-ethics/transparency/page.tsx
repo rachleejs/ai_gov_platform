@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 import { useLanguage } from '@/app/contexts/LanguageContext';
 import { useActiveModels } from '@/lib/hooks/useActiveModels';
 
-export default function RiskManagementEvaluation() {
+export default function TransparencyEvaluation() {
   const router = useRouter();
   const { t } = useLanguage();
   const [selectedModel, setSelectedModel] = useState<string>('');
@@ -16,34 +16,34 @@ export default function RiskManagementEvaluation() {
 
   const evaluationItems = [
     {
-      id: '위험_식별',
-      question: '위험 식별',
-      description: 'AI 시스템 운영 과정에서 발생할 수 있는 잠재적 위험 요소의 사전 파악',
+      id: '의사결정_설명',
+      question: '의사결정 설명',
+      description: 'AI 시스템이 특정 결정에 도달한 과정과 근거를 명확히 설명하는 능력',
       maxScore: 25
     },
     {
-      id: '위험_평가',
-      question: '위험 평가',
-      description: '식별된 위험의 발생 가능성과 영향도를 체계적으로 분석하고 등급화',
+      id: '데이터_투명성',
+      question: '데이터 투명성',
+      description: '사용된 학습 데이터의 출처, 범위, 품질에 대한 투명한 공개',
       maxScore: 25
     },
     {
-      id: '위험_완화',
-      question: '위험 완화',
-      description: '평가된 위험에 대한 예방, 대응, 복구 전략의 수립과 실행',
+      id: '모델_투명성',
+      question: '모델 투명성',
+      description: 'AI 모델의 구조, 알고리즘, 한계에 대한 명확한 정보 제공',
       maxScore: 25
     },
     {
-      id: '위험_모니터링',
-      question: '위험 모니터링',
-      description: '위험 상황의 지속적 감시와 대응 조치의 효과성 평가',
+      id: '프로세스_투명성',
+      question: '프로세스 투명성',
+      description: 'AI 시스템의 개발, 배포, 운영 과정에 대한 투명한 공개',
       maxScore: 25
     }
   ];
 
   useEffect(() => {
     if (selectedModel) {
-      const savedScores = localStorage.getItem(`ethics-risk-management-${selectedModel}`);
+      const savedScores = localStorage.getItem(`ethics-transparency-${selectedModel}`);
       if (savedScores) {
         setScores(JSON.parse(savedScores));
       } else {
@@ -54,7 +54,7 @@ export default function RiskManagementEvaluation() {
 
   useEffect(() => {
     if (selectedModel && Object.keys(scores).length > 0) {
-      localStorage.setItem(`ethics-risk-management-${selectedModel}`, JSON.stringify(scores));
+      localStorage.setItem(`ethics-transparency-${selectedModel}`, JSON.stringify(scores));
       updateEthicsOverallScore();
     }
   }, [scores, selectedModel]);
@@ -62,7 +62,7 @@ export default function RiskManagementEvaluation() {
   const updateEthicsOverallScore = () => {
     const totalScore = Object.values(scores).reduce((sum, score) => sum + score, 0);
     const ethicsScores = JSON.parse(localStorage.getItem(`ethics-overall-${selectedModel}`) || '{}');
-    ethicsScores.riskManagement = totalScore;
+    ethicsScores.transparency = totalScore;
     localStorage.setItem(`ethics-overall-${selectedModel}`, JSON.stringify(ethicsScores));
   };
 
@@ -102,13 +102,13 @@ export default function RiskManagementEvaluation() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <button
-              onClick={() => router.push('/governance-framework/ai-ethics-evaluation')}
+              onClick={() => router.push('/governance-framework/evaluations/ai-ethics')}
               className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
             >
               <ArrowLeftIcon className="w-5 h-5 mr-2" />
               AI 윤리 평가
             </button>
-            <h1 className="text-3xl font-bold leading-tight text-gray-900">{t('riskManagement.title')}</h1>
+            <h1 className="text-3xl font-bold leading-tight text-gray-900">{t('transparency.title')}</h1>
           </div>
         </div>
       </header>
@@ -117,36 +117,36 @@ export default function RiskManagementEvaluation() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mt-8 bg-white shadow rounded-lg">
             <div className="px-6 py-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('riskManagement.overview')}</h2>
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('transparency.overview')}</h2>
               <p className="text-gray-600 mb-4">
-                {t('riskManagement.overviewDescription')}
+                {t('transparency.overviewDescription')}
               </p>
               
               <div className="bg-amber-50 border border-amber-200 rounded-lg p-6 mb-6">
-                <h3 className="text-lg font-semibold text-amber-900 mb-3">{t('riskManagement.importance')}</h3>
+                <h3 className="text-lg font-semibold text-amber-900 mb-3">{t('transparency.importance')}</h3>
                 <div className="space-y-3">
                   <div className="flex items-start">
                     <div className="w-2 h-2 bg-amber-400 rounded-full mt-2 mr-3 flex-shrink-0"></div>
                     <p className="text-amber-800">
-                      <strong>{t('riskManagement.proactiveControl')}:</strong> {t('riskManagement.proactiveControlDesc')}
+                      <strong>{t('transparency.userUnderstanding')}:</strong> {t('transparency.userUnderstandingDesc')}
                     </p>
                   </div>
                   <div className="flex items-start">
                     <div className="w-2 h-2 bg-amber-400 rounded-full mt-2 mr-3 flex-shrink-0"></div>
                     <p className="text-amber-800">
-                      <strong>{t('riskManagement.decisionMaking')}:</strong> {t('riskManagement.decisionMakingDesc')}
+                      <strong>{t('transparency.trustBuilding')}:</strong> {t('transparency.trustBuildingDesc')}
                     </p>
                   </div>
                   <div className="flex items-start">
                     <div className="w-2 h-2 bg-amber-400 rounded-full mt-2 mr-3 flex-shrink-0"></div>
                     <p className="text-amber-800">
-                      <strong>{t('riskManagement.stakeholderTrust')}:</strong> {t('riskManagement.stakeholderTrustDesc')}
+                      <strong>{t('transparency.accountability')}:</strong> {t('transparency.accountabilityDesc')}
                     </p>
                   </div>
                   <div className="flex items-start">
                     <div className="w-2 h-2 bg-amber-400 rounded-full mt-2 mr-3 flex-shrink-0"></div>
                     <p className="text-amber-800">
-                      <strong>{t('riskManagement.continuousImprovement')}:</strong> {t('riskManagement.continuousImprovementDesc')}
+                      <strong>{t('transparency.improvement')}:</strong> {t('transparency.improvementDesc')}
                     </p>
                   </div>
                 </div>
@@ -158,19 +158,19 @@ export default function RiskManagementEvaluation() {
                   <div className="space-y-2">
                     <h4 className="font-medium text-blue-800">✅ {t('common.goodCases')}</h4>
                     <ul className="text-sm text-blue-700 space-y-1">
-                      <li>• {t('riskManagement.goodCase1')}</li>
-                      <li>• {t('riskManagement.goodCase2')}</li>
-                      <li>• {t('riskManagement.goodCase3')}</li>
-                      <li>• {t('riskManagement.goodCase4')}</li>
+                      <li>• {t('transparency.goodCase1')}</li>
+                      <li>• {t('transparency.goodCase2')}</li>
+                      <li>• {t('transparency.goodCase3')}</li>
+                      <li>• {t('transparency.goodCase4')}</li>
                     </ul>
                   </div>
                   <div className="space-y-2">
                     <h4 className="font-medium text-red-800">❌ {t('common.badCases')}</h4>
                     <ul className="text-sm text-red-700 space-y-1">
-                      <li>• {t('riskManagement.badCase1')}</li>
-                      <li>• {t('riskManagement.badCase2')}</li>
-                      <li>• {t('riskManagement.badCase3')}</li>
-                      <li>• {t('riskManagement.badCase4')}</li>
+                      <li>• {t('transparency.badCase1')}</li>
+                      <li>• {t('transparency.badCase2')}</li>
+                      <li>• {t('transparency.badCase3')}</li>
+                      <li>• {t('transparency.badCase4')}</li>
                     </ul>
                   </div>
                 </div>
@@ -286,7 +286,7 @@ export default function RiskManagementEvaluation() {
                 
                 <div className="mt-8 flex justify-end">
                   <button
-                    onClick={() => router.push('/governance-framework/ai-ethics-evaluation/stability')}
+                    onClick={() => router.push('/governance-framework/evaluations/ai-ethics/harm-prevention')}
                     className="bg-orange text-white font-bold py-2.5 px-6 rounded-lg hover:bg-orange-dark transition-colors"
                   >
                     다음으로 →

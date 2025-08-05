@@ -21,6 +21,15 @@
   h1, h2, h3, h4, h5, h6 {
     @apply font-bold text-gray-900;
   }
+
+  /* Increase default line height and margins for better readability */
+  p {
+    @apply leading-relaxed mb-6;
+  }
+
+  section {
+    @apply mb-10;
+  }
 }
 
 @layer components {

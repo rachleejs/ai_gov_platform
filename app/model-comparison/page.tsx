@@ -71,6 +71,9 @@ export default function ModelComparison() {
         }
       } catch (error) {
         console.error('Error fetching models:', error);
+      } finally {
+        // 모델 목록을 불러온 후 로딩 상태 해제
+        setIsLoading(false);
       }
     };
     fetchModels();
@@ -364,9 +367,9 @@ export default function ModelComparison() {
   };
 
   const renderEthicsTable = () => (
-    <div className="overflow-x-auto bg-white rounded-lg">
+    <div className="overflow-x-auto bg-transparent rounded-lg">
       <table className="w-full text-sm text-left">
-        <thead className="text-sm text-green bg-white">
+        <thead className="text-sm text-green bg-transparent">
           <tr>
             <th scope="col" className="px-6 py-4 font-bold">평가 항목</th>
             {getFilteredModels().map(model => (
@@ -379,7 +382,7 @@ export default function ModelComparison() {
         </thead>
         <tbody>
           {evaluationMetrics.ethics.map((metric, index) => (
-            <tr key={index} className="bg-white hover:bg-gray-100/10">
+            <tr key={index} className="bg-transparent hover:bg-gray-100/10">
               <th scope="row" className="px-6 py-4 text-sm font-medium text-green whitespace-nowrap">
                 {metric.name}
               </th>
@@ -407,9 +410,9 @@ export default function ModelComparison() {
   );
 
   const renderPsychologyTable = () => (
-    <div className="overflow-x-auto bg-white rounded-lg">
+    <div className="overflow-x-auto bg-transparent rounded-lg">
       <table className="w-full text-sm text-left">
-        <thead className="text-sm text-green bg-white">
+        <thead className="text-sm text-green bg-transparent">
           <tr>
             <th scope="col" className="px-6 py-4 font-bold">평가 항목</th>
             {getFilteredModels().map(model => <th key={model.id} scope="col" className="px-6 py-4 text-center font-bold">{model.name}</th>)}
@@ -419,7 +422,7 @@ export default function ModelComparison() {
         <tbody>
           {evaluationMetrics.psychology.map((metric, index) => {
             return (
-              <tr key={index} className="bg-white hover:bg-gray-100/10">
+              <tr key={index} className="bg-transparent hover:bg-gray-100/10">
                 <th scope="row" className="px-6 py-4 text-sm font-medium text-green whitespace-nowrap">{metric.name}</th>
                 {getFilteredModels().map(model => {
                   const result = psychologicalResults[model.id];
@@ -446,9 +449,9 @@ export default function ModelComparison() {
   );
 
   const renderScenarioTable = () => (
-    <div className="overflow-x-auto bg-white rounded-lg">
+    <div className="overflow-x-auto bg-transparent rounded-lg">
       <table className="w-full text-sm text-left">
-        <thead className="text-sm text-green bg-white">
+        <thead className="text-sm text-green bg-transparent">
           <tr>
             <th scope="col" className="px-6 py-4 font-bold">평가 항목</th>
             <th scope="col" className="px-6 py-4 font-bold">카테고리</th>
@@ -457,7 +460,7 @@ export default function ModelComparison() {
         </thead>
         <tbody>
           {evaluationMetrics.scenarioDeepEval.map((metric, index) => (
-            <tr key={index} className="bg-white hover:bg-gray-100/10">
+            <tr key={index} className="bg-transparent hover:bg-gray-100/10">
               <th scope="row" className="px-6 py-4 text-sm font-medium text-green whitespace-nowrap">{metric.name}</th>
               <td className="px-6 py-4 text-sm">
                 <span className="text-xs bg-white/20 text-white px-2 py-1 rounded-md border border-white/30">
@@ -488,9 +491,9 @@ export default function ModelComparison() {
   );
 
   const renderExpertTable = () => (
-    <div className="overflow-x-auto bg-white rounded-lg">
+    <div className="overflow-x-auto bg-transparent rounded-lg">
       <table className="w-full text-sm text-left">
-        <thead className="text-sm text-green bg-white">
+        <thead className="text-sm text-green bg-transparent">
           <tr>
             <th scope="col" className="px-6 py-4 font-bold">평가 항목</th>
             <th scope="col" className="px-6 py-4 font-bold">설명</th>
@@ -500,7 +503,7 @@ export default function ModelComparison() {
         </thead>
         <tbody>
           {evaluationMetrics.expert.map((metric, index) => (
-            <tr key={index} className="bg-white hover:bg-gray-100/10">
+            <tr key={index} className="bg-transparent hover:bg-gray-100/10">
               <th scope="row" className="px-6 py-4 text-sm font-medium text-green whitespace-nowrap">{metric.name}</th>
               <td className="px-6 py-4 text-sm text-green/80 max-w-xs">{metric.description}</td>
               {getFilteredModels().map(model => {
@@ -622,9 +625,9 @@ export default function ModelComparison() {
     
     return (
       <div className="mb-8">
-        <h3 className="text-lg font-semibold text-green mb-4 text-center">윤리 평가 종합 비교</h3>
-                        <div className="!bg-white rounded-lg p-6 shadow-lg">
-          <ResponsiveContainer width="100%" height={400}>
+        <h3 className="text-[20pt] font-semibold text-green mb-4 text-center">윤리 평가 종합 비교</h3>
+                        <div className="bg-transparent rounded-lg p-10">
+          <ResponsiveContainer width="100%" height={600}>
             <RadarChart data={data}>
               <PolarGrid />
               <PolarAngleAxis dataKey="metric" tick={{ fontSize: 10 }} />
@@ -654,8 +657,8 @@ export default function ModelComparison() {
     return (
       <div className="mb-8">
         <h3 className="text-lg font-semibold text-green mb-4 text-center">심리학 평가 성과 비교</h3>
-                        <div className="!bg-white rounded-lg p-6 shadow-lg">
-          <ResponsiveContainer width="100%" height={400}>
+                        <div className="bg-transparent rounded-lg p-10">
+          <ResponsiveContainer width="100%" height={600}>
             <BarChart data={data}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="model" />
@@ -686,8 +689,8 @@ export default function ModelComparison() {
     return (
       <div className="mb-8">
         <h3 className="text-lg font-semibold text-green mb-4 text-center">시나리오 평가 카테고리별 성과</h3>
-                        <div className="!bg-white rounded-lg p-6 shadow-lg">
-          <ResponsiveContainer width="100%" height={400}>
+                        <div className="bg-transparent rounded-lg p-10">
+          <ResponsiveContainer width="100%" height={600}>
             <BarChart data={data}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="category" />
@@ -718,8 +721,8 @@ export default function ModelComparison() {
     return (
       <div className="mb-8">
         <h3 className="text-lg font-semibold text-green mb-4 text-center">초등교육 품질평가 메트릭 비교</h3>
-                        <div className="!bg-white rounded-lg p-6 shadow-lg">
-          <ResponsiveContainer width="100%" height={400}>
+                        <div className="bg-transparent rounded-lg p-10">
+          <ResponsiveContainer width="100%" height={600}>
             <RadarChart data={data}>
               <PolarGrid />
               <PolarAngleAxis dataKey="metric" />
@@ -760,8 +763,8 @@ export default function ModelComparison() {
 
       <main className="py-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
         <div className="mb-8 text-center">
-          <h2 className="text-3xl font-bold text-white mb-2">AI 모델 상세 비교</h2>
-          <p className="text-white max-w-3xl mx-auto">
+          <h2 className="text-[32pt] font-bold text-green mb-2">AI 모델 상세 비교</h2>
+          <p className="text-green max-w-3xl mx-auto">
             다양한 평가 기준에 따라 주요 AI 모델들의 성능을 비교하고 분석합니다.
           </p>
         </div>
@@ -779,20 +782,20 @@ export default function ModelComparison() {
                   onClick={() => toggleModelSelection(model.id)}
                   className={`p-6 rounded-xl shadow-lg border cursor-pointer transition-all hover:shadow-xl ${
                     selectedModels.includes(model.id)
-                      ? 'bg-orange text-white shadow-green/30'
-                      : '!bg-white border-grey/30 hover:border-orange/50'
+                      ? 'bg-transparent border-orange border-4 shadow-green/30'
+                      : 'bg-transparent border-grey/30 hover:border-orange/50 border-4'
                   }`}
                 >
                   <div className="flex items-center">
                     <model.icon className={`w-8 h-8 mr-4 ${
-                      selectedModels.includes(model.id) ? 'text-white' : 'text-green'
+                      selectedModels.includes(model.id) ? 'text-green' : 'text-white'
                     }`} />
                     <div>
                       <h3 className={`text-lg font-semibold ${
-                        selectedModels.includes(model.id) ? 'text-white' : 'text-green'
+                        selectedModels.includes(model.id) ? 'text-green' : 'text-white'
                       }`}>{model.name}</h3>
                       <p className={`text-sm ${
-                        selectedModels.includes(model.id) ? 'text-white/80' : 'text-gray-600'
+                        selectedModels.includes(model.id) ? 'text-green' : 'text-white'
                       }`}>{model.provider}</p>
                     </div>
                   </div>
@@ -811,7 +814,7 @@ export default function ModelComparison() {
                       key={tab.id}
                       onClick={() => setActiveTab(tab.id)}
                       className={ ` px-10 py-2.5 text-sm font-semibold rounded-lg transition-colors 
-                        ${activeTab === tab.id ? 'bg-orange text-white shadow' : 'text-white hover:bg-orange/50'}`}
+                        ${activeTab === tab.id ? 'bg-transparent border-orange border-4 text-green shadow' : 'text-white'}`}
                     >
                       {tab.name}
                     </button>

@@ -2,7 +2,7 @@
 
 import { ArrowLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import { useRouter } from 'next/navigation';
-import { useLanguage } from '../../contexts/LanguageContext';
+import { useLanguage } from '@/app/contexts/LanguageContext';
 
 export default function AIEthicsEvaluation() {
   const router = useRouter();
@@ -92,11 +92,11 @@ export default function AIEthicsEvaluation() {
   ];
 
   const handleCriterionClick = (slug: string) => {
-    router.push(`/governance-framework/ai-ethics-evaluation/${slug}`);
+    router.push(`/governance-framework/evaluations/ai-ethics/${slug}`);
   };
 
   const handleScenarioEvaluationClick = (slug: string) => {
-    router.push(`/governance-framework/scenario-evaluation?focus=${slug}`);
+    router.push(`/governance-framework/evaluations/scenario?focus=${slug}`);
   };
 
   // 시나리오 기반 평가에서 테스트하는 항목들

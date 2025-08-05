@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 import { useLanguage } from '@/app/contexts/LanguageContext';
 import { useActiveModels } from '@/lib/hooks/useActiveModels';
 
-export default function FairnessEvaluation() {
+export default function HarmPreventionEvaluation() {
   const router = useRouter();
   const { t } = useLanguage();
   const [selectedModel, setSelectedModel] = useState<string>('');
@@ -16,34 +16,34 @@ export default function FairnessEvaluation() {
 
   const evaluationItems = [
     {
-      id: '편향_탐지',
-      question: '편향 탐지',
-      description: 'AI 시스템의 결과에서 나타날 수 있는 편향성을 식별하고 측정하는 능력',
+      id: '콘텐츠_필터링',
+      question: '콘텐츠 필터링',
+      description: '유해하거나 부적절한 콘텐츠의 생성과 전파를 방지하는 능력',
       maxScore: 25
     },
     {
-      id: '공평한_대우',
-      question: '공평한 대우',
-      description: '모든 사용자와 그룹에게 동등한 기회와 결과를 제공하는 정도',
+      id: '안전_조치',
+      question: '안전 조치',
+      description: '사용자와 사회에 대한 잠재적 위험을 사전에 차단하는 보호 장치',
       maxScore: 25
     },
     {
-      id: '대표성',
-      question: '대표성',
-      description: '다양한 인구 집단과 사용자 그룹을 고려한 포용적 설계',
+      id: '악용_방지',
+      question: '악용 방지',
+      description: 'AI 시스템의 의도적 오남용과 악의적 사용을 방지하는 대책',
       maxScore: 25
     },
     {
-      id: '공정성_모니터링',
-      question: '공정성 모니터링',
-      description: '지속적인 공정성 평가 및 개선을 위한 모니터링 체계',
+      id: '영향_평가',
+      question: '영향 평가',
+      description: 'AI 시스템이 사회와 개인에 미칠 수 있는 부정적 영향에 대한 사전 평가',
       maxScore: 25
     }
   ];
 
   useEffect(() => {
     if (selectedModel) {
-      const savedScores = localStorage.getItem(`ethics-fairness-${selectedModel}`);
+      const savedScores = localStorage.getItem(`ethics-harm-prevention-${selectedModel}`);
       if (savedScores) {
         setScores(JSON.parse(savedScores));
       } else {
@@ -54,7 +54,7 @@ export default function FairnessEvaluation() {
 
   useEffect(() => {
     if (selectedModel && Object.keys(scores).length > 0) {
-      localStorage.setItem(`ethics-fairness-${selectedModel}`, JSON.stringify(scores));
+      localStorage.setItem(`ethics-harm-prevention-${selectedModel}`, JSON.stringify(scores));
       updateEthicsOverallScore();
     }
   }, [scores, selectedModel]);
@@ -62,7 +62,7 @@ export default function FairnessEvaluation() {
   const updateEthicsOverallScore = () => {
     const totalScore = Object.values(scores).reduce((sum, score) => sum + score, 0);
     const ethicsScores = JSON.parse(localStorage.getItem(`ethics-overall-${selectedModel}`) || '{}');
-    ethicsScores.fairness = totalScore;
+    ethicsScores.harmPrevention = totalScore;
     localStorage.setItem(`ethics-overall-${selectedModel}`, JSON.stringify(ethicsScores));
   };
 
@@ -102,13 +102,13 @@ export default function FairnessEvaluation() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <button
-              onClick={() => router.push('/governance-framework/ai-ethics-evaluation')}
+              onClick={() => router.push('/governance-framework/evaluations/ai-ethics')}
               className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
             >
               <ArrowLeftIcon className="w-5 h-5 mr-2" />
               AI 윤리 평가
             </button>
-            <h1 className="text-3xl font-bold leading-tight text-gray-900">{t('fairness.title')}</h1>
+            <h1 className="text-3xl font-bold leading-tight text-gray-900">{t('harmPrevention.title')}</h1>
           </div>
         </div>
       </header>
@@ -117,36 +117,36 @@ export default function FairnessEvaluation() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mt-8 bg-white shadow rounded-lg">
             <div className="px-6 py-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('fairness.overview')}</h2>
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('harmPrevention.overview')}</h2>
               <p className="text-gray-600 mb-4">
-                {t('fairness.overviewDescription')}
+                {t('harmPrevention.overviewDescription')}
               </p>
               
               <div className="bg-amber-50 border border-amber-200 rounded-lg p-6 mb-6">
-                <h3 className="text-lg font-semibold text-amber-900 mb-3">{t('fairness.importance')}</h3>
+                <h3 className="text-lg font-semibold text-amber-900 mb-3">{t('harmPrevention.importance')}</h3>
                 <div className="space-y-3">
                   <div className="flex items-start">
                     <div className="w-2 h-2 bg-amber-400 rounded-full mt-2 mr-3 flex-shrink-0"></div>
                     <p className="text-amber-800">
-                      <strong>{t('fairness.equalAccess')}:</strong> {t('fairness.equalAccessDesc')}
+                      <strong>{t('harmPrevention.userSafety')}:</strong> {t('harmPrevention.userSafetyDesc')}
                     </p>
                   </div>
                   <div className="flex items-start">
                     <div className="w-2 h-2 bg-amber-400 rounded-full mt-2 mr-3 flex-shrink-0"></div>
                     <p className="text-amber-800">
-                      <strong>{t('fairness.biasElimination')}:</strong> {t('fairness.biasEliminationDesc')}
+                      <strong>{t('harmPrevention.socialResponsibility')}:</strong> {t('harmPrevention.socialResponsibilityDesc')}
                     </p>
                   </div>
                   <div className="flex items-start">
                     <div className="w-2 h-2 bg-amber-400 rounded-full mt-2 mr-3 flex-shrink-0"></div>
                     <p className="text-amber-800">
-                      <strong>{t('fairness.socialJustice')}:</strong> {t('fairness.socialJusticeDesc')}
+                      <strong>{t('harmPrevention.riskMitigation')}:</strong> {t('harmPrevention.riskMitigationDesc')}
                     </p>
                   </div>
                   <div className="flex items-start">
                     <div className="w-2 h-2 bg-amber-400 rounded-full mt-2 mr-3 flex-shrink-0"></div>
                     <p className="text-amber-800">
-                      <strong>{t('fairness.diversity')}:</strong> {t('fairness.diversityDesc')}
+                      <strong>{t('harmPrevention.ethicalUse')}:</strong> {t('harmPrevention.ethicalUseDesc')}
                     </p>
                   </div>
                 </div>
@@ -158,19 +158,19 @@ export default function FairnessEvaluation() {
                   <div className="space-y-2">
                     <h4 className="font-medium text-blue-800">✅ {t('common.goodCases')}</h4>
                     <ul className="text-sm text-blue-700 space-y-1">
-                      <li>• {t('fairness.goodCase1')}</li>
-                      <li>• {t('fairness.goodCase2')}</li>
-                      <li>• {t('fairness.goodCase3')}</li>
-                      <li>• {t('fairness.goodCase4')}</li>
+                      <li>• {t('harmPrevention.goodCase1')}</li>
+                      <li>• {t('harmPrevention.goodCase2')}</li>
+                      <li>• {t('harmPrevention.goodCase3')}</li>
+                      <li>• {t('harmPrevention.goodCase4')}</li>
                     </ul>
                   </div>
                   <div className="space-y-2">
                     <h4 className="font-medium text-red-800">❌ {t('common.badCases')}</h4>
                     <ul className="text-sm text-red-700 space-y-1">
-                      <li>• {t('fairness.badCase1')}</li>
-                      <li>• {t('fairness.badCase2')}</li>
-                      <li>• {t('fairness.badCase3')}</li>
-                      <li>• {t('fairness.badCase4')}</li>
+                      <li>• {t('harmPrevention.badCase1')}</li>
+                      <li>• {t('harmPrevention.badCase2')}</li>
+                      <li>• {t('harmPrevention.badCase3')}</li>
+                      <li>• {t('harmPrevention.badCase4')}</li>
                     </ul>
                   </div>
                 </div>
@@ -286,7 +286,7 @@ export default function FairnessEvaluation() {
                 
                 <div className="mt-8 flex justify-end">
                   <button
-                    onClick={() => router.push('/governance-framework/ai-ethics-evaluation/inclusion')}
+                    onClick={() => router.push('/governance-framework/evaluations/ai-ethics/safety')}
                     className="bg-orange text-white font-bold py-2.5 px-6 rounded-lg hover:bg-orange-dark transition-colors"
                   >
                     다음으로 →
