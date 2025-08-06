@@ -117,6 +117,7 @@ const getTestQuestions = (gradeLevel: string, subject: string) => {
 };
 
 import { evaluateModelResponse } from '@/lib/evaluationMetrics';
+import { cookies } from 'next/headers';
 
 export async function POST(request: NextRequest) {
   try {
@@ -130,7 +131,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Supabase에서 모델 정보 조회
-    const supabase = createClient();
+    const cookieStore = cookies();
+    const supabase = createClient(cookieStore);
     const { data: model, error: modelError } = await supabase
       .from('ai_models')
       .select('name')
@@ -296,7 +298,8 @@ export async function GET(request: NextRequest) {
     const gradeLevel = searchParams.get('gradeLevel');
     const subject = searchParams.get('subject');
 
-    const supabase = createClient();
+    const cookieStore = cookies();
+    const supabase = createClient(cookieStore);
     let query = supabase
       .from('educational_quality_evaluations')
       .select(`

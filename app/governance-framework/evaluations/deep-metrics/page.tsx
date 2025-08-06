@@ -217,21 +217,21 @@ export default function ComprehensiveEvaluation() {
       id: 'safety',
       name: '안전성 메트릭',
       description: 'AI 시스템의 안전성, 윤리성, 신뢰성을 종합적으로 평가',
-      color: 'rose',
+      color: 'lime',
       metrics: safetyMetrics
     },
     {
       id: 'quality',
       name: '품질 메트릭',
       description: '응답의 품질, 일관성, 형식 준수를 체계적으로 평가',
-      color: 'emerald',
+      color: 'lime',
       metrics: qualityMetrics
     },
     {
       id: 'conversational',
       name: '대화형 메트릭',
       description: '다중 턴 대화에서의 상호작용 품질과 연속성을 평가',
-      color: 'violet',
+      color: 'lime',
       metrics: conversationalMetrics
     }
   ];
@@ -567,30 +567,30 @@ export default function ComprehensiveEvaluation() {
         <div className="flex items-center mb-4">
           <button
             onClick={() => router.push('/governance-framework/evaluations/ai-ethics')}
-            className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-white bg-grey border border-tan/50 rounded-lg hover:bg-tan"
+            className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-white bg-transparent border border-lime rounded-lg hover:bg-lime"  
           >
             <ArrowLeftIcon className="w-4 h-4 mr-2" />
             AI 윤리 평가
           </button>
-          <h1 className="text-xl font-bold text-green ml-4">Deep 메트릭 평가</h1>
+          <h1 className="text-[20pt] font-bold text-lime ml-4">Deep 메트릭 평가</h1>
         </div>
       </div>
 
       <main className="py-4 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* 페이지 헤더 */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-          <p className="text-green mt-1">
+        <div className="bg-transparent rounded-lg shadow-sm p-6 mb-6 border border-lime">
+          <p className="text-lime mt-1">
             DeepEval과 DeepTeam 메트릭을 활용하여 AI 모델의 신뢰성과 보안성을 종합적으로 평가합니다.
           </p>
 
           {/* 탭 네비게이션 */}
-          <div className="flex space-x-1 bg-grey/20 p-1 rounded-lg mt-4">
+          <div className="flex space-x-1 bg-transparent p-1 rounded-lg mt-4">
             <button
               onClick={() => setActiveTab('deepeval')}
               className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                 activeTab === 'deepeval'
-                  ? 'bg-green text-white shadow'
-                  : 'text-green hover:text-green-dark'
+                  ? 'bg-lime text-white shadow'
+                  : 'text-lime hover:text-lime-dark'
               }`}
             >
               DeepEval 신뢰성 평가
@@ -599,8 +599,8 @@ export default function ComprehensiveEvaluation() {
               onClick={() => setActiveTab('deepteam')}
               className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                 activeTab === 'deepteam'
-                  ? 'bg-green text-white shadow'
-                  : 'text-green hover:text-green-dark'
+                  ? 'bg-lime text-white shadow'
+                  : 'text-lime hover:text-lime-dark'  
               }`}
             >
               DeepTeam 보안 평가
@@ -612,16 +612,16 @@ export default function ComprehensiveEvaluation() {
       {activeTab === 'deepeval' && (
         <div className="space-y-6">
           {/* 전체 평가 상태 */}
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">DeepEval 신뢰성 평가</h2>
-            <p className="text-gray-600 mb-6">
+          <div className="bg-transparent rounded-lg shadow-sm p-6 border border-lime">
+            <h2 className="text-[20pt] font-bold text-white mb-4">DeepEval 신뢰성 평가</h2>
+            <p className="text-white mb-6">
               AI 모델의 신뢰성을 다각도로 평가하여 안전하고 품질 높은 응답을 제공하는지 확인합니다.
             </p>
             
             {/* 포커스된 항목 안내 */}
             {focusItem && (
-              <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
-                <h3 className="text-lg font-semibold text-emerald-900 mb-2">
+              <div className="mb-6 p-4 bg-transparent border border-lime rounded-lg">
+                <h3 className="text-[20pt] font-semibold text-white mb-2">
                   AI 윤리지표: {focusItem === 'accountability' ? '책임성' :
                               focusItem === 'data-privacy' ? '데이터 프라이버시' :
                               focusItem === 'fairness' ? '공정성' :
@@ -633,12 +633,12 @@ export default function ComprehensiveEvaluation() {
                               focusItem === 'risk-management' ? '위험 관리' :
                               focusItem === 'stability' ? '안정성' : focusItem}
                 </h3>
-                <p className="text-emerald-800 text-sm mb-2">
+                <p className="text-white text-sm mb-2">
                   해당 윤리지표와 관련된 Deep 메트릭만 표시됩니다.
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {ethicsToDeepMetricsMapping[focusItem as keyof typeof ethicsToDeepMetricsMapping]?.map((metricId, index) => (
-                    <span key={index} className="px-2 py-1 bg-emerald-100 text-emerald-800 text-xs rounded">
+                    <span key={index} className="px-2 py-1 bg-transparent text-white text-xs rounded border border-lime">
                       {metricId}
                     </span>
                   ))}
@@ -648,39 +648,39 @@ export default function ComprehensiveEvaluation() {
             
             {/* 종합 평가 현황 */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-              <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4 text-center">
-                <div className="text-2xl font-bold text-indigo-600">{getTotalMetrics()}</div>
-                <div className="text-sm text-indigo-700">총 메트릭</div>
+              <div className="bg-transparent border border-lime rounded-lg p-4 text-center">
+                <div className="text-2xl font-bold text-lime">{getTotalMetrics()}</div>
+                <div className="text-sm text-lime">총 메트릭</div>
               </div>
-              <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4 text-center">
-                <div className="text-2xl font-bold text-emerald-600">{getCompletedMetrics()}</div>
-                <div className="text-sm text-emerald-700">완료 메트릭</div>
+              <div className="bg-transparent border border-lime rounded-lg p-4 text-center">
+                <div className="text-2xl font-bold text-lime">{getCompletedMetrics()}</div>
+                <div className="text-sm text-lime">완료 메트릭</div>
               </div>
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
-                <div className="text-2xl font-bold text-blue-600">{getCompletionRate()}%</div>
-                <div className="text-sm text-blue-700">완료율</div>
+              <div className="bg-transparent border border-lime rounded-lg p-4 text-center">
+                <div className="text-2xl font-bold text-lime">{getCompletionRate()}%</div>
+                <div className="text-sm text-lime">완료율</div>
               </div>
-              <div className="bg-violet-50 border border-violet-200 rounded-lg p-4 text-center">
-                <div className="text-2xl font-bold text-violet-600">
+              <div className="bg-transparent border border-lime rounded-lg p-4 text-center">
+                <div className="text-2xl font-bold text-lime">
                   {(calculateOverallScore().ChatGPT * 100).toFixed(1)}%
                 </div>
-                <div className="text-sm text-violet-700">평균 점수</div>
+                <div className="text-sm text-lime">평균 점수</div>
               </div>
             </div>
 
             {/* 전체 진행률 바 */}
-            <div className="bg-gray-50 rounded-lg p-4">
+            <div className="bg-transparent rounded-lg p-4 border border-lime">
               <div className="flex justify-between items-center mb-2">
-                <span className="text-sm font-medium text-gray-700">전체 진행률</span>
-                <span className="text-sm text-gray-600">{getCompletedMetrics()}/{getTotalMetrics()}</span>
+                <span className="text-sm font-medium text-white">전체 진행률</span>
+                <span className="text-sm text-white">{getCompletedMetrics()}/{getTotalMetrics()}</span>
           </div>
-              <div className="w-full bg-gray-200 rounded-full h-3">
+              <div className="w-full bg-transparent rounded-full h-3">
                 <div 
-                  className="bg-gradient-to-r from-blue-500 to-violet-500 h-3 rounded-full transition-all duration-500"
+                  className="bg-gradient-to-r from-lime to-lime h-3 rounded-full transition-all duration-500"
                   style={{ width: `${getCompletionRate()}%` }}
                 />
                   </div>
-              <div className="text-xs text-gray-500 mt-1">
+              <div className="text-xs text-white mt-1">
                 {getCompletionRate() >= 90 ? '우수' : getCompletionRate() >= 70 ? '양호' : '진행 중'}
               </div>
             </div>
@@ -694,14 +694,14 @@ export default function ComprehensiveEvaluation() {
               if (focusItem && filteredMetrics.length === 0) return null;
               
               return (
-              <div key={category.id} className="bg-white rounded-lg shadow-sm overflow-hidden">
+              <div key={category.id} className="bg-transparent rounded-lg shadow-sm overflow-hidden border border-lime">
                 <div className={`px-6 py-4 ${getCategoryHeaderColor(category.color)}`}>
                   <div className="flex justify-between items-center">
                     <div>
-                      <h3 className="text-lg font-bold">{category.name}</h3>
-                      <p className="text-sm opacity-90">{category.description}</p>
+                      <h3 className="text-[20pt] font-bold text-white">{category.name}</h3>
+                      <p className="text-sm text-white">{category.description}</p>
                       {focusItem && (
-                        <p className="text-xs mt-1 opacity-75">
+                        <p className="text-xs mt-1 text-white">
                           {filteredMetrics.length}개 메트릭이 선택된 윤리지표와 관련됩니다
                         </p>
                       )}
@@ -802,28 +802,28 @@ export default function ComprehensiveEvaluation() {
       {/* DeepTeam 보안 평가 탭 */}
       {activeTab === 'deepteam' && (
         <div className="space-y-6">
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">DeepTeam 보안 평가</h2>
-            <p className="text-gray-600 mb-6">
+          <div className="bg-transparent rounded-lg shadow-sm p-6 border border-lime">
+            <h2 className="text-[20pt] font-bold text-white mb-4">DeepTeam 보안 평가</h2>
+            <p className="text-white mb-6">
               AI 모델의 보안성을 평가하여 다양한 공격과 취약점에 대한 저항력을 확인합니다.
             </p>
             
             {/* 전체 보안 점수 표시 */}
-            <div className="bg-rose-50 border border-rose-200 rounded-lg p-4 mb-6">
+            <div className="bg-transparent border border-lime rounded-lg p-4 mb-6">
               <div className="flex justify-between items-center">
                 <div>
-                  <h3 className="text-lg font-semibold text-rose-900">전체 보안 점수</h3>
+                  <h3 className="text-[20pt] font-semibold text-white">전체 보안 점수</h3>
                   <p className="text-rose-700 text-sm">{securityMetrics.length}개 메트릭의 평균 저항력</p>
                 </div>
                 <div className="text-right">
-                  <div className="text-3xl font-bold text-rose-600">
+                  <div className="text-3xl font-bold text-lime">
                     {(securityMetrics.reduce((acc, metric) => 
                       acc + (metric.modelPerformance.ChatGPT.resistance + 
                             metric.modelPerformance.Claude.resistance + 
                             metric.modelPerformance.Gemini.resistance) / 3, 0) 
                      / securityMetrics.length).toFixed(1)}%
                   </div>
-                  <div className="text-sm text-rose-600">평균 저항력</div>
+                  <div className="text-sm text-lime">평균 저항력</div>
                 </div>
               </div>
             </div>
@@ -832,16 +832,16 @@ export default function ComprehensiveEvaluation() {
           {/* 보안 메트릭 표시 */}
           <div className="space-y-6">
             {getFilteredMetrics(securityMetrics).map((metric) => (
-              <div key={metric.id} className={`bg-white rounded-lg shadow-sm overflow-hidden ${
-                focusItem && isMetricFocused(metric.id) ? 'ring-2 ring-emerald-500 ring-opacity-50 shadow-lg' : ''
+              <div key={metric.id} className={`bg-transparent rounded-lg shadow-sm overflow-hidden border border-lime ${
+                focusItem && isMetricFocused(metric.id) ? 'ring-2 ring-lime ring-opacity-50 shadow-lg' : ''
               }`}>
-                <div className="px-6 py-4 bg-rose-500 text-white">
+                <div className="px-6 py-4 bg-lime text-white">
                   <div className="flex justify-between items-center">
                     <div>
                       <div className="flex items-center">
-                        <h3 className="text-lg font-bold">{metric.name}</h3>
+                        <h3 className="text-[20pt] font-bold text-white">{metric.name}</h3>
                         {focusItem && isMetricFocused(metric.id) && (
-                          <span className="ml-2 px-2 py-1 bg-emerald-100 text-emerald-800 text-xs rounded font-medium">
+                          <span className="ml-2 px-2 py-1 bg-lime text-white text-xs rounded font-medium">
                             윤리지표 관련
                           </span>
                         )}
@@ -859,22 +859,22 @@ export default function ComprehensiveEvaluation() {
                 <div className="p-6">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                     {Object.entries(metric.modelPerformance).map(([model, performance]: [string, any]) => (
-                      <div key={model} className="bg-gray-50 rounded-lg p-4">
+                      <div key={model} className="bg-transparent rounded-lg p-4 border border-lime">
                         <div className="flex justify-between items-center mb-2">
-                          <h4 className="font-semibold text-gray-900">{model}</h4>
+                          <h4 className="font-semibold text-white">{model}</h4>
                           <span className={`px-2 py-1 rounded text-xs font-medium ${getGradeColor(performance.grade)}`}>
                             {performance.grade}
                           </span>
                         </div>
-                        <div className="text-2xl font-bold text-gray-900 mb-1">
+                        <div className="text-2xl font-bold text-white mb-1">
                           <span className={getResistanceColor(performance.resistance)}>
                             {performance.resistance.toFixed(1)}%
                           </span>
                         </div>
-                        <div className="text-sm text-gray-600">
+                        <div className="text-sm text-white">
                           성공한 공격: {performance.successful_attacks}/{performance.total_tests}
                         </div>
-                        <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
+                        <div className="mt-2 w-full bg-transparent rounded-full h-2">
                           <div 
                             className={`h-2 rounded-full transition-all duration-300 ${
                               performance.resistance >= 95 ? 'bg-emerald-500' :
@@ -894,7 +894,7 @@ export default function ComprehensiveEvaluation() {
                     <div>
                       <h4 className="font-semibold text-gray-900 mb-3">평가 기준</h4>
                       <ul className="space-y-2">
-                        {metric.criteria.map((criterion, index) => (
+                        {metric.criteria.map((criterion: string, index: number) => (
                           <li key={index} className="flex items-start">
                             <CheckCircleIcon className="h-5 w-5 text-emerald-500 mr-2 mt-0.5 flex-shrink-0" />
                             <span className="text-sm text-gray-700">{criterion}</span>
@@ -906,7 +906,7 @@ export default function ComprehensiveEvaluation() {
                     <div>
                       <h4 className="font-semibold text-gray-900 mb-3">공격 사례</h4>
                       <ul className="space-y-2">
-                        {metric.examples.map((example, index) => (
+                        {metric.examples.map((example: string, index: number) => (
                           <li key={index} className="flex items-start">
                             <ExclamationTriangleIcon className="h-5 w-5 text-amber-500 mr-2 mt-0.5 flex-shrink-0" />
                             <span className="text-sm text-gray-700">{example}</span>

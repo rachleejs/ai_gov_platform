@@ -8,6 +8,8 @@ import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
 // Likert Scale 컴포넌트 interface
+import { noto_sans_kr_normal } from '@/lib/fonts/noto-sans-kr-normal';
+
 interface LikertScaleProps {
   name: string;
   question: string;
@@ -177,60 +179,66 @@ export default function PsychologicalEvaluation() {
     }
   };
 
-  const handleDownloadPdf = async () => {
+      const handleDownloadPdf = async () => {
     if (!selectedModel || !evaluationContentRef.current) {
         alert('먼저 평가할 모델을 선택하고 내용을 확인해주세요.');
         return;
     }
     setIsPdfDownloading(true);
 
-    const modelName = models.find(m => m.id === selectedModel)?.name || 'Unknown Model';
+    const model = models.find(m => m.id === selectedModel);
+    const modelName = model ? model.name : 'Unknown Model';
     const timestamp = new Date().toLocaleString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
     
     try {
-      const canvas = await html2canvas(evaluationContentRef.current, { 
-        scale: 2,
-        useCORS: true,
-        backgroundColor: '#ffffff'
-      });
-      
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-      const imgWidth = canvas.width;
-      const imgHeight = canvas.height;
-      const ratio = imgWidth / imgHeight;
-      const height = pdfWidth / ratio;
-      
-      let position = 0;
-      let pageHeight = imgHeight * pdfWidth / imgWidth;
-      let heightLeft = pageHeight;
-      
-      pdf.setFont('MalgunGothic');
-      pdf.text(`심리학적 접근 평가 결과 - ${modelName}`, 14, 15);
-      pdf.setFontSize(10);
-      pdf.text(`평가일시: ${timestamp}`, 14, 22);
-      
-      pdf.addImage(imgData, 'PNG', 0, 30, pdfWidth, height);
-      heightLeft -= pdfHeight - 30;
+        const canvas = await html2canvas(evaluationContentRef.current, { 
+            scale: 2,
+            useCORS: true,
+            backgroundColor: '#ffffff'
+        });
+        
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF('p', 'mm', 'a4');
 
-      while (heightLeft >= 0) {
-        position = heightLeft - pageHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, height);
-        heightLeft -= pdfHeight;
-      }
-      
-      pdf.save(`psychological_evaluation_${modelName}_${new Date().toISOString().slice(0,10)}.pdf`);
+        pdf.addFileToVFS('NotoSansKR-Regular.ttf', noto_sans_kr_normal);
+        pdf.addFont('NotoSansKR-Regular.ttf', 'NotoSansKR', 'normal');
+        pdf.setFont('NotoSansKR', 'normal');
+        
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight();
+        const imgWidth = canvas.width;
+        const imgHeight = canvas.height;
+        const ratio = imgWidth / imgHeight;
+        const pageHeight = pdfWidth / ratio;
+        
+        let position = 0;
+        
+        pdf.setFontSize(16);
+        pdf.text(`심리학적 접근 평가 결과 - ${modelName}`, 14, 22);
+        pdf.setFontSize(10);
+        pdf.text(`평가일시: ${timestamp}`, 14, 30);
+        
+        let heightLeft = imgHeight * pdfWidth / imgWidth;
+        pdf.addImage(imgData, 'PNG', 0, 40, pdfWidth, pageHeight);
+        heightLeft -= (pdfHeight - 40);
+
+        while (heightLeft > 0) {
+            position = heightLeft - pageHeight;
+            pdf.addPage();
+            pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pageHeight);
+            heightLeft -= pdfHeight;
+        }
+        
+        const safeModelName = modelName.replace(/[^a-zA-Z0-9ㄱ-힣]/g, '_');
+        pdf.save(`심리학적_접근_평가_결과_${safeModelName}_${new Date().toISOString().slice(0,10)}.pdf`);
 
     } catch (error) {
-      console.error("PDF 생성 중 오류 발생:", error);
-      alert("PDF를 생성하는 데 실패했습니다.");
+        console.error("PDF 생성 중 오류 발생:", error);
+        alert("PDF를 생성하는 데 실패했습니다.");
     } finally {
         setIsPdfDownloading(false);
     }
-  };
+};
 
   // 총 점수 계산
   const calculateTotalScore = () => {

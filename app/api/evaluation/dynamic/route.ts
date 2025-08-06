@@ -132,7 +132,7 @@ export async function POST(request: NextRequest) {
         .insert([
           {
             model_id: modelId,
-            user_id: session.user.id,
+            user_id: session ? session.user.id : null,
             template_id: template.id,
             template_name: template.name,
             total_score: result.totalScore,
@@ -196,7 +196,7 @@ export async function PUT(request: NextRequest) {
       .from('custom_evaluation_templates')
       .insert([
         {
-          user_id: session.user.id,
+          user_id: session ? session.user.id : null,
           template_id: template.id,
           name: template.name,
           description: template.description,
@@ -218,7 +218,7 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({
       success: true,
       data: { templateId: template.id, message: 'Template saved successfully' }
-    } as DynamicEvaluationResponse);
+    });
     
   } catch (error) {
     console.error('Error saving custom template:', error);

@@ -248,7 +248,7 @@ export async function POST(request: NextRequest) {
           .insert([
             {
               model_id: modelId,
-              user_id: session.user.id,
+              user_id: session ? session.user.id : null,
               framework: framework,
               evaluation_id: evaluationId,
               score: result.score || 0,

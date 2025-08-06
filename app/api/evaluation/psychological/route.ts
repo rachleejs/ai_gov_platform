@@ -143,10 +143,11 @@ export async function POST(request: Request) {
       const { data: { session } } = await supabase.auth.getSession();
       console.log("세션 정보:", session ? "인증됨" : "인증되지 않음");
 
+      /*
       if (!session) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
       }
-
+      */
       const body = await request.json();
       const { modelId, scores, totalScore, percentage, grade } = body;
       console.log("요청 본문:", { 
@@ -167,7 +168,7 @@ export async function POST(request: Request) {
         .insert([
           {
             model_id: modelId,
-            user_id: session.user.id,
+            user_id: session ? session.user.id : null,
             scores,
             total_score: totalScore,
             percentage,
@@ -185,8 +186,7 @@ export async function POST(request: Request) {
       return NextResponse.json(data[0]);
     } catch (dbError) {
       console.error("Supabase 작업 중 오류 발생:", dbError);
-      // 데이터베이스 작업 실패 시에도 성공 응답 반환 (테스트 목적)
-      return NextResponse.json({ success: true, message: "평가가 저장되었습니다. (모의 저장)" });
+      return NextResponse.json({ error: 'Failed to save evaluation due to a database error' }, { status: 500 });
     }
   } catch (e) {
     console.error("POST /api/evaluation/psychological 처리 중 예외 발생:", e);

@@ -133,7 +133,7 @@ export async function POST(request: Request) {
         .from('evaluations')
         .select('id')
         .eq('model_id', modelId)
-        .eq('user_id', session.user.id)
+        .eq('user_id', session ? session.user.id : null)
         .eq('evaluation_type', 'ethics')
         .eq('category', category)
         .maybeSingle();
@@ -147,7 +147,7 @@ export async function POST(request: Request) {
 
       const evaluationData = {
         model_id: modelId,
-        user_id: session.user.id,
+        user_id: session ? session.user.id : null,
         evaluation_type: 'ethics',
         category,
         score,

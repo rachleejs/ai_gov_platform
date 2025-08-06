@@ -11,7 +11,7 @@ import {
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import LanguageSwitcher from './LanguageSwitcher';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '@/app/contexts/AuthContext';
 
 export default function Header() {
   const router = useRouter();

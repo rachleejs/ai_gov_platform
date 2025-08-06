@@ -10,7 +10,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { useRouter } from 'next/navigation';
 import { motion, Variants } from 'framer-motion';
-import { useAuth } from './contexts/AuthContext';
+import { useAuth } from '@/app/contexts/AuthContext';
 import { useState } from 'react';
 
 export default function Home() {

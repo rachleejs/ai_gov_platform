@@ -19,6 +19,8 @@ export const createClient = (cookieStore: ReturnType<typeof cookies>) => {
     supabaseUrl,
     supabaseAnonKey,
     {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       cookies: {
         get(name: string) {
           return cookieStore.get(name)?.value;

@@ -13,7 +13,7 @@
      - `educational-quality/` - 교육 품질 평가
      - `psychological/` - 심리학적 평가
      - `external/` - 외부 프레임워크 평가
-     - `scenario/` - 시나리오 평가
+     - `deep-metrics/` - Deep 메트릭 평가
      - `template/` - 템플릿 평가
 5. **`evaluation-data/`** - 커스텀 추가
 

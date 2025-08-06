@@ -3,7 +3,7 @@
 import { useState, useEffect, ChangeEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeftIcon, PlusCircleIcon, BeakerIcon } from '@heroicons/react/24/outline';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '@/app/contexts/AuthContext';
 
 // Separate presentational components defined outside the page component to maintain stable identity across renders
 interface InputFieldProps {

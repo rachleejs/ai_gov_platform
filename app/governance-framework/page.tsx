@@ -37,7 +37,7 @@ export default function GovernanceFramework() {
   const [evaluationFrameworks, setEvaluationFrameworks] = useState([
     {
       id: 'ai-ethics',
-      name: t('governance.aiEthics.name'),
+      name: 'AI 윤리 평가지표',
       route: '/governance-framework/evaluations/ai-ethics',
       lastUpdated: '2025-07-01',
       status: 'active',
@@ -56,7 +56,7 @@ export default function GovernanceFramework() {
     },
     {
       id: 'psychology',
-      name: t('governance.psychology.name'),
+      name: '심리학적 평가지표',
       route: '/governance-framework/evaluations/psychological',
       lastUpdated: '2025-06-20',
       status: 'active',

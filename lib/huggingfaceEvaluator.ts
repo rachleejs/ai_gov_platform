@@ -415,7 +415,7 @@ if __name__ == "__main__":
           details: {
             framework: 'huggingface-evaluate',
             raw_output: stdout,
-            parse_error: parseError.message,
+            parse_error: parseError instanceof Error ? parseError.message : String(parseError),
             computed_at: new Date().toISOString()
           }
         };

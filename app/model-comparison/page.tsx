@@ -43,11 +43,11 @@ export default function ModelComparison() {
   const router = useRouter();
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('ethics');
-  const [activeScenarioTab, setActiveScenarioTab] = useState<'deepeval' | 'deepteam'>('deepeval');
+  const [activeDeepMetricsTab, setActiveDeepMetricsTab] = useState<'deepeval' | 'deepteam'>('deepeval');
   const [psychologicalResults, setPsychologicalResults] = useState<{ [key: string]: EvaluationResult }>({});
   const [ethicsResults, setEthicsResults] = useState<{ [key: string]: { [criterion: string]: any } }>({});
   const [educationalResults, setEducationalResults] = useState<{ [key: string]: any }>({});
-  const [scenarioResults, setScenarioResults] = useState<any>(null);
+  const [deepMetricsResults, setDeepMetricsResults] = useState<any>(null);
   const [models, setModels] = useState<ModelType[]>([]);
   const [selectedModels, setSelectedModels] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -196,29 +196,29 @@ export default function ModelComparison() {
     fetchEducationalResults();
   }, [models, user]);
 
-  // 시나리오 평가 결과 가져오기
+  // Deep 메트릭 평가 결과 가져오기
   useEffect(() => {
-    const fetchScenarioResults = async () => {
+    const fetchDeepMetricsResults = async () => {
       if (!user) return;
       
       try {
         const response = await fetch('/api/evaluation-results');
         if (response.ok) {
           const data = await response.json();
-          setScenarioResults(data);
+          setDeepMetricsResults(data);
         }
       } catch (error) {
-        console.error('Error fetching scenario evaluations:', error);
+        console.error('Error fetching deep metrics evaluations:', error);
       }
     };
 
-    fetchScenarioResults();
+    fetchDeepMetricsResults();
   }, [user]);
 
   const tabs = [
     { id: 'ethics', name: '윤리 평가' },
     { id: 'psychology', name: '심리학 평가' },
-    { id: 'scenario', name: '시나리오 평가' },
+    { id: 'deep-metrics', name: 'Deep 메트릭 평가' },
           { id: 'expert', name: '초등교육 품질평가' },
   ];
 
@@ -266,12 +266,12 @@ export default function ModelComparison() {
     };
   };
 
-  const getScenarioScore = (modelName: string, metricName: string) => {
-    if (!scenarioResults || !scenarioResults.results || !scenarioResults.results[modelName]) {
+  const getDeepMetricsScore = (modelName: string, metricName: string) => {
+    if (!deepMetricsResults || !deepMetricsResults.results || !deepMetricsResults.results[modelName]) {
       return { score: '미평가', completed: false };
     }
     
-    const modelResults = scenarioResults.results[modelName];
+    const modelResults = deepMetricsResults.results[modelName];
     
     // 메트릭 이름을 영어로 매핑
     const metricMapping: { [key: string]: string } = {
@@ -330,7 +330,7 @@ export default function ModelComparison() {
       { name: '인지심리학 - 정보처리 이론' },
       { name: '인지심리학 - 인지부하 이론' },
     ],
-    scenarioDeepEval: [
+    deepMetricsDeepEval: [
       { name: '충실성 (Faithfulness)', category: 'RAG 메트릭' },
       { name: '답변 관련성 (Answer Relevancy)', category: 'RAG 메트릭' },
       { name: '문맥 회상 (Contextual Recall)', category: 'RAG 메트릭' },
@@ -448,7 +448,7 @@ export default function ModelComparison() {
     </div>
   );
 
-  const renderScenarioTable = () => (
+  const renderDeepMetricsTable = () => (
     <div className="overflow-x-auto bg-transparent rounded-lg">
       <table className="w-full text-sm text-left">
         <thead className="text-sm text-green bg-transparent">
@@ -459,7 +459,7 @@ export default function ModelComparison() {
           </tr>
         </thead>
         <tbody>
-          {evaluationMetrics.scenarioDeepEval.map((metric, index) => (
+          {evaluationMetrics.deepMetricsDeepEval.map((metric, index) => (
             <tr key={index} className="bg-transparent hover:bg-gray-100/10">
               <th scope="row" className="px-6 py-4 text-sm font-medium text-green whitespace-nowrap">{metric.name}</th>
               <td className="px-6 py-4 text-sm">
@@ -468,7 +468,7 @@ export default function ModelComparison() {
                 </span>
               </td>
               {getFilteredModels().map(model => {
-                const score = getScenarioScore(model.name, metric.name);
+                const score = getDeepMetricsScore(model.name, metric.name);
                 return (
                   <td key={model.id} className="px-6 py-4 text-center text-sm">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
@@ -567,15 +567,15 @@ export default function ModelComparison() {
     return chartData;
   };
 
-  const prepareScenarioChartData = () => {
+  const prepareDeepMetricsChartData = () => {
     const categories = ['RAG 메트릭', '안전성 메트릭', '품질 메트릭', '대화형 메트릭', '편향 메트릭'];
     const chartData = categories.map(category => {
       const dataPoint: any = { category };
       
       getFilteredModels().forEach(model => {
-        const categoryMetrics = evaluationMetrics.scenarioDeepEval.filter(m => m.category === category);
+        const categoryMetrics = evaluationMetrics.deepMetricsDeepEval.filter(m => m.category === category);
         const scores = categoryMetrics.map(metric => {
-          const score = getScenarioScore(model.name, metric.name);
+          const score = getDeepMetricsScore(model.name, metric.name);
           if (score.completed) {
             const scoreMatch = score.score.match(/(\d+\.?\d*)/);
             return scoreMatch ? parseFloat(scoreMatch[1]) : 0;
@@ -682,13 +682,13 @@ export default function ModelComparison() {
     );
   };
 
-  const renderScenarioChart = () => {
-    const data = prepareScenarioChartData();
+  const renderDeepMetricsChart = () => {
+    const data = prepareDeepMetricsChartData();
     const filteredModels = getFilteredModels();
     
     return (
       <div className="mb-8">
-        <h3 className="text-lg font-semibold text-green mb-4 text-center">시나리오 평가 카테고리별 성과</h3>
+        <h3 className="text-lg font-semibold text-green mb-4 text-center">Deep 메트릭 평가 카테고리별 성과</h3>
                         <div className="bg-transparent rounded-lg p-10">
           <ResponsiveContainer width="100%" height={600}>
             <BarChart data={data}>
@@ -836,10 +836,10 @@ export default function ModelComparison() {
                   {renderPsychologyTable()}
                 </>
               )}
-              {activeTab === 'scenario' && (
+              {activeTab === 'deep-metrics' && (
                 <>
-                  {renderScenarioChart()}
-                  {renderScenarioTable()}
+                  {renderDeepMetricsChart()}
+                  {renderDeepMetricsTable()}
                 </>
               )}
               {activeTab === 'expert' && (

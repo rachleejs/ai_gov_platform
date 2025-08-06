@@ -200,8 +200,8 @@ function calculateConfidenceScore(text: string): number {
 
 function calculateContentAccuracy(modelOutput: string, reference: string): number {
   // 핵심 내용 포함 여부 확인
-  const referenceNumbers = reference.match(/\d+/g) || [];
-  const outputNumbers = modelOutput.match(/\d+/g) || [];
+  const referenceNumbers = (reference.match(/\d+/g) || []) as string[];
+  const outputNumbers = (modelOutput.match(/\d+/g) || []) as string[];
   
   let numberAccuracy = 0;
   if (referenceNumbers.length > 0) {
