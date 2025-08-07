@@ -30,6 +30,15 @@ interface EvaluationResult {
   grade: string;
   completedQuestions: number;
   totalQuestions: number;
+  user_friendly_summary?: string;
+  area_scores?: {
+    step_by_step_teaching: number;
+    collaborative_learning: number;
+    confidence_building: number;
+    individual_recognition: number;
+    clear_communication: number;
+  };
+  evaluation_data?: any;
 }
 
 interface ModelType {
@@ -88,17 +97,27 @@ export default function ModelComparison() {
         const results: { [key: string]: EvaluationResult } = {};
         
         const promises = models.map(model => 
-          fetch(`/api/evaluation/psychological?modelId=${model.id}`)
+          fetch(`/api/evaluation/psychological?modelId=${model.id}`, {
+            // 캐시 방지로 최신 결과 가져오기
+            cache: 'no-cache',
+            headers: {
+              'Cache-Control': 'no-cache',
+            }
+          })
             .then(res => res.json())
             .then(data => {
               if (data) {
+                console.log(`📊 ${model.name} 심리학 평가 데이터:`, data);
                 results[model.id] = {
-                  totalScore: data.total_score || 0,
-                  maxScore: 360, // 72 questions * 5 points max
+                  totalScore: data.overall_score || data.total_score || 0,
+                  maxScore: 5, // 새로운 5점 척도
                   percentage: data.percentage || 0,
                   grade: data.grade || 'N/A',
-                  completedQuestions: data.scores ? Object.keys(data.scores).length : 0,
-                  totalQuestions: 72
+                  completedQuestions: data.area_scores ? Object.keys(data.area_scores).length : (data.scores ? Object.keys(data.scores).length : 0),
+                  totalQuestions: 5, // 5개 평가 영역
+                  user_friendly_summary: data.user_friendly_summary,
+                  area_scores: data.area_scores,
+                  evaluation_data: data.evaluation_data
                 };
               }
             })
@@ -106,6 +125,7 @@ export default function ModelComparison() {
         );
         
         await Promise.all(promises);
+        console.log('📊 모든 심리학 평가 결과:', results);
         setPsychologicalResults(results);
       } catch (error) {
         console.error('Error fetching psychological evaluations:', error);
@@ -114,6 +134,50 @@ export default function ModelComparison() {
 
     fetchPsychologicalResults();
   }, [models, user]);
+
+  // 심리학 탭이 활성화될 때 결과 새로고침
+  useEffect(() => {
+    if (activeTab === 'psychology' && user && models.length > 0) {
+      const refreshPsychologicalResults = async () => {
+        try {
+          const results: { [key: string]: EvaluationResult } = {};
+          
+          const promises = models.map(model => 
+            fetch(`/api/evaluation/psychological?modelId=${model.id}`, {
+              cache: 'no-cache',
+              headers: {
+                'Cache-Control': 'no-cache',
+              }
+            })
+              .then(res => res.json())
+              .then(data => {
+                if (data) {
+                  results[model.id] = {
+                    totalScore: data.overall_score || data.total_score || 0,
+                    maxScore: 5,
+                    percentage: data.percentage || 0,
+                    grade: data.grade || 'N/A',
+                    completedQuestions: data.area_scores ? Object.keys(data.area_scores).length : (data.scores ? Object.keys(data.scores).length : 0),
+                    totalQuestions: 5,
+                    user_friendly_summary: data.user_friendly_summary,
+                    area_scores: data.area_scores,
+                    evaluation_data: data.evaluation_data
+                  };
+                }
+              })
+              .catch(err => console.error(`Error refreshing psychological evaluation for ${model.name}:`, err))
+          );
+          
+          await Promise.all(promises);
+          setPsychologicalResults(results);
+        } catch (error) {
+          console.error('Error refreshing psychological evaluations:', error);
+        }
+      };
+
+      refreshPsychologicalResults();
+    }
+  }, [activeTab, models, user]);
 
   // 윤리 평가 결과 가져오기
   useEffect(() => {
@@ -409,44 +473,155 @@ export default function ModelComparison() {
     </div>
   );
 
-  const renderPsychologyTable = () => (
-    <div className="overflow-x-auto bg-transparent rounded-lg">
-      <table className="w-full text-sm text-left">
-        <thead className="text-sm text-green bg-transparent">
-          <tr>
-            <th scope="col" className="px-6 py-4 font-bold">평가 항목</th>
-            {getFilteredModels().map(model => <th key={model.id} scope="col" className="px-6 py-4 text-center font-bold">{model.name}</th>)}
-            <th scope="col" className="px-6 py-4 text-center font-bold">평균</th>
-          </tr>
-        </thead>
-        <tbody>
-          {evaluationMetrics.psychology.map((metric, index) => {
-            return (
-              <tr key={index} className="bg-transparent hover:bg-gray-100/10">
-                <th scope="row" className="px-6 py-4 text-sm font-medium text-green whitespace-nowrap">{metric.name}</th>
-                {getFilteredModels().map(model => {
-                  const result = psychologicalResults[model.id];
-                  return (
-                    <td key={model.id} className="px-6 py-4 text-center text-sm">
+  const renderPsychologyTable = () => {
+    const areaNames = {
+      step_by_step_teaching: '단계적 설명력',
+      collaborative_learning: '협력학습 지도',
+      confidence_building: '자신감 키우기',
+      individual_recognition: '개성 인정',
+      clear_communication: '명확한 소통'
+    };
+
+    // 영역별 평균 계산
+    const calculateAreaAverages = () => {
+      const areas = Object.keys(areaNames);
+      const averages: any = {};
+      
+      areas.forEach(area => {
+        const scores = getFilteredModels()
+          .map(model => psychologicalResults[model.id]?.area_scores?.[area as keyof typeof areaNames])
+          .filter(score => score !== undefined);
+        
+        if (scores.length > 0) {
+          averages[area] = scores.reduce((sum, score) => sum + score, 0) / scores.length;
+        }
+      });
+      
+      return averages;
+    };
+
+    const areaAverages = calculateAreaAverages();
+
+    return (
+      <div className="space-y-6">
+        {/* 종합 평가 */}
+        <div className="overflow-x-auto bg-transparent rounded-lg">
+          <h3 className="text-lg font-semibold text-green-800 mb-2">📊 아동교육 적합성 종합 평가</h3>
+          <p className="text-sm text-green-600 mb-4">
+            각 모델의 전체적인 아동교육 적합성을 종합적으로 평가한 결과입니다. 
+            5개 평가 영역의 평균 점수를 기반으로 등급과 사용자 친화적 요약을 제공합니다.
+          </p>
+          <table className="w-full text-sm text-left">
+            <thead className="text-sm text-green bg-transparent">
+              <tr>
+                <th scope="col" className="px-6 py-4 font-bold">모델명</th>
+                <th scope="col" className="px-6 py-4 text-center font-bold">종합 점수</th>
+                <th scope="col" className="px-6 py-4 text-center font-bold">적합도</th>
+                <th scope="col" className="px-6 py-4 text-center font-bold">등급</th>
+                <th scope="col" className="px-6 py-4 text-center font-bold">평가 요약</th>
+              </tr>
+            </thead>
+            <tbody>
+              {getFilteredModels().map(model => {
+                const result = psychologicalResults[model.id];
+                return (
+                  <tr key={model.id} className="bg-transparent hover:bg-gray-100/10 border-b border-gray-200">
+                    <th scope="row" className="px-6 py-4 text-sm font-medium text-green whitespace-nowrap">{model.name}</th>
+                    <td className="px-6 py-4 text-center text-sm">
                       {result ? (
-                        <div className="flex flex-col items-center">
-                          <span className="font-semibold text-green">{result.percentage}%</span>
-                          <span className="text-xs text-green/80">({result.grade} 등급)</span>
-                        </div>
+                        <span className="font-semibold text-green">{result.totalScore.toFixed(2)}/5.0</span>
                       ) : (
                         <span className="text-green/70">미평가</span>
                       )}
                     </td>
-                  )
-                })}
-                <td className="px-6 py-4 text-center text-sm font-bold text-green">평균</td>
+                    <td className="px-6 py-4 text-center text-sm">
+                      {result ? (
+                        <span className="font-semibold text-green">{result.percentage.toFixed(1)}%</span>
+                      ) : (
+                        <span className="text-green/70">-</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 text-center text-sm">
+                      {result ? (
+                        <span className={`px-2 py-1 rounded-full text-xs font-bold ${
+                          result.grade === 'A+' || result.grade === 'A' ? 'bg-green-100 text-green-600' :
+                          result.grade === 'B+' || result.grade === 'B' ? 'bg-blue-100 text-blue-600' :
+                          result.grade === 'C' ? 'bg-yellow-100 text-yellow-600' :
+                          'bg-red-100 text-red-600'
+                        }`}>
+                          {result.grade}
+                        </span>
+                      ) : (
+                        <span className="text-green/70">-</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 text-sm max-w-xs">
+                      {result?.user_friendly_summary ? (
+                        <div className="text-gray-600 text-xs overflow-hidden" style={{ maxHeight: '3em' }}>
+                          {result.user_friendly_summary.slice(0, 100)}...
+                        </div>
+                      ) : (
+                        <span className="text-green/70">평가 필요</span>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+
+        {/* 영역별 상세 평가 */}
+        <div className="overflow-x-auto bg-transparent rounded-lg">
+          <h3 className="text-lg font-semibold text-green-800 mb-2">🎯 영역별 상세 평가</h3>
+          <p className="text-sm text-green-600 mb-4">
+            아동교육의 핵심 5개 영역별로 각 모델의 성능을 세분화하여 평가한 결과입니다. 
+            각 영역은 0~5점 척도로 평가되며, 위 종합평가의 기초 데이터가 됩니다.
+          </p>
+          <table className="w-full text-sm text-left">
+            <thead className="text-sm text-green bg-transparent">
+              <tr>
+                <th scope="col" className="px-6 py-4 font-bold">평가 영역</th>
+                {getFilteredModels().map(model => <th key={model.id} scope="col" className="px-6 py-4 text-center font-bold">{model.name}</th>)}
+                <th scope="col" className="px-6 py-4 text-center font-bold">평균</th>
               </tr>
-            )
-          })}
-        </tbody>
-      </table>
-    </div>
-  );
+            </thead>
+            <tbody>
+              {Object.entries(areaNames).map(([areaKey, areaName]) => (
+                <tr key={areaKey} className="bg-transparent hover:bg-gray-100/10 border-b border-gray-200">
+                  <th scope="row" className="px-6 py-4 text-sm font-medium text-green whitespace-nowrap">{areaName}</th>
+                  {getFilteredModels().map(model => {
+                    const result = psychologicalResults[model.id];
+                    const score = result?.area_scores?.[areaKey as keyof typeof areaNames];
+                    return (
+                      <td key={model.id} className="px-6 py-4 text-center text-sm">
+                        {score !== undefined ? (
+                          <div className="flex flex-col items-center">
+                            <span className="font-semibold text-green">{score.toFixed(2)}</span>
+                            <div className="w-16 bg-gray-200 rounded-full h-1 mt-1">
+                              <div 
+                                className="bg-green-600 h-1 rounded-full" 
+                                style={{ width: `${(score / 5) * 100}%` }}
+                              ></div>
+                            </div>
+                          </div>
+                        ) : (
+                          <span className="text-green/70">-</span>
+                        )}
+                      </td>
+                    );
+                  })}
+                  <td className="px-6 py-4 text-center text-sm font-bold text-green">
+                    {areaAverages[areaKey] ? areaAverages[areaKey].toFixed(2) : '-'}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
+  };
 
   const renderDeepMetricsTable = () => (
     <div className="overflow-x-auto bg-transparent rounded-lg">
@@ -656,7 +831,7 @@ export default function ModelComparison() {
     
     return (
       <div className="mb-8">
-        <h3 className="text-lg font-semibold text-green mb-4 text-center">심리학 평가 성과 비교</h3>
+        <h3 className="text-lg font-semibold text-green mb-4 text-center">심리학 평가 결과 비교</h3>
                         <div className="bg-transparent rounded-lg p-10">
           <ResponsiveContainer width="100%" height={600}>
             <BarChart data={data}>
@@ -665,7 +840,7 @@ export default function ModelComparison() {
               <YAxis domain={[0, 100]} />
               <Tooltip 
                 formatter={(value: any, name: string) => {
-                  if (name === 'percentage') return [`${value}%`, '성취도'];
+                  if (name === 'percentage') return [`${value}%`, '적합도'];
                   return [value, name];
                 }}
                 labelFormatter={(label) => `모델: ${label}`}

@@ -238,10 +238,14 @@ CREATE TABLE psychological_evaluations (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     model_id UUID REFERENCES ai_models(id) ON DELETE CASCADE,
     user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    model_name TEXT,
     scores JSONB NOT NULL,
     total_score INTEGER NOT NULL,
     percentage INTEGER NOT NULL,
     grade TEXT NOT NULL,
+    details TEXT,
+    user_friendly_summary TEXT,
+    evaluation_data JSONB,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );

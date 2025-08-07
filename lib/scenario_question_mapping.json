@@ -1,0 +1,278 @@
+{
+  "title": "시나리오-체크리스트 질문 매핑",
+  "description": "각 시나리오에 대해 관련 있는 체크리스트 질문들을 매핑하여 효율적인 평가를 위한 설정",
+  "scenario_mappings": {
+    "math_help": {
+      "title": "수학 문제 도움 요청",
+      "relevant_questions": [
+        "piaget_stages_2", "piaget_assimilation_1", "piaget_assimilation_2", "piaget_assimilation_3", "piaget_assimilation_4",
+        "vygotsky_zpd_1", "vygotsky_zpd_2", "vygotsky_zpd_3", "vygotsky_zpd_4",
+        "info_attention_1", "info_attention_3", "info_memory_1", "info_memory_3",
+        "load_intrinsic_1", "load_intrinsic_3", "load_intrinsic_4", "load_germane_1", "load_germane_2"
+      ]
+    },
+    "science_curiosity": {
+      "title": "과학적 호기심 표현",
+      "relevant_questions": [
+        "piaget_stages_1", "piaget_stages_2", "piaget_active_1", "piaget_active_2", "piaget_active_3",
+        "vygotsky_language_1", "vygotsky_language_2", "vygotsky_language_3",
+        "info_attention_1", "info_retrieval_1", "info_retrieval_2", "info_retrieval_3",
+        "load_germane_1", "load_germane_3", "load_germane_4"
+      ]
+    },
+    "reading_difficulty": {
+      "title": "독서 이해 어려움",
+      "relevant_questions": [
+        "piaget_assimilation_1", "piaget_assimilation_2", "piaget_assimilation_3",
+        "vygotsky_zpd_1", "vygotsky_zpd_2", "vygotsky_zpd_4", "vygotsky_language_1", "vygotsky_language_3",
+        "info_attention_1", "info_memory_2", "info_memory_3", "info_retrieval_1",
+        "load_intrinsic_1", "load_intrinsic_4", "load_germane_1", "load_germane_2"
+      ]
+    },
+    "learning_frustration": {
+      "title": "학습 좌절감 표현",
+      "relevant_questions": [
+        "piaget_active_4", "vygotsky_zpd_1", "vygotsky_zpd_2", "vygotsky_zpd_4",
+        "social_efficacy_1", "social_efficacy_2", "social_efficacy_3", "social_efficacy_4",
+        "identity_positive_1", "identity_positive_3", "identity_positive_4",
+        "load_intrinsic_1", "load_intrinsic_3", "load_extraneous_1", "load_extraneous_4"
+      ]
+    },
+    "creative_expression": {
+      "title": "창의적 표현 욕구",
+      "relevant_questions": [
+        "piaget_active_1", "piaget_active_2", "piaget_active_3",
+        "identity_positive_2", "identity_positive_3", "identity_positive_4",
+        "social_modeling_1", "social_modeling_2", "social_efficacy_1", "social_efficacy_2",
+        "info_retrieval_2", "info_retrieval_3", "load_germane_3", "load_germane_4"
+      ]
+    },
+    "fear_expression": {
+      "title": "두려움 표현",
+      "relevant_questions": [
+        "vygotsky_zpd_1", "vygotsky_zpd_2", "vygotsky_social_2", "vygotsky_social_3",
+        "social_efficacy_1", "social_efficacy_2", "social_efficacy_3", "social_efficacy_4",
+        "identity_positive_1", "identity_positive_3", "identity_positive_4",
+        "load_intrinsic_1", "load_intrinsic_3", "load_extraneous_1", "load_extraneous_2"
+      ]
+    },
+    "friend_conflict": {
+      "title": "친구 관계 고민",
+      "relevant_questions": [
+        "vygotsky_social_1", "vygotsky_social_3", "vygotsky_social_4",
+        "identity_positive_1", "identity_positive_4", "identity_prejudice_1", "identity_prejudice_4",
+        "identity_categorization_1", "identity_categorization_2", "identity_categorization_4",
+        "social_modeling_1", "social_modeling_3", "social_vicarious_1", "social_vicarious_3"
+      ]
+    },
+    "success_celebration": {
+      "title": "성공 경험 공유",
+      "relevant_questions": [
+        "piaget_active_3", "piaget_active_4", "vygotsky_social_2", "vygotsky_social_3",
+        "social_efficacy_1", "social_efficacy_2", "social_efficacy_3", "social_efficacy_4",
+        "identity_positive_1", "identity_positive_3", "identity_categorization_3",
+        "social_modeling_1", "social_modeling_2", "social_vicarious_2"
+      ]
+    },
+    "homework_procrastination": {
+      "title": "숙제 미루기",
+      "relevant_questions": [
+        "piaget_active_3", "piaget_active_4", "vygotsky_zpd_2", "vygotsky_zpd_3",
+        "social_efficacy_2", "social_efficacy_3", "social_efficacy_4",
+        "info_attention_1", "info_attention_4", "load_intrinsic_1", "load_intrinsic_2",
+        "load_extraneous_1", "load_extraneous_2", "load_extraneous_4"
+      ]
+    },
+    "comparison_anxiety": {
+      "title": "비교 불안감",
+      "relevant_questions": [
+        "piaget_active_4", "identity_positive_1", "identity_positive_3", "identity_positive_4",
+        "identity_categorization_1", "identity_categorization_3", "identity_categorization_4",
+        "social_efficacy_1", "social_efficacy_2", "social_efficacy_3", "social_efficacy_4",
+        "social_modeling_1", "social_vicarious_1", "social_vicarious_3"
+      ]
+    },
+    "new_concept_confusion": {
+      "title": "새로운 개념 혼란",
+      "relevant_questions": [
+        "piaget_stages_2", "piaget_stages_3", "piaget_assimilation_1", "piaget_assimilation_2", "piaget_assimilation_3",
+        "vygotsky_zpd_1", "vygotsky_zpd_2", "vygotsky_zpd_3", "vygotsky_zpd_4",
+        "info_memory_1", "info_memory_2", "info_memory_3", "info_retrieval_1",
+        "load_intrinsic_1", "load_intrinsic_3", "load_intrinsic_4", "load_germane_1", "load_germane_2"
+      ]
+    },
+    "family_problem": {
+      "title": "가족 문제 고민",
+      "relevant_questions": [
+        "vygotsky_social_2", "vygotsky_social_3", "vygotsky_social_4",
+        "identity_positive_1", "identity_positive_4", "identity_prejudice_4",
+        "identity_categorization_1", "identity_categorization_2",
+        "social_efficacy_1", "social_efficacy_3", "social_modeling_1", "social_modeling_3",
+        "social_vicarious_1", "social_vicarious_3"
+      ]
+    },
+    "interest_exploration": {
+      "title": "관심 분야 탐색",
+      "relevant_questions": [
+        "piaget_active_1", "piaget_active_2", "piaget_active_3",
+        "vygotsky_language_2", "vygotsky_language_3", "vygotsky_language_4",
+        "info_attention_1", "info_attention_3", "info_retrieval_2", "info_retrieval_3",
+        "load_germane_1", "load_germane_3", "load_germane_4"
+      ]
+    },
+    "mistake_shame": {
+      "title": "실수에 대한 수치심",
+      "relevant_questions": [
+        "piaget_active_4", "vygotsky_zpd_1", "vygotsky_zpd_2",
+        "social_efficacy_1", "social_efficacy_2", "social_efficacy_3", "social_efficacy_4",
+        "identity_positive_1", "identity_positive_3", "identity_positive_4",
+        "social_modeling_1", "social_modeling_2", "social_vicarious_2"
+      ]
+    },
+    "time_management": {
+      "title": "시간 관리 어려움",
+      "relevant_questions": [
+        "piaget_stages_2", "piaget_stages_3", "piaget_assimilation_4",
+        "vygotsky_zpd_2", "vygotsky_zpd_3", "vygotsky_zpd_4",
+        "info_attention_1", "info_attention_4", "info_memory_4", "info_retrieval_3",
+        "load_intrinsic_2", "load_intrinsic_3", "load_extraneous_3", "load_germane_2"
+      ]
+    },
+    "physical_activity": {
+      "title": "신체 활동 관련",
+      "relevant_questions": [
+        "piaget_active_1", "piaget_active_2", "vygotsky_social_1", "vygotsky_social_3",
+        "identity_positive_2", "identity_categorization_2", "identity_categorization_4",
+        "social_modeling_1", "social_modeling_2", "social_modeling_3",
+        "social_vicarious_1", "social_vicarious_2", "info_retrieval_2"
+      ]
+    },
+    "emotional_regulation": {
+      "title": "감정 조절 어려움",
+      "relevant_questions": [
+        "vygotsky_language_1", "vygotsky_language_2", "vygotsky_language_3", "vygotsky_language_4",
+        "identity_positive_1", "identity_positive_3", "identity_positive_4",
+        "social_modeling_1", "social_modeling_2", "social_modeling_3", "social_modeling_4",
+        "social_vicarious_1", "social_vicarious_3", "info_retrieval_3"
+      ]
+    },
+    "learning_style": {
+      "title": "학습 방식 고민",
+      "relevant_questions": [
+        "piaget_active_4", "vygotsky_zpd_4", "vygotsky_language_4",
+        "identity_positive_2", "identity_positive_3", "identity_positive_4",
+        "info_attention_4", "info_memory_1", "info_memory_4", "info_retrieval_1", "info_retrieval_2",
+        "load_intrinsic_4", "load_extraneous_3", "load_germane_1", "load_germane_4"
+      ]
+    },
+    "cultural_difference": {
+      "title": "문화적 차이 궁금증",
+      "relevant_questions": [
+        "vygotsky_social_1", "vygotsky_social_4", "vygotsky_language_4",
+        "identity_positive_1", "identity_positive_2", "identity_prejudice_1", "identity_prejudice_2", "identity_prejudice_3", "identity_prejudice_4",
+        "identity_categorization_1", "identity_categorization_2", "identity_categorization_4",
+        "social_modeling_3", "social_vicarious_1", "social_vicarious_4"
+      ]
+    },
+    "technology_confusion": {
+      "title": "기술 사용 어려움",
+      "relevant_questions": [
+        "piaget_assimilation_1", "piaget_assimilation_2", "piaget_assimilation_3", "piaget_assimilation_4",
+        "vygotsky_zpd_1", "vygotsky_zpd_2", "vygotsky_zpd_3", "vygotsky_zpd_4",
+        "info_attention_2", "info_attention_3", "info_memory_2", "info_memory_4",
+        "load_extraneous_1", "load_extraneous_2", "load_extraneous_3", "load_extraneous_4"
+      ]
+    },
+    "moral_dilemma": {
+      "title": "도덕적 고민",
+      "relevant_questions": [
+        "piaget_stages_2", "piaget_stages_3", "vygotsky_social_3", "vygotsky_social_4",
+        "identity_positive_1", "identity_prejudice_1", "identity_prejudice_2", "identity_prejudice_4",
+        "identity_categorization_1", "identity_categorization_2", "identity_categorization_4",
+        "social_modeling_1", "social_modeling_2", "social_modeling_3", "social_modeling_4",
+        "social_vicarious_1", "social_vicarious_2", "social_vicarious_3"
+      ]
+    },
+    "career_interest": {
+      "title": "진로 관심",
+      "relevant_questions": [
+        "piaget_stages_3", "piaget_active_1", "piaget_active_2", "piaget_active_3",
+        "vygotsky_language_2", "vygotsky_language_3", "vygotsky_language_4",
+        "social_efficacy_2", "social_efficacy_3", "social_efficacy_4",
+        "info_retrieval_2", "info_retrieval_3", "load_germane_3", "load_germane_4"
+      ]
+    },
+    "group_project": {
+      "title": "협업 프로젝트 어려움",
+      "relevant_questions": [
+        "vygotsky_social_1", "vygotsky_social_2", "vygotsky_social_3", "vygotsky_language_1", "vygotsky_language_2",
+        "identity_positive_4", "identity_categorization_1", "identity_categorization_2", "identity_categorization_4",
+        "social_modeling_1", "social_modeling_3", "social_vicarious_1", "social_vicarious_3", "social_vicarious_4"
+      ]
+    },
+    "perfectionism": {
+      "title": "완벽주의 성향",
+      "relevant_questions": [
+        "piaget_active_4", "vygotsky_zpd_1", "vygotsky_zpd_2",
+        "social_efficacy_2", "social_efficacy_3", "social_efficacy_4",
+        "identity_positive_1", "identity_positive_3", "identity_positive_4",
+        "load_intrinsic_1", "load_intrinsic_2", "load_extraneous_1", "load_extraneous_2"
+      ]
+    },
+    "memory_strategy": {
+      "title": "기억 방법 질문",
+      "relevant_questions": [
+        "piaget_assimilation_2", "piaget_assimilation_3", "piaget_assimilation_4",
+        "vygotsky_zpd_2", "vygotsky_zpd_3", "vygotsky_zpd_4",
+        "info_memory_1", "info_memory_2", "info_memory_3", "info_memory_4",
+        "info_retrieval_1", "info_retrieval_2", "load_germane_1", "load_germane_2"
+      ]
+    },
+    "attention_difficulty": {
+      "title": "집중력 문제",
+      "relevant_questions": [
+        "piaget_active_3", "piaget_active_4", "vygotsky_zpd_1", "vygotsky_zpd_4",
+        "info_attention_1", "info_attention_2", "info_attention_3", "info_attention_4",
+        "load_intrinsic_1", "load_intrinsic_2", "load_extraneous_1", "load_extraneous_2", "load_extraneous_3", "load_extraneous_4"
+      ]
+    },
+    "creativity_block": {
+      "title": "창의성 막힘",
+      "relevant_questions": [
+        "piaget_active_1", "piaget_active_2", "piaget_active_3",
+        "vygotsky_language_2", "vygotsky_language_3", "vygotsky_language_4",
+        "identity_positive_2", "identity_positive_3", "identity_positive_4",
+        "social_efficacy_1", "social_efficacy_2", "info_retrieval_2", "info_retrieval_3",
+        "load_germane_1", "load_germane_3", "load_germane_4"
+      ]
+    },
+    "self_confidence": {
+      "title": "자신감 부족",
+      "relevant_questions": [
+        "piaget_active_3", "piaget_active_4", "vygotsky_zpd_1", "vygotsky_zpd_2",
+        "social_efficacy_1", "social_efficacy_2", "social_efficacy_3", "social_efficacy_4",
+        "identity_positive_1", "identity_positive_2", "identity_positive_3", "identity_positive_4",
+        "identity_categorization_1", "identity_categorization_3", "social_modeling_1", "social_modeling_2"
+      ]
+    },
+    "peer_pressure": {
+      "title": "또래 압력",
+      "relevant_questions": [
+        "vygotsky_social_1", "vygotsky_social_3", "vygotsky_social_4",
+        "identity_positive_1", "identity_positive_2", "identity_positive_3", "identity_positive_4",
+        "identity_prejudice_1", "identity_prejudice_2", "identity_categorization_1", "identity_categorization_3",
+        "social_modeling_1", "social_modeling_3", "social_vicarious_1", "social_vicarious_3"
+      ]
+    },
+    "learning_disability": {
+      "title": "학습 어려움 호소",
+      "relevant_questions": [
+        "piaget_active_4", "vygotsky_zpd_1", "vygotsky_zpd_2", "vygotsky_zpd_4",
+        "identity_positive_1", "identity_positive_3", "identity_positive_4", "identity_prejudice_4",
+        "social_efficacy_1", "social_efficacy_2", "social_efficacy_3", "social_efficacy_4",
+        "info_attention_1", "info_attention_4", "info_memory_1", "info_memory_2", "info_memory_4",
+        "load_intrinsic_1", "load_intrinsic_4", "load_extraneous_1", "load_extraneous_4"
+      ]
+    }
+  }
+} 

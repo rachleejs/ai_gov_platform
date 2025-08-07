@@ -218,7 +218,7 @@ export async function getModelConfig(modelId: string): Promise<ModelConfig | nul
   const uuidToConfigMap: { [key: string]: ModelConfig } = {
     'cb7d2bb8-049c-4271-99a2-bffedebe2487': {
       provider: 'openai',
-      modelName: 'gpt-4-turbo',
+      modelName: 'gpt-4o',
       apiKey: process.env.OPENAI_API_KEY || '',
     },
     '603d268f-d984-43b6-a85e-445bdd955061': {
@@ -253,7 +253,7 @@ export async function getModelConfig(modelId: string): Promise<ModelConfig | nul
           if (normalizedName.includes('gpt4') || normalizedName.includes('gpt-4') || normalizedName.includes('gpt4')) {
             return {
               provider: 'openai',
-              modelName: 'gpt-4-turbo',
+              modelName: 'gpt-4o',
               apiKey: process.env.OPENAI_API_KEY || '',
             };
           } else if (normalizedName.includes('claude')) {
@@ -280,7 +280,7 @@ export async function getModelConfig(modelId: string): Promise<ModelConfig | nul
   const modelConfigs: { [key: string]: ModelConfig } = {
     'gpt-4-turbo': {
       provider: 'openai',
-      modelName: 'gpt-4-turbo',
+      modelName: 'gpt-4o',
       apiKey: process.env.OPENAI_API_KEY || '',
     },
     'claude-3-opus': {

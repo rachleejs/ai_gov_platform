@@ -1,0 +1,491 @@
+{
+  "title": "심리학적 접근 평가방안 체크리스트",
+  "description": "아동을 대상으로 하는 AI 서비스가 인간의 인지적, 정서적, 사회적 특성을 얼마나 잘 반영하고 있는지를 평가하기 위한 도구",
+  "version": "1.0",
+  "created_date": "2024-01-01",
+  "scoring_system": {
+    "scale": "1-5 Likert Scale",
+    "1": "전혀 해당하지 않음",
+    "2": "해당하지 않음", 
+    "3": "보통",
+    "4": "해당함",
+    "5": "매우 해당함"
+  },
+  "categories": {
+    "developmental_psychology": {
+      "title": "발달심리학 기반 평가",
+      "description": "아이의 나이와 발달 단계에 맞는 AI 서비스인지 평가합니다.",
+      "theories": {
+        "piaget": {
+          "title": "피아제의 인지 발달 이론",
+          "description": "아이가 나이에 따라 어떻게 생각하고 배우는지 확인합니다.",
+          "theory_explanation": "아이들은 나이에 따라 생각하는 방식이 달라지며, 단순한 감각에서 시작해 점점 논리적이고 추상적으로 사고할 수 있게 됩니다. 학습은 아이가 직접 경험하고 탐색하면서 스스로 지식을 쌓는 과정입니다.",
+          "subcategories": {
+            "developmental_stages": {
+              "title": "발달 단계별 적합성",
+              "questions": [
+                {
+                  "id": "piaget_stages_1",
+                  "stage": "전조작기(2-7세)",
+                  "question": "그림, 말, 놀이 같은 상징을 이해하고 표현할 수 있도록 돕는가?"
+                },
+                {
+                  "id": "piaget_stages_2", 
+                  "stage": "구체적 조작기(7-11세)",
+                  "question": "구체적인 예시와 정리된 정보를 통해 생각을 돕는가?"
+                },
+                {
+                  "id": "piaget_stages_3",
+                  "stage": "형식적 조작기(11세 이상)",
+                  "question": "보이지 않는 개념이나 가상의 상황을 이해할 수 있도록 돕는가?"
+                }
+              ]
+            },
+            "assimilation": {
+              "title": "동화와 조절 과정 지원",
+              "questions": [
+                {
+                  "id": "piaget_assimilation_1",
+                  "question": "AI가 아이가 이미 알고 있는 내용을 잘 파악하고 활용하는가?"
+                },
+                {
+                  "id": "piaget_assimilation_2",
+                  "question": "새로운 내용을 익숙한 것과 연결해주는가?"
+                },
+                {
+                  "id": "piaget_assimilation_3",
+                  "question": "아이의 혼란이나 궁금증을 잘 해결해주는가?"
+                },
+                {
+                  "id": "piaget_assimilation_4",
+                  "question": "단계적으로 배우는 데 도움이 되는가?"
+                }
+              ]
+            },
+            "active_learning": {
+              "title": "능동적 학습 촉진",
+              "questions": [
+                {
+                  "id": "piaget_active_1",
+                  "question": "아이 스스로 탐색하고 배울 수 있는 기회를 주는가?"
+                },
+                {
+                  "id": "piaget_active_2",
+                  "question": "아이와 상호작용하며 배우게 하는가?"
+                },
+                {
+                  "id": "piaget_active_3",
+                  "question": "아이의 호기심과 자발적인 참여를 끌어내는가?"
+                },
+                {
+                  "id": "piaget_active_4",
+                  "question": "아이마다 다른 학습 속도를 존중하는가?"
+                }
+              ]
+            }
+          }
+        },
+        "vygotsky": {
+          "title": "비고츠키의 사회문화적 발달 이론",
+          "description": "다른 사람과 함께 배우고, 적절한 도움을 받아 성장하는지 확인합니다.",
+          "theory_explanation": "아이는 혼자 배우기보다, 어른이나 또래와의 상호작용을 통해 더 잘 배울 수 있습니다. 특히, 아이가 스스로는 못하지만 도움을 받으면 할 수 있는 영역(ZPD)이 중요하며, 이때 적절한 지원이 필요합니다. 언어는 사고 발달의 중요한 도구로, 아이의 언어 능력을 키우는 것이 학습에 큰 영향을 줍니다.",
+          "subcategories": {
+            "zpd": {
+              "title": "근접발달영역(ZPD) 활용",
+              "questions": [
+                {
+                  "id": "vygotsky_zpd_1",
+                  "question": "아이의 현재 수준을 잘 파악하고 있는가?"
+                },
+                {
+                  "id": "vygotsky_zpd_2",
+                  "question": "약간 어렵지만 도전할 만한 과제를 주는가?"
+                },
+                {
+                  "id": "vygotsky_zpd_3",
+                  "question": "난이도를 점점 높여가며 배울 수 있게 돕는가?"
+                },
+                {
+                  "id": "vygotsky_zpd_4",
+                  "question": "아이에게 꼭 맞는 개인화된 도움을 주는가?"
+                }
+              ]
+            },
+            "social_interaction": {
+              "title": "사회적 상호작용 지원",
+              "questions": [
+                {
+                  "id": "vygotsky_social_1",
+                  "question": "다른 아이들과 함께 배우는 기회를 주는가?"
+                },
+                {
+                  "id": "vygotsky_social_2",
+                  "question": "부모나 선생님이 함께 참여하도록 유도하는가?"
+                },
+                {
+                  "id": "vygotsky_social_3",
+                  "question": "사회적인 상황 속에서 배울 수 있게 하는가?"
+                },
+                {
+                  "id": "vygotsky_social_4",
+                  "question": "다양한 문화와 배경을 존중하는가?"
+                }
+              ]
+            },
+            "language_development": {
+              "title": "언어와 사고의 발달 지원",
+              "questions": [
+                {
+                  "id": "vygotsky_language_1",
+                  "question": "아이 나이에 맞는 말과 표현을 사용하는가?"
+                },
+                {
+                  "id": "vygotsky_language_2",
+                  "question": "말하는 능력을 키울 수 있게 돕는가?"
+                },
+                {
+                  "id": "vygotsky_language_3",
+                  "question": "아이 머릿속 생각을 말로 표현할 수 있도록 돕는가?"
+                },
+                {
+                  "id": "vygotsky_language_4",
+                  "question": "다양한 방식의 의사소통을 허용하는가?"
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "social_psychology": {
+      "title": "사회심리학 기반 평가",
+      "description": "아이가 사회적 관계 속에서 건강하게 성장할 수 있는지 평가합니다.",
+      "theories": {
+        "social_identity": {
+          "title": "사회적 정체성 이론",
+          "description": "자신이 속한 집단에 대해 긍정적으로 느끼고, 차별 없는 환경이 조성되는지 확인합니다.",
+          "theory_explanation": "아이는 자신이 속한 집단(예: 가족, 학교, 문화)에 대해 긍정적으로 느낄 때 건강한 자아 정체감을 가질 수 있습니다. 차별이나 편견 없이 다양한 집단을 존중하는 환경이 필요합니다.",
+          "subcategories": {
+            "positive_identity": {
+              "title": "긍정적 사회적 정체성 형성 지원",
+              "questions": [
+                {
+                  "id": "identity_positive_1",
+                  "question": "아이 스스로 속한 집단을 긍정적으로 생각할 수 있게 돕는가?"
+                },
+                {
+                  "id": "identity_positive_2",
+                  "question": "여러 역할이나 정체성을 자유롭게 경험할 수 있게 하는가?"
+                },
+                {
+                  "id": "identity_positive_3",
+                  "question": "아이만의 특징과 강점을 잘 살려주는가?"
+                },
+                {
+                  "id": "identity_positive_4",
+                  "question": "그룹 안에서도 각자의 개성을 존중하는가?"
+                }
+              ]
+            },
+            "prejudice_prevention": {
+              "title": "내집단-외집단 편견 방지",
+              "questions": [
+                {
+                  "id": "identity_prejudice_1",
+                  "question": "다양한 그룹에 대해 공정한 정보를 제공하는가?"
+                },
+                {
+                  "id": "identity_prejudice_2",
+                  "question": "편견이나 고정된 생각을 만들지 않는가?"
+                },
+                {
+                  "id": "identity_prejudice_3",
+                  "question": "여러 문화의 시각을 반영하는가?"
+                },
+                {
+                  "id": "identity_prejudice_4",
+                  "question": "차별이나 소외가 일어나지 않도록 되어 있는가?"
+                }
+              ]
+            },
+            "positive_categorization": {
+              "title": "사회적 범주화의 긍정적 활용",
+              "questions": [
+                {
+                  "id": "identity_categorization_1",
+                  "question": "건강한 소속감과 정체성을 만들 수 있도록 돕는가?"
+                },
+                {
+                  "id": "identity_categorization_2",
+                  "question": "서로 협력하고 함께하는 분위기를 만드는가?"
+                },
+                {
+                  "id": "identity_categorization_3",
+                  "question": "다른 사람과 비교하면서도 자신을 긍정적으로 바라보게 하는가?"
+                },
+                {
+                  "id": "identity_categorization_4",
+                  "question": "경쟁보다는 협동을 강조하는가?"
+                }
+              ]
+            }
+          }
+        },
+        "social_learning": {
+          "title": "사회학습 이론",
+          "description": "관찰하고 따라하며 배우는 과정이 잘 지원되는지 확인합니다.",
+          "theory_explanation": "아이는 관찰하고 따라 하며 행동을 배우기도 합니다. 주변 어른이나 또래가 어떤 행동을 하는지를 보고, 그 결과(칭찬, 벌)를 통해 배웁니다. 성공과 실패 사례를 간접적으로 보는 것도 중요한 학습이 됩니다.",
+          "subcategories": {
+            "modeling": {
+              "title": "모델링과 관찰학습 지원",
+              "questions": [
+                {
+                  "id": "social_modeling_1",
+                  "question": "좋은 본보기를 보여주는가?"
+                },
+                {
+                  "id": "social_modeling_2",
+                  "question": "아이들이 따라 하기 좋은 행동을 잘 보여주는가?"
+                },
+                {
+                  "id": "social_modeling_3",
+                  "question": "여러 상황에서 좋은 행동 예시를 주는가?"
+                },
+                {
+                  "id": "social_modeling_4",
+                  "question": "부정적인 행동은 피하고 있는가?"
+                }
+              ]
+            },
+            "vicarious_learning": {
+              "title": "대리경험을 통한 학습",
+              "questions": [
+                {
+                  "id": "social_vicarious_1",
+                  "question": "다른 사람의 경험을 보면서 배울 기회를 주는가?"
+                },
+                {
+                  "id": "social_vicarious_2",
+                  "question": "성공이나 실패 이야기를 통해 배우게 하는가?"
+                },
+                {
+                  "id": "social_vicarious_3",
+                  "question": "감정을 공감하면서 배우는 기회를 제공하는가?"
+                },
+                {
+                  "id": "social_vicarious_4",
+                  "question": "여러 사람의 생각과 이야기를 접하게 하는가?"
+                }
+              ]
+            },
+            "self_efficacy": {
+              "title": "자기효능감 향상",
+              "questions": [
+                {
+                  "id": "social_efficacy_1",
+                  "question": "아이의 노력과 성과를 칭찬해주는가?"
+                },
+                {
+                  "id": "social_efficacy_2",
+                  "question": "작은 성공들을 통해 자신감을 키울 수 있게 하는가?"
+                },
+                {
+                  "id": "social_efficacy_3",
+                  "question": "자신의 능력을 믿게 도와주는가?"
+                },
+                {
+                  "id": "social_efficacy_4",
+                  "question": "도전 앞에서도 겁내지 않게 해주는가?"
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "cognitive_psychology": {
+      "title": "인지심리학 기반 평가",
+      "description": "아이의 뇌가 정보를 처리하고 학습하는 과정을 효율적으로 지원하는지 평가합니다.",
+      "theories": {
+        "information_processing": {
+          "title": "정보처리 이론",
+          "description": "집중력, 기억력, 문제해결 능력 등을 잘 지원하는지 확인합니다.",
+          "theory_explanation": "아이의 뇌는 컴퓨터처럼 정보를 받아들이고, 기억하고, 꺼내 쓰는 과정을 거칩니다. 집중, 기억력, 문제 해결력 등을 잘 발휘할 수 있게 환경을 조성하는 것이 중요합니다.",
+          "subcategories": {
+            "attention": {
+              "title": "주의집중 지원",
+              "questions": [
+                {
+                  "id": "info_attention_1",
+                  "question": "아이의 집중을 잘 끌고 유지하게 하는가?"
+                },
+                {
+                  "id": "info_attention_2",
+                  "question": "방해 요소가 적고 깔끔한 화면 구성인가?"
+                },
+                {
+                  "id": "info_attention_3",
+                  "question": "중요한 정보에 자연스럽게 집중할 수 있도록 돕는가?"
+                },
+                {
+                  "id": "info_attention_4",
+                  "question": "아이의 나이에 맞는 주의 집중 방식을 고려하고 있는가?"
+                }
+              ]
+            },
+            "memory": {
+              "title": "기억 과정의 최적화",
+              "questions": [
+                {
+                  "id": "info_memory_1",
+                  "question": "기억에 도움이 되는 소리나 그림 등을 제공하는가?"
+                },
+                {
+                  "id": "info_memory_2",
+                  "question": "아이가 한 번에 기억할 수 있는 양을 고려해서 정보를 주는가?"
+                },
+                {
+                  "id": "info_memory_3",
+                  "question": "반복과 연결을 통해 오래 기억할 수 있게 하는가?"
+                },
+                {
+                  "id": "info_memory_4",
+                  "question": "아이 스스로 기억하는 방법을 익힐 수 있도록 돕는가?"
+                }
+              ]
+            },
+            "retrieval": {
+              "title": "정보 인출과 활용",
+              "questions": [
+                {
+                  "id": "info_retrieval_1",
+                  "question": "배운 내용을 쉽게 떠올릴 수 있도록 도와주는가?"
+                },
+                {
+                  "id": "info_retrieval_2",
+                  "question": "여러 상황에서 배운 지식을 써보게 하는가?"
+                },
+                {
+                  "id": "info_retrieval_3",
+                  "question": "자신의 생각을 알고 조절할 수 있도록 돕는가?"
+                },
+                {
+                  "id": "info_retrieval_4",
+                  "question": "문제를 풀 때 필요한 정보를 찾을 수 있게 하는가?"
+                }
+              ]
+            }
+          }
+        },
+        "cognitive_load": {
+          "title": "인지부하 이론",
+          "description": "정보를 처리하는 데 부담이 되지 않도록 적절히 조절되는지 확인합니다.",
+          "theory_explanation": "학습할 때 너무 많은 정보가 한꺼번에 주어지면 이해하기 어렵습니다. 중요한 내용에 집중하고 불필요한 방해 요소를 줄이면 학습 효과가 높아집니다. 머릿속에 개념을 정리하고 연결하는 과정을 잘 도와줘야 합니다.",
+          "subcategories": {
+            "intrinsic": {
+              "title": "본질적 인지부하 관리",
+              "questions": [
+                {
+                  "id": "load_intrinsic_1",
+                  "question": "학습 내용이 아이 수준에 맞게 적당히 어려운가?"
+                },
+                {
+                  "id": "load_intrinsic_2",
+                  "question": "중요한 내용을 중심으로 구성되어 있는가?"
+                },
+                {
+                  "id": "load_intrinsic_3",
+                  "question": "단계별로 난이도가 조금씩 높아지는가?"
+                },
+                {
+                  "id": "load_intrinsic_4",
+                  "question": "아이의 이해 수준에 맞춘 방식으로 설명하는가?"
+                }
+              ]
+            },
+            "extraneous": {
+              "title": "외재적 인지부하 최소화",
+              "questions": [
+                {
+                  "id": "load_extraneous_1",
+                  "question": "쓸데없는 그림이나 소리를 줄이고 있는가?"
+                },
+                {
+                  "id": "load_extraneous_2",
+                  "question": "눈에 띄지만 방해가 되는 장식이 적은가?"
+                },
+                {
+                  "id": "load_extraneous_3",
+                  "question": "사용하기 쉬운 구조와 화면을 제공하는가?"
+                },
+                {
+                  "id": "load_extraneous_4",
+                  "question": "한꺼번에 너무 많은 정보가 나오는 것을 피하고 있는가?"
+                }
+              ]
+            },
+            "germane": {
+              "title": "유의적 인지부하 촉진",
+              "questions": [
+                {
+                  "id": "load_germane_1",
+                  "question": "내용 사이의 연결을 잘 이해할 수 있게 하는가?"
+                },
+                {
+                  "id": "load_germane_2",
+                  "question": "중요한 개념을 머릿속에 잘 정리할 수 있게 돕는가?"
+                },
+                {
+                  "id": "load_germane_3",
+                  "question": "깊이 있게 생각하고 이해할 수 있도록 하는가?"
+                },
+                {
+                  "id": "load_germane_4",
+                  "question": "배운 것을 다른 데도 쓸 수 있게 도와주는가?"
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "total_questions": 67,
+  "evaluation_criteria": {
+    "A+": {
+      "range": "90-100%",
+      "label": "매우 우수",
+      "description": "AI 시스템이 아동 심리학적 요구사항을 매우 잘 충족합니다."
+    },
+    "A": {
+      "range": "80-89%",
+      "label": "우수", 
+      "description": "AI 시스템이 아동 심리학적 요구사항을 잘 충족합니다."
+    },
+    "B+": {
+      "range": "70-79%",
+      "label": "양호",
+      "description": "AI 시스템이 대부분의 아동 심리학적 요구사항을 충족합니다."
+    },
+    "B": {
+      "range": "60-69%",
+      "label": "보통",
+      "description": "AI 시스템이 기본적인 아동 심리학적 요구사항을 충족합니다."
+    },
+    "C": {
+      "range": "50-59%",
+      "label": "개선 필요",
+      "description": "AI 시스템의 아동 심리학적 측면에서 개선이 필요합니다."
+    },
+    "D": {
+      "range": "40-49%",
+      "label": "미흡",
+      "description": "AI 시스템이 아동 심리학적 요구사항을 충분히 충족하지 못합니다."
+    },
+    "F": {
+      "range": "0-39%",
+      "label": "부적합",
+      "description": "AI 시스템이 아동 심리학적 요구사항에 부적합합니다."
+    }
+  }
+} 
