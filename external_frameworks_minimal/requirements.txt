@@ -1,0 +1,7 @@
+# 외부 평가 프레임워크 의존성
+evals>=0.0.8
+evaluate>=0.4.0
+transformers>=4.30.0
+datasets>=2.12.0
+lm-eval>=0.3.0
+# bigbench는 Python 3.13과 호환성 이슈가 있어 별도 설치 필요

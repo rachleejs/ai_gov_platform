@@ -4,6 +4,7 @@ import { useState, useEffect, ChangeEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeftIcon, PlusCircleIcon, BeakerIcon } from '@heroicons/react/24/outline';
 import { useAuth } from '@/app/contexts/AuthContext';
+import { ModelSelect } from '@/app/components/ModelSelect';
 
 // Separate presentational components defined outside the page component to maintain stable identity across renders
 interface InputFieldProps {
@@ -47,6 +48,11 @@ export default function EvaluationDataPage() {
   const router = useRouter();
   const { user } = useAuth();
 
+  // 기존 상용 모델 선택을 위한 상태
+  const [selectedCommercialModel, setSelectedCommercialModel] = useState('');
+  const [selectedModelInfo, setSelectedModelInfo] = useState<any>(null);
+  
+  // 커스텀 모델을 위한 상태
   const [modelName, setModelName] = useState('');
   const [modelDescription, setModelDescription] = useState('');
   const [modelProvider, setModelProvider] = useState('');
@@ -71,6 +77,20 @@ export default function EvaluationDataPage() {
 
   const [models, setModels] = useState<any[]>([]);
   const [metrics, setMetrics] = useState<any[]>([]);
+
+  // 모델 ID에서 제공자 추출하는 헬퍼 함수
+  const getProviderFromModelId = (modelId: string): string => {
+    if (modelId.startsWith('gpt')) return 'OpenAI';
+    if (modelId.startsWith('claude')) return 'Anthropic';
+    if (modelId.startsWith('gemini')) return 'Google';
+    return 'Unknown';
+  };
+
+  // 상용 모델 선택 핸들러
+  const handleCommercialModelSelect = (modelId: string, modelInfo?: any) => {
+    setSelectedCommercialModel(modelId);
+    setSelectedModelInfo(modelInfo);
+  };
 
   useEffect(() => {
     async function fetchData() {
@@ -103,32 +123,100 @@ export default function EvaluationDataPage() {
 
   const handleAddModel = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!modelName.trim() || user?.isGuest) return;
+    if (user?.isGuest) return;
+    
+    // 기존 상용 모델인 경우
+    if (!isCustomModel) {
+      if (!selectedCommercialModel || !selectedModelInfo) {
+        setError('상용 모델을 선택해주세요.');
+        return;
+      }
+      
+      try {
+        const modelData = {
+          name: selectedModelInfo.name,
+          provider: getProviderFromModelId(selectedCommercialModel),
+          model_type: selectedModelInfo.model_type,
+          description: selectedModelInfo.name + ' 상용 모델',
+          version: selectedModelInfo.version,
+          context_window: selectedModelInfo.context_window,
+          max_tokens: selectedModelInfo.max_tokens,
+          // api_endpoint 필드 제거 (테이블 스키마에 없음)
+          api_key_required: true,
+          authentication_type: 'Bearer',
+          supports_streaming: selectedModelInfo.supports_streaming,
+          supported_formats: selectedModelInfo.supported_formats,
+          input_cost_per_token: selectedModelInfo.input_cost_per_token,
+          output_cost_per_token: selectedModelInfo.output_cost_per_token,
+          is_custom_model: false,
+          is_active: true // 활성화 상태로 추가
+        };
+
+        const res = await fetch('/api/models', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(modelData),
+        });
+        
+        const data = await res.json();
+        if (res.ok) {
+          setModels([data.model || data, ...models]);
+          setMessage(`모델 "${selectedModelInfo.name}"이(가) 추가되었습니다.`);
+          setError('');
+          setSelectedCommercialModel('');
+          setSelectedModelInfo(null);
+        } else {
+          setError(data.error || '모델 추가에 실패했습니다.');
+          setMessage('');
+        }
+      } catch (err) {
+        setError('모델 추가 중 오류가 발생했습니다.');
+        setMessage('');
+        console.error('Error adding commercial model:', err);
+      }
+      return;
+    }
+    
+    // 커스텀 모델인 경우
+    if (!modelName.trim()) {
+      setError('모델 이름을 입력해주세요.');
+      return;
+    }
     
     try {
       const modelData = {
         name: modelName,
-        provider: modelProvider || (isCustomModel ? 'Custom' : 'Unknown'),
+        provider: modelProvider || 'Custom',
         model_type: modelType,
         description: modelDescription,
         version: version || undefined,
         context_window: parseInt(contextWindow) || 4096,
         max_tokens: parseInt(maxTokens) || 2048,
-        api_endpoint: isCustomModel ? apiEndpoint : undefined,
+        // apiEndpoint is stored in custom_config to match DB schema
         api_key_required: apiKeyRequired,
         authentication_type: authType,
         supports_streaming: supportsStreaming,
         supported_formats: supportedFormats,
         input_cost_per_token: inputCost ? parseFloat(inputCost) : undefined,
         output_cost_per_token: outputCost ? parseFloat(outputCost) : undefined,
-        is_custom_model: isCustomModel,
+        is_custom_model: true,
         custom_config: (customConfig && customConfig.trim()) ? (() => {
           try {
-            return JSON.parse(customConfig);
+            // Merge API endpoint with custom config
+            const parsedConfig = JSON.parse(customConfig);
+            return {
+              ...parsedConfig,
+              api_endpoint: apiEndpoint // Store API endpoint in custom_config
+            };
           } catch {
-            return null;
+            // If JSON parsing fails, still store the API endpoint
+            return {
+              api_endpoint: apiEndpoint
+            };
           }
-        })() : undefined
+        })() : {
+          api_endpoint: apiEndpoint // Always include API endpoint in custom_config
+        }
       };
 
       const res = await fetch('/api/models', {
@@ -239,49 +327,6 @@ export default function EvaluationDataPage() {
               새 모델 추가
             </h3>
             <form onSubmit={handleAddModel} className="space-y-6">
-              {/* 기본 정보 */}
-              <div className="space-y-4">
-                <h4 className="text-[16pt] font-medium text-green border-b border-tan/30 pb-2">기본 정보</h4>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label htmlFor="modelName" className="block text-sm font-medium text-green mb-1">모델 이름 *</label>
-                    <InputField id="modelName" value={modelName} onChange={e => setModelName(e.target.value)} placeholder="예: GPT-4 Turbo" required />
-                  </div>
-                  <div>
-                    <label htmlFor="modelProvider" className="block text-sm font-medium text-green mb-1">제공자</label>
-                    <InputField id="modelProvider" value={modelProvider} onChange={e => setModelProvider(e.target.value)} placeholder="예: OpenAI, Anthropic" />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label htmlFor="version" className="block text-sm font-medium text-green mb-1">버전</label>
-                    <InputField id="version" value={version} onChange={e => setVersion(e.target.value)} placeholder="예: 2024-04-09" />
-                  </div>
-                  <div>
-                    <label htmlFor="modelType" className="block text-sm font-medium text-green mb-1">모델 타입</label>
-                    <select
-                      id="modelType"
-                      value={modelType}
-                      onChange={e => setModelType(e.target.value)}
-                      className="w-full px-4 py-2 bg-transparent border border-white rounded-lg focus:ring-green focus:border-green text-green"
-                    >
-                      <option value="Large Language Model">Large Language Model</option>
-                      <option value="Vision Language Model">Vision Language Model</option>
-                      <option value="Code Generation Model">Code Generation Model</option>
-                      <option value="Embedding Model">Embedding Model</option>
-                      <option value="Custom">Custom</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div>
-                  <label htmlFor="modelDesc" className="block text-sm font-medium text-green mb-1">설명</label>
-                  <TextareaField id="modelDesc" value={modelDescription} onChange={e => setModelDescription(e.target.value)} placeholder="모델에 대한 간단한 설명을 입력하세요." />
-                </div>
-              </div>
-
               {/* 모델 타입 선택 */}
               <div className="space-y-4">
                 <h4 className="text-[16pt] font-medium text-green border-b border-tan/30 pb-2">모델 타입</h4>
@@ -294,7 +339,7 @@ export default function EvaluationDataPage() {
                       onChange={() => setIsCustomModel(false)}
                       className="mr-2"
                     />
-                    <span className="text-green">기존 모델 (OpenAI, Anthropic, Google 등)</span>
+                    <span className="text-green">상용 모델 (OpenAI, Anthropic, Google 등)</span>
                   </label>
                   <label className="flex items-center">
                     <input
@@ -309,121 +354,180 @@ export default function EvaluationDataPage() {
                 </div>
               </div>
 
-              {/* 모델 사양 */}
-              <div className="space-y-4">
-                <h4 className="text-[16pt] font-medium text-green border-b border-tan/30 pb-2">모델 사양</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label htmlFor="contextWindow" className="block text-sm font-medium text-green mb-1">컨텍스트 윈도우</label>
-                    <InputField id="contextWindow" value={contextWindow} onChange={e => setContextWindow(e.target.value)} placeholder="4096" />
-                  </div>
-                  <div>
-                    <label htmlFor="maxTokens" className="block text-sm font-medium text-green mb-1">최대 토큰</label>
-                    <InputField id="maxTokens" value={maxTokens} onChange={e => setMaxTokens(e.target.value)} placeholder="2048" />
-                  </div>
-                </div>
-              </div>
-
-              {/* 지원 기능 */}
-              <div className="space-y-4">
-                <h4 className="text-[16pt] font-medium text-green border-b border-tan/30 pb-2">지원 기능</h4>
-                <div className="space-y-3">
-                  <div>
-                    <label className="block text-sm font-medium text-green mb-2">지원 포맷</label>
-                    <div className="flex flex-wrap gap-3">
-                      {['text', 'image', 'audio', 'video', 'code'].map(format => (
-                        <label key={format} className="flex items-center">
-                          <input
-                            type="checkbox"
-                            checked={supportedFormats.includes(format)}
-                            onChange={e => handleFormatChange(format, e.target.checked)}
-                            className="mr-2"
-                          />
-                          <span className="text-green capitalize">{format}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>    
-                  <div className="flex items-center">
-                    <input
-                      type="checkbox"
-                      id="supportsStreaming"
-                      checked={supportsStreaming}
-                      onChange={e => setSupportsStreaming(e.target.checked)}
-                      className="mr-2"
-                    />
-                    <label htmlFor="supportsStreaming" className="text-sm text-green">스트리밍 지원</label>
-                  </div>
-                </div>
-              </div>
-
-              {/* 커스텀 모델 전용 필드 */}
-              {isCustomModel && (
-                <div className="space-y-4 border-t border-tan/30 pt-4">
-                  <h4 className="text-md font-medium text-green">API 설정 (커스텀 모델)</h4>
-                  <div>
-                    <label htmlFor="apiEndpoint" className="block text-sm font-medium text-green mb-1">API 엔드포인트 *</label>
-                    <InputField id="apiEndpoint" value={apiEndpoint} onChange={e => setApiEndpoint(e.target.value)} placeholder="https://api.example.com/v1/chat/completions" required={isCustomModel} />
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={apiKeyRequired}
-                          onChange={e => setApiKeyRequired(e.target.checked)}
-                          className="mr-2"
-                        />
-                        <span className="text-sm text-green">API 키 필요</span>
-                      </label>
-                    </div>
-                    <div>
-                      <label htmlFor="authType" className="block text-sm font-medium text-green mb-1">인증 방식</label>
-                      <select
-                        id="authType"
-                        value={authType}
-                        onChange={e => setAuthType(e.target.value)}
-                        className="w-full px-4 py-2 bg-grey border border-tan/50 rounded-lg focus:ring-green focus:border-green text-green"
-                      >
-                        <option value="Bearer">Bearer Token</option>
-                        <option value="API-Key">API Key</option>
-                        <option value="Basic">Basic Auth</option>
-                        <option value="None">No Auth</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label htmlFor="customConfig" className="block text-sm font-medium text-green mb-1">커스텀 설정 (JSON)</label>
-                    <textarea
-                      id="customConfig"
-                      value={customConfig}
-                      onChange={e => setCustomConfig(e.target.value)}
-                      className="w-full px-4 py-2 bg-grey border border-tan/50 rounded-lg focus:ring-green focus:border-green text-green placeholder-white h-20 resize-none font-mono text-sm"
-                      placeholder='{"temperature": 0.7, "top_p": 0.9}'
-                    />
-                  </div>
+              {/* 상용 모델 선택 */}
+              {!isCustomModel && (
+                <div className="space-y-4">
+                  <h4 className="text-[16pt] font-medium text-green border-b border-tan/30 pb-2">상용 모델 선택</h4>
+                  <ModelSelect
+                    value={selectedCommercialModel}
+                    onChange={handleCommercialModelSelect}
+                    showAdvanced={true}
+                    label="모델 버전 선택"
+                  />
                 </div>
               )}
 
-              {/* 비용 정보 */}
-              <div className="space-y-4">
-                <h4 className="text-[16pt] font-medium text-green border-b border-tan/30 pb-2">비용 정보 (선택사항)</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label htmlFor="inputCost" className="block text-sm font-medium text-green mb-1">입력 토큰당 비용 (USD)</label>
-                    <InputField id="inputCost" value={inputCost} onChange={e => setInputCost(e.target.value)} placeholder="0.00001" />
+              {/* 커스텀 모델 정보 입력 */}
+              {isCustomModel && (
+                <>
+                  {/* 기본 정보 */}
+                  <div className="space-y-4">
+                    <h4 className="text-[16pt] font-medium text-green border-b border-tan/30 pb-2">기본 정보</h4>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label htmlFor="modelName" className="block text-sm font-medium text-green mb-1">모델 이름 *</label>
+                        <InputField id="modelName" value={modelName} onChange={e => setModelName(e.target.value)} placeholder="예: GPT-4 Turbo" required />
+                      </div>
+                      <div>
+                        <label htmlFor="modelProvider" className="block text-sm font-medium text-green mb-1">제공자</label>
+                        <InputField id="modelProvider" value={modelProvider} onChange={e => setModelProvider(e.target.value)} placeholder="예: OpenAI, Anthropic" />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label htmlFor="version" className="block text-sm font-medium text-green mb-1">버전</label>
+                        <InputField id="version" value={version} onChange={e => setVersion(e.target.value)} placeholder="예: 2024-04-09" />
+                      </div>
+                      <div>
+                        <label htmlFor="modelType" className="block text-sm font-medium text-green mb-1">모델 타입</label>
+                        <select
+                          id="modelType"
+                          value={modelType}
+                          onChange={e => setModelType(e.target.value)}
+                          className="w-full px-4 py-2 bg-transparent border border-white rounded-lg focus:ring-green focus:border-green text-green"
+                        >
+                          <option value="Large Language Model">Large Language Model</option>
+                          <option value="Vision Language Model">Vision Language Model</option>
+                          <option value="Code Generation Model">Code Generation Model</option>
+                          <option value="Embedding Model">Embedding Model</option>
+                          <option value="Custom">Custom</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label htmlFor="modelDesc" className="block text-sm font-medium text-green mb-1">설명</label>
+                      <TextareaField id="modelDesc" value={modelDescription} onChange={e => setModelDescription(e.target.value)} placeholder="모델에 대한 간단한 설명을 입력하세요." />
+                    </div>
                   </div>
-                  <div>
-                    <label htmlFor="outputCost" className="block text-sm font-medium text-green mb-1">출력 토큰당 비용 (USD)</label>
-                    <InputField id="outputCost" value={outputCost} onChange={e => setOutputCost(e.target.value)} placeholder="0.00003" />
+
+                  {/* 모델 사양 */}
+                  <div className="space-y-4">
+                    <h4 className="text-[16pt] font-medium text-green border-b border-tan/30 pb-2">모델 사양</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label htmlFor="contextWindow" className="block text-sm font-medium text-green mb-1">컨텍스트 윈도우</label>
+                        <InputField id="contextWindow" value={contextWindow} onChange={e => setContextWindow(e.target.value)} placeholder="4096" />
+                      </div>
+                      <div>
+                        <label htmlFor="maxTokens" className="block text-sm font-medium text-green mb-1">최대 토큰</label>
+                        <InputField id="maxTokens" value={maxTokens} onChange={e => setMaxTokens(e.target.value)} placeholder="2048" />
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
+
+                  {/* 지원 기능 */}
+                  <div className="space-y-4">
+                    <h4 className="text-[16pt] font-medium text-green border-b border-tan/30 pb-2">지원 기능</h4>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-sm font-medium text-green mb-2">지원 포맷</label>
+                        <div className="flex flex-wrap gap-3">
+                          {['text', 'image', 'audio', 'video', 'code'].map(format => (
+                            <label key={format} className="flex items-center">
+                              <input
+                                type="checkbox"
+                                checked={supportedFormats.includes(format)}
+                                onChange={e => handleFormatChange(format, e.target.checked)}
+                                className="mr-2"
+                              />
+                              <span className="text-green capitalize">{format}</span>
+                            </label>
+                          ))}
+                        </div>
+                      </div>    
+                      <div className="flex items-center">
+                        <input
+                          type="checkbox"
+                          id="supportsStreaming"
+                          checked={supportsStreaming}
+                          onChange={e => setSupportsStreaming(e.target.checked)}
+                          className="mr-2"
+                        />
+                        <label htmlFor="supportsStreaming" className="text-sm text-green">스트리밍 지원</label>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 커스텀 모델 전용 필드 */}
+                  <div className="space-y-4 border-t border-tan/30 pt-4">
+                    <h4 className="text-md font-medium text-green">API 설정 (커스텀 모델)</h4>
+                    <div>
+                      <label htmlFor="apiEndpoint" className="block text-sm font-medium text-green mb-1">API 엔드포인트 *</label>
+                      <InputField id="apiEndpoint" value={apiEndpoint} onChange={e => setApiEndpoint(e.target.value)} placeholder="https://api.example.com/v1/chat/completions" required={isCustomModel} />
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={apiKeyRequired}
+                            onChange={e => setApiKeyRequired(e.target.checked)}
+                            className="mr-2"
+                          />
+                          <span className="text-sm text-green">API 키 필요</span>
+                        </label>
+                      </div>
+                      <div>
+                        <label htmlFor="authType" className="block text-sm font-medium text-green mb-1">인증 방식</label>
+                        <select
+                          id="authType"
+                          value={authType}
+                          onChange={e => setAuthType(e.target.value)}
+                          className="w-full px-4 py-2 bg-grey border border-tan/50 rounded-lg focus:ring-green focus:border-green text-green"
+                        >
+                          <option value="Bearer">Bearer Token</option>
+                          <option value="API-Key">API Key</option>
+                          <option value="Basic">Basic Auth</option>
+                          <option value="None">No Auth</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label htmlFor="customConfig" className="block text-sm font-medium text-green mb-1">커스텀 설정 (JSON)</label>
+                      <textarea
+                        id="customConfig"
+                        value={customConfig}
+                        onChange={e => setCustomConfig(e.target.value)}
+                        className="w-full px-4 py-2 bg-grey border border-tan/50 rounded-lg focus:ring-green focus:border-green text-green placeholder-white h-20 resize-none font-mono text-sm"
+                        placeholder='{"temperature": 0.7, "top_p": 0.9}'
+                      />
+                    </div>
+                  </div>
+
+                  {/* 비용 정보 */}
+                  <div className="space-y-4">
+                    <h4 className="text-[16pt] font-medium text-green border-b border-tan/30 pb-2">비용 정보 (선택사항)</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label htmlFor="inputCost" className="block text-sm font-medium text-green mb-1">입력 토큰당 비용 (USD)</label>
+                        <InputField id="inputCost" value={inputCost} onChange={e => setInputCost(e.target.value)} placeholder="0.00001" />
+                      </div>
+                      <div>
+                        <label htmlFor="outputCost" className="block text-sm font-medium text-green mb-1">출력 토큰당 비용 (USD)</label>
+                        <InputField id="outputCost" value={outputCost} onChange={e => setOutputCost(e.target.value)} placeholder="0.00003" />
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
 
               <button type="submit" disabled={user?.isGuest} className="w-full bg-green text-white font-semibold py-3 rounded-lg hover:bg-slate-grey transition-colors disabled:bg-taupe/50 disabled:cursor-not-allowed">
-                모델 추가하기
+                {!isCustomModel ? '상용 모델 추가하기' : '커스텀 모델 추가하기'}
               </button>
             </form>
           </div>
@@ -549,4 +653,4 @@ export default function EvaluationDataPage() {
       </main>
     </div>
   );
-} 
+}

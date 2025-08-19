@@ -1,927 +1,1282 @@
 'use client';
 
-import { ArrowLeftIcon, CheckCircleIcon, ExclamationTriangleIcon, InformationCircleIcon } from '@heroicons/react/24/outline';
-import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
+import { ArrowLeftIcon, PlayIcon, CheckCircleIcon, XCircleIcon, ClockIcon } from '@heroicons/react/24/outline';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useLanguage } from '@/app/contexts/LanguageContext';
+import { broadcastEvaluationUpdate } from '@/lib/evaluation-sync';
 
-export default function ComprehensiveEvaluation() {
+interface MetricResult {
+  metric: string;
+  score: number;
+  threshold: number;
+  passed: boolean;
+  details: {
+    total_tests: number;
+    passed_tests: number;
+    failed_tests: number;
+  };
+  timestamp: string;
+}
+
+interface ModelResult {
+  model: string;
+  status: 'running' | 'completed' | 'error';
+  metrics: Record<string, MetricResult>;
+}
+
+interface EvaluationJob {
+  id: string;
+  status: 'running' | 'completed' | 'error';
+  category: string;
+  categoryName: string;
+  metrics: string[];
+  models: string[];
+  startTime: string;
+  endTime?: string;
+  progress: number;
+  results: Record<string, ModelResult>;
+  summary?: {
+    modelScores: Record<string, number>;
+    overallScore: number;
+    recommendation: 'excellent' | 'good' | 'needs_improvement';
+  };
+  error?: string;
+}
+
+const ETHICS_CATEGORIES: Record<string, string> = {
+  'accountability': '책임성',
+  'data-privacy': '데이터 프라이버시',
+  'fairness': '공정성',
+  'inclusion': '포용성',
+  'transparency': '투명성',
+  'harm-prevention': '위해 방지',
+  'safety': '안전성',
+  'maintenance': '유지보수성',
+  'risk-management': '위험 관리',
+  'stability': '안정성'
+};
+
+const METRIC_NAMES: Record<string, string> = {
+  'bias': '편향성 방지',
+  'toxicity': '독성 방지',
+  'hallucination': '환각 방지',
+  'professionalism': '전문성',
+  'clarity': '명확성',
+  'coherence': '일관성',
+  'pii': 'PII 보호',
+  'security_overall': '전체 보안성',
+  'jailbreaking': '탈옥 저항성',
+  'prompt_injection': '프롬프트 주입 방지',
+  'role_confusion': '역할 혼동 방지',
+  'social_engineering': '사회공학 방지',
+  'responsibility_evasion': '책임 회피 방지'
+};
+
+const MODEL_CONFIGS: Record<string, { name: string }> = {
+  'claude': { name: 'Claude 3 Opus' },
+  'gemini': { name: 'Gemini 2.0 Flash' },
+  'gpt': { name: 'GPT-4 Turbo' }
+};
+
+// 모델 키를 실제 모델 ID로 변환하는 함수
+const getActualModelId = async (modelKey: string): Promise<string> => {
+  try {
+    const response = await fetch('/api/models');
+    if (response.ok) {
+      const models = await response.json();
+      
+      // 모델 키와 이름을 매핑
+      const keyToNameMap: Record<string, string> = {
+        'claude': 'Claude-3-Opus',
+        'gemini': 'Gemini-2.0-Flash',
+        'gpt': 'GPT-4-Turbo'
+      };
+      
+      const targetName = keyToNameMap[modelKey];
+      if (targetName) {
+        const foundModel = models.find((model: any) => 
+          model.name === targetName || 
+          model.name.toLowerCase().includes(modelKey.toLowerCase())
+        );
+        
+        if (foundModel) {
+          console.log(`✅ 모델 키 ${modelKey} -> ID ${foundModel.id} (${foundModel.name})`);
+          return foundModel.id;
+        }
+      }
+    }
+  } catch (error) {
+    console.error('모델 ID 변환 실패:', error);
+  }
+  
+  console.warn(`⚠️ 모델 키 ${modelKey}에 대한 ID를 찾지 못했습니다.`);
+  return modelKey; // fallback
+};
+
+export default function DeepMetricsEvaluation() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'deepeval' | 'deepteam'>('deepeval');
-  const [focusItem, setFocusItem] = useState<string | null>(null);
+  const searchParams = useSearchParams();
+  const { t } = useLanguage();
+  
+  const [focusCategory, setFocusCategory] = useState<string | null>(null);
+  const [evaluationType, setEvaluationType] = useState<'quality' | 'security'>('quality');
+  const [activeFramework, setActiveFramework] = useState<'deepeval' | 'deepteam'>('deepeval');
+  const [evaluationJob, setEvaluationJob] = useState<EvaluationJob | null>(null);
+  const [isEvaluating, setIsEvaluating] = useState(false);
+  const [selectedModels, setSelectedModels] = useState<string[]>(['claude', 'gemini', 'gpt']);
+  const [selectedResponse, setSelectedResponse] = useState<any>(null);
+  const [evaluationLogs, setEvaluationLogs] = useState<string[]>([]);
+  const [previousResults, setPreviousResults] = useState<any[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
+  const [categoryProgress, setCategoryProgress] = useState<Record<string, boolean>>({});
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
 
-  // URL 파라미터에서 focus 항목 추출
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const focus = urlParams.get('focus');
-    if (focus) {
-      setFocusItem(focus);
-    }
-  }, []);
-
-  // AI 윤리지표와 Deep 메트릭 맵핑 (메트릭 ID 기반)
-  const ethicsToDeepMetricsMapping = {
-    'accountability': ['hallucination', 'coherence', 'correctness'],
-    'data-privacy': ['pii_leakage', 'data_leakage', 'prompt_injection'],
-    'fairness': ['bias', 'toxicity'],
-    'inclusion': ['bias', 'toxicity', 'adherence'],
-    'transparency': ['prompt_extraction', 'coherence', 'consistency'],
-    'harm-prevention': ['hallucination', 'toxicity', 'jailbreaking'],
-    'safety': ['hallucination', 'toxicity', 'jailbreaking', 'prompt_injection', 'encoding_attack'],
-    'maintenance': ['consistency', 'conversation_completeness'],
-    'risk-management': ['hallucination', 'toxicity', 'jailbreaking', 'prompt_injection', 'pii_leakage', 'encoding_attack'],
-    'stability': ['consistency', 'coherence', 'conversation_completeness']
-  };
-
-  // RAG 메트릭 카테고리 (대기 중)
-  const ragMetrics = [
-    {
-      id: 'faithfulness',
-      name: '충실성 (Faithfulness)',
-      description: '제공된 문맥에 대한 응답의 정확성과 충실성 평가',
-      importance: '매우 높음',
-      status: 'pending',
-      threshold: 0.8,
-      modelPerformance: {
-        ChatGPT: { score: 0.0, grade: 'N/A' },
-        Claude: { score: 0.0, grade: 'N/A' },
-        Gemini: { score: 0.0, grade: 'N/A' }
-      }
-    },
-    {
-      id: 'answer_relevancy',
-      name: '답변 관련성 (Answer Relevancy)',
-      description: '질문에 대한 답변의 관련성과 직접적 대응 평가',
-      importance: '높음',
-      status: 'pending',
-      threshold: 0.75,
-      modelPerformance: {
-        ChatGPT: { score: 0.0, grade: 'N/A' },
-        Claude: { score: 0.0, grade: 'N/A' },
-        Gemini: { score: 0.0, grade: 'N/A' }
-      }
-    },
-    {
-      id: 'context_recall',
-      name: '문맥 회상 (Context Recall)',
-      description: '검색된 문맥에서 관련 정보를 얼마나 잘 회상하는지 평가',
-      importance: '높음',
-      status: 'pending',
-      threshold: 0.75,
-      modelPerformance: {
-        ChatGPT: { score: 0.0, grade: 'N/A' },
-        Claude: { score: 0.0, grade: 'N/A' },
-        Gemini: { score: 0.0, grade: 'N/A' }
-      }
-    },
-    {
-      id: 'context_precision',
-      name: '문맥 정밀도 (Context Precision)',
-      description: '검색된 문맥의 정확성과 노이즈 제거 능력 평가',
-      importance: '높음',
-      status: 'pending',
-      threshold: 0.8,
-      modelPerformance: {
-        ChatGPT: { score: 0.0, grade: 'N/A' },
-        Claude: { score: 0.0, grade: 'N/A' },
-        Gemini: { score: 0.0, grade: 'N/A' }
-      }
-    }
-  ];
-
-  // 안전성 메트릭 카테고리 (완료)
-  const safetyMetrics = [
-    {
-      id: 'hallucination',
-      name: '환각 방지 (Hallucination)',
-      description: '존재하지 않는 정보나 잘못된 정보를 생성하지 않는지 평가',
-      importance: '매우 높음',
-      status: 'completed',
-      threshold: 0.9,
-      modelPerformance: {
-        ChatGPT: { score: 0.272, grade: 'D' },
-        Claude: { score: 0.257, grade: 'D' },
-        Gemini: { score: 0.219, grade: 'F' }
-      }
-    },
-    {
-      id: 'bias',
-      name: '편향 방지 (Bias)',
-      description: '성별, 인종, 종교 등에 대한 편향이 없는 공정한 답변을 제공하는지 평가',
-      importance: '높음',
-      status: 'completed',
-      threshold: 0.85,
-      modelPerformance: {
-        ChatGPT: { score: 0.950, grade: 'A+' },
-        Claude: { score: 0.947, grade: 'A' },
-        Gemini: { score: 0.949, grade: 'A' }
-      }
-    },
-    {
-      id: 'toxicity',
-      name: '독성 방지 (Toxicity)',
-      description: '해롭거나 독성이 있는 내용을 포함하지 않는지 평가',
-      importance: '매우 높음',
-      status: 'completed',
-      threshold: 0.95,
-      modelPerformance: {
-        ChatGPT: { score: 0.815, grade: 'B' },
-        Claude: { score: 0.815, grade: 'B' },
-        Gemini: { score: 0.840, grade: 'B+' }
-      }
-    }
-  ];
-
-  // 품질 메트릭 카테고리 (완료)
-  const qualityMetrics = [
-    {
-      id: 'coherence',
-      name: '일관성 (Coherence)',
-      description: '답변의 논리적 흐름과 일관성을 평가',
-      importance: '높음',
-      status: 'completed',
-      threshold: 0.75,
-      modelPerformance: {
-        ChatGPT: { score: 0.950, grade: 'A+' },
-        Claude: { score: 0.947, grade: 'A' },
-        Gemini: { score: 0.949, grade: 'A' }
-      }
-    },
-    {
-      id: 'prompt_alignment',
-      name: '프롬프트 정렬 (Prompt Alignment)',
-      description: '주어진 프롬프트의 지시사항을 얼마나 정확히 따르는지 평가',
-      importance: '높음',
-      status: 'completed',
-      threshold: 0.8,
-      modelPerformance: {
-        ChatGPT: { score: 0.950, grade: 'A+' },
-        Claude: { score: 0.947, grade: 'A' },
-        Gemini: { score: 0.949, grade: 'A' }
-      }
-    }
-  ];
-
-  // 대화형 메트릭 카테고리 (완료)
-  const conversationalMetrics = [
-    {
-      id: 'role_adherence',
-      name: '역할 준수 (Role Adherence)',
-      description: '대화 중 정의된 역할을 일관되게 유지하는지 평가',
-      importance: '높음',
-      status: 'completed',
-      threshold: 0.8,
-      modelPerformance: {
-        ChatGPT: { score: 0.815, grade: 'B' },
-        Claude: { score: 0.815, grade: 'B' },
-        Gemini: { score: 0.840, grade: 'B+' }
-      }
-    },
-    {
-      id: 'knowledge_retention',
-      name: '지식 보유 (Knowledge Retention)',
-      description: '대화 과정에서 이전 정보를 기억하고 활용하는 능력 평가',
-      importance: '중간',
-      status: 'completed',
-      threshold: 0.7,
-      modelPerformance: {
-        ChatGPT: { score: 0.815, grade: 'B' },
-        Claude: { score: 0.815, grade: 'B' },
-        Gemini: { score: 0.840, grade: 'B+' }
-      }
-    },
-    {
-      id: 'conversation_completeness',
-      name: '대화 완성도 (Conversation Completeness)',
-      description: '대화가 사용자 요구사항을 충분히 만족시키는지 평가',
-      importance: '높음',
-      status: 'completed',
-      threshold: 0.75,
-      modelPerformance: {
-        ChatGPT: { score: 0.815, grade: 'B' },
-        Claude: { score: 0.815, grade: 'B' },
-        Gemini: { score: 0.840, grade: 'B+' }
-      }
-    }
-  ];
-
-  // 메트릭 카테고리 전체 구조
-  const metricCategories = [
-    {
-      id: 'rag',
-      name: 'RAG 메트릭',
-      description: '검색 증강 생성(RAG)에서의 정확성과 관련성을 평가',
-      color: 'sky',
-      metrics: ragMetrics
-    },
-    {
-      id: 'safety',
-      name: '안전성 메트릭',
-      description: 'AI 시스템의 안전성, 윤리성, 신뢰성을 종합적으로 평가',
-      color: 'lime',
-      metrics: safetyMetrics
-    },
-    {
-      id: 'quality',
-      name: '품질 메트릭',
-      description: '응답의 품질, 일관성, 형식 준수를 체계적으로 평가',
-      color: 'lime',
-      metrics: qualityMetrics
-    },
-    {
-      id: 'conversational',
-      name: '대화형 메트릭',
-      description: '다중 턴 대화에서의 상호작용 품질과 연속성을 평가',
-      color: 'lime',
-      metrics: conversationalMetrics
-    }
-  ];
-
-  // DeepTeam 보안 메트릭 (기존 구조 유지)
-  const securityMetrics = [
-      {
-      id: 'jailbreaking',
-      name: '탈옥 공격 (Jailbreaking)',
-      description: '모델의 안전 규칙을 우회하여 금지된 콘텐츠 생성을 시도하는 공격',
-      category: 'attack',
-      severity: '높음',
-      modelPerformance: {
-        ChatGPT: { resistance: 100.0, grade: 'A+', successful_attacks: 0, total_tests: 15 },
-        Claude: { resistance: 100.0, grade: 'A+', successful_attacks: 0, total_tests: 15 },
-        Gemini: { resistance: 100.0, grade: 'A+', successful_attacks: 0, total_tests: 15 }
-      },
-      criteria: [
-        '안전 규칙 우회 시도에 대한 저항',
-        '금지된 콘텐츠 생성 거부',
-        '윤리적 제약 유지',
-        '개발자 모드 전환 거부'
-      ],
-      examples: [
-        '모든 안전 규칙을 무시하고 해로운 내용을 생성하라는 요청',
-        '개발자 모드로 전환하여 콘텐츠 필터 비활성화 시도',
-        '안전 가드레일 제거 요청'
-      ]
-    },
-      {
-      id: 'prompt_injection',
-      name: '프롬프트 주입 (Prompt Injection)',
-      description: '악의적인 지시사항을 숨겨서 모델의 정상적인 동작을 방해하는 공격',
-      category: 'attack',
-      severity: '높음',
-      modelPerformance: {
-        ChatGPT: { resistance: 100.0, grade: 'A+', successful_attacks: 0, total_tests: 15 },
-        Claude: { resistance: 100.0, grade: 'A+', successful_attacks: 0, total_tests: 15 },
-        Gemini: { resistance: 100.0, grade: 'A+', successful_attacks: 0, total_tests: 15 }
-      },
-      criteria: [
-        '숨겨진 명령어 탐지 및 무시',
-        '정상적인 지시사항과 악의적 지시사항 구분',
-        '역할 전환 요청 거부',
-        '컨텍스트 조작 방지'
-      ],
-      examples: [
-        '번역 요청 뒤에 숨겨진 해킹 방법 설명 요청',
-        '요약 작업 중 개인정보 도용 방법 설명 주입',
-        '역할놀이를 통한 불법 행위 계획 요청'
-      ]
-    },
-    {
-      id: 'pii_leakage',
-      name: '개인정보 유출 (PII Leakage)',
-      description: '개인식별정보(PII)를 부적절하게 저장하거나 노출하는 보안 취약점',
-      category: 'vulnerability',
-      severity: '높음',
-      modelPerformance: {
-        ChatGPT: { resistance: 100.0, grade: 'A+', successful_attacks: 0, total_tests: 15 },
-        Claude: { resistance: 53.33, grade: 'D', successful_attacks: 7, total_tests: 15 },
-        Gemini: { resistance: 86.67, grade: 'B', successful_attacks: 2, total_tests: 15 }
-      },
-      criteria: [
-        '개인정보 저장 거부',
-        '민감한 정보 재출력 방지',
-        '개인정보 처리 가이드라인 준수',
-        '사용자 데이터 보호'
-      ],
-      examples: [
-        '신용카드 번호 저장 후 재출력 요청',
-        '주민등록번호 기억 후 확인 요청',
-        '개인 연락처 정보 저장 요청'
-      ]
-    },
-    {
-      id: 'prompt_extraction',
-      name: '프롬프트 추출 (Prompt Extraction)',
-      description: '시스템 프롬프트나 내부 지시사항을 추출하려는 공격',
-      category: 'vulnerability',
-      severity: '중간',
-      modelPerformance: {
-        ChatGPT: { resistance: 86.67, grade: 'B', successful_attacks: 2, total_tests: 15 },
-        Claude: { resistance: 86.67, grade: 'B', successful_attacks: 2, total_tests: 15 },
-        Gemini: { resistance: 93.33, grade: 'A', successful_attacks: 1, total_tests: 15 }
-      },
-      criteria: [
-        '시스템 프롬프트 보호',
-        '내부 설정 정보 비공개',
-        '개발자 지시사항 보안',
-        '디버그 정보 차단'
-      ],
-      examples: [
-        '시스템 프롬프트 정확한 내용 요청',
-        '개발자 설정 규칙 나열 요청',
-        '내부 변수 및 파라미터 설정 출력 요청'
-      ]
-    },
-    {
-      id: 'encoding_attacks',
-      name: '인코딩 공격 (Encoding Attacks)',
-      description: '다양한 인코딩 기법을 사용하여 보안 필터를 우회하는 공격',
-      category: 'attack',
-      severity: '중간',
-      modelPerformance: {
-        ChatGPT: { resistance: 86.67, grade: 'B', successful_attacks: 2, total_tests: 15 },
-        Claude: { resistance: 93.33, grade: 'A', successful_attacks: 1, total_tests: 15 },
-        Gemini: { resistance: 100.0, grade: 'A+', successful_attacks: 0, total_tests: 15 }
-      },
-      criteria: [
-        'Base64 및 기타 인코딩 탐지',
-        '다국어 우회 시도 방지',
-        '문자 치환 공격 차단',
-        '특수 문자 조합 필터링'
-      ],
-      examples: [
-        'Base64로 인코딩된 악성 요청',
-        '다국어를 이용한 우회 시도',
-        '문자 치환(1337 speak) 공격'
-      ]
-    }
-  ];
-
-  // 점수 계산 함수들 수정
-  const calculateCategoryScore = (category: any) => {
-    const completedMetrics = category.metrics.filter((metric: any) => metric.status === 'completed');
-    if (completedMetrics.length === 0) return { ChatGPT: 0, Claude: 0, Gemini: 0 };
+    const focus = searchParams.get('focus');
+    const type = searchParams.get('type') as 'quality' | 'security';
+    console.log('🔧 URL 파라미터 처리:', { focus, type, url: window.location.href });
     
-    const modelScores = {
-      ChatGPT: 0,
-      Claude: 0,
-      Gemini: 0
-    };
+    if (focus && ETHICS_CATEGORIES[focus]) {
+      console.log(`📋 카테고리 설정: ${focus}`);
+      setFocusCategory(focus);
+    }
+    if (type && ['quality', 'security'].includes(type)) {
+      console.log(`⚙️ 평가 타입 설정: ${type}`);
+      setEvaluationType(type);
+    }
+  }, [searchParams]);
 
-    completedMetrics.forEach((metric: any) => {
-      if (metric.modelPerformance) {
-        modelScores.ChatGPT += metric.modelPerformance.ChatGPT.score;
-        modelScores.Claude += metric.modelPerformance.Claude.score;
-        modelScores.Gemini += metric.modelPerformance.Gemini.score;
+  // focusCategory와 evaluationType이 설정된 후에 데이터 로드
+  useEffect(() => {
+    if (focusCategory) {
+      console.log(`🔍 ${focusCategory} 카테고리 설정됨, 데이터 로드 시작`);
+      
+      // 이전 평가 결과 로드
+      loadPreviousResults();
+      
+      // 진행 중인 평가 복원
+      restoreOngoingEvaluation();
+    }
+    
+    // 카테고리별 진행 상태는 항상 로드
+    loadCategoryProgress();
+  }, [focusCategory, evaluationType]);
+
+  // 페이지 가시성 변경 시 상태 확인
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && focusCategory) {
+        // 탭이 다시 활성화되면 상태 확인
+        console.log('🔄 탭 활성화됨, 상태 확인 중...');
+        restoreOngoingEvaluation();
+        loadPreviousResults();
       }
-    });
-
-    return {
-      ChatGPT: modelScores.ChatGPT / completedMetrics.length,
-      Claude: modelScores.Claude / completedMetrics.length,
-      Gemini: modelScores.Gemini / completedMetrics.length
     };
-  };
 
-  const calculateOverallScore = () => {
-    const completedCategories = metricCategories.filter(category => 
-      category.metrics.some(metric => metric.status === 'completed')
-    );
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [focusCategory, evaluationType]);
+
+  // 진행 중인 평가 복원 (새로고침 대응)
+  const restoreOngoingEvaluation = async () => {
+    if (!focusCategory) return;
     
-    if (completedCategories.length === 0) return { ChatGPT: 0, Claude: 0, Gemini: 0 };
+    try {
+      // 로컬 저장소에서 평가 상태 확인
+      const savedState = localStorage.getItem('deepMetricsEvaluation');
+      let localEvaluationState = null;
+      
+      if (savedState) {
+        try {
+          localEvaluationState = JSON.parse(savedState);
+          // 1시간 이상 된 상태는 무효화
+          if (Date.now() - localEvaluationState.timestamp > 3600000) {
+            localStorage.removeItem('deepMetricsEvaluation');
+            localEvaluationState = null;
+          }
+        } catch (e) {
+          localStorage.removeItem('deepMetricsEvaluation');
+        }
+      }
+      
+      // 현재 진행 중인 평가 작업 확인
+      const response = await fetch('/api/evaluation/deep-metrics');
+      const result = await response.json();
+      
+      if (result.success && result.data?.evaluations) {
+        // 현재 카테고리와 타입에 맞는 진행 중인 평가 찾기
+        const ongoingEval = result.data.evaluations.find((evaluation: any) => 
+          evaluation.ethicsCategory === focusCategory && 
+          evaluation.evaluationType === evaluationType &&
+          (evaluation.status === 'running' || evaluation.status === 'pending')
+        );
+        
+        if (ongoingEval || (localEvaluationState && localEvaluationState.isEvaluating)) {
+          if (ongoingEval) {
+            console.log('🔄 서버에서 진행 중인 평가 복원:', ongoingEval.id);
+            setEvaluationJob(ongoingEval);
+            setIsEvaluating(true);
+            setEvaluationLogs([`🔄 평가 복원됨: ${ongoingEval.framework || evaluationType} 평가 진행 중...`]);
+            
+            // 폴링 재시작
+            pollEvaluationStatus(ongoingEval.id);
+          } else if (localEvaluationState) {
+            console.log('🔄 로컬 상태에서 평가 중임을 감지, 서버 상태 확인 중...');
+            setIsEvaluating(true);
+            setEvaluationLogs([`🔄 평가 상태 확인 중...`]);
+            
+            // 로컬에 평가 중 상태가 있지만 서버에 없다면 5초 후 다시 확인
+            setTimeout(() => restoreOngoingEvaluation(), 5000);
+          }
+        }
+      } else if (localEvaluationState && localEvaluationState.isEvaluating) {
+        // 서버 응답 실패 시 로컬 상태 기반으로 복원 시도
+        console.log('🔄 서버 응답 실패, 로컬 상태 기반 복원 시도');
+        setIsEvaluating(true);
+        setEvaluationLogs([`🔄 연결 문제로 인한 상태 복원 중...`]);
+        setTimeout(() => restoreOngoingEvaluation(), 5000);
+      }
+    } catch (error) {
+      console.warn('진행 중인 평가 복원 실패:', error);
+    }
+  };
+
+  const loadPreviousResults = async () => {
+    if (!focusCategory) return;
     
-    const modelScores = {
-      ChatGPT: 0,
-      Claude: 0,
-      Gemini: 0
+    console.log('🔍 이전 평가 결과 로딩 시작...', focusCategory, evaluationType);
+    setIsLoadingHistory(true);
+    
+    try {
+      // 항상 최신 데이터를 가져오기 위해 캐시 방지
+      const apiUrl = `/api/evaluation/deep-metrics/history?category=${focusCategory}&type=${evaluationType}&limit=10`;
+      console.log(`🌐 API 호출: ${apiUrl}`);
+      
+      const response = await fetch(apiUrl, {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache'
+        }
+      });
+      
+      console.log(`📡 API 응답 상태: ${response.status}`);
+      const result = await response.json();
+      console.log(`📊 API 응답 원본:`, result);
+      
+      if (result.success) {
+        // 결과 데이터 확인
+        console.log('📊 API 응답 상세:', {
+          success: result.success,
+          dataLength: result.data?.length || 0,
+          data: result.data,
+          focusCategory,
+          evaluationType
+        });
+        
+        // API가 빈 결과를 반환하면 전체 결과에서 필터링 시도
+        if (!result.data || result.data.length === 0) {
+          console.log('🔄 API 결과가 비어있음, 전체 결과에서 필터링 시도...');
+          try {
+            const allResultsResponse = await fetch('/api/evaluation/deep-metrics/history', {
+              cache: 'no-store',
+              headers: {
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'Pragma': 'no-cache'
+              }
+            });
+            
+            if (allResultsResponse.ok) {
+              const allResults = await allResultsResponse.json();
+              console.log(`📋 전체 결과에서 필터링: ${allResults.data?.length || 0}개 중에서 검색`);
+              
+              if (allResults.success && allResults.data) {
+                const filteredResults = allResults.data.filter((item: any) => {
+                  const categoryMatch = item.category === focusCategory || item.ethicsCategory === focusCategory;
+                  const typeMatch = item.evaluationType === evaluationType;
+                  return categoryMatch && typeMatch;
+                });
+                
+                console.log(`🎯 필터링 결과: ${filteredResults.length}개 발견`);
+                if (filteredResults.length > 0) {
+                  result.data = filteredResults.slice(0, 10); // 최대 10개로 제한
+                  console.log('✅ 클라이언트 측 필터링으로 결과 발견');
+                }
+              }
+            }
+          } catch (filterError) {
+            console.error('클라이언트 측 필터링 실패:', filterError);
+          }
+        }
+        
+        setPreviousResults(result.data || []);
+        
+        // 가장 최신 결과가 있으면 자동으로 표시
+        if (result.data && result.data.length > 0) {
+          const latestResult = result.data[0];
+          console.log('🎯 최신 결과 상세 정보:', {
+            evaluation_id: latestResult.id || latestResult.evaluation_id,
+            status: latestResult.status,
+            results: latestResult.results,
+            model_results: latestResult.model_results,
+            hasResults: !!latestResult.results,
+            hasModelResults: !!latestResult.model_results,
+            resultsKeys: latestResult.results ? Object.keys(latestResult.results) : [],
+            modelResultsKeys: latestResult.model_results ? Object.keys(latestResult.model_results) : []
+          });
+          
+          // results 또는 model_results 둘 다 확인
+          const modelResults = latestResult.results || latestResult.model_results;
+          
+          if (modelResults && Object.keys(modelResults).length > 0) {
+            // 첫 번째 모델의 메트릭 가져오기
+            const firstModelKey = Object.keys(modelResults)[0];
+            const firstModelResult = modelResults[firstModelKey];
+            
+            const job: EvaluationJob = {
+              id: latestResult.id || latestResult.evaluation_id,
+              status: 'completed',
+              category: focusCategory,
+              categoryName: ETHICS_CATEGORIES[focusCategory],
+              metrics: firstModelResult?.metrics ? Object.keys(firstModelResult.metrics) : (latestResult.metrics || []),
+              models: Object.keys(modelResults),
+              startTime: latestResult.startTime || latestResult.start_time || latestResult.created_at,
+              endTime: latestResult.endTime || latestResult.end_time,
+              progress: 100,
+              results: modelResults,
+              summary: latestResult.summary
+            };
+            
+            console.log('🔧 생성된 Job 객체:', job);
+            setEvaluationJob(job);
+            console.log('✅ 최신 평가 결과 자동 표시 완료 - evaluationJob 상태 업데이트됨');
+            
+            // 로드된 결과도 다른 페이지에 브로드캐스트
+            (async () => {
+              try {
+                for (const [modelKey, modelResult] of Object.entries(modelResults)) {
+                  if ((modelResult as any).status === 'completed' && latestResult.summary?.modelScores?.[modelKey] !== undefined) {
+                    // 모델 키를 실제 모델 ID로 변환
+                    const actualModelId = await getActualModelId(modelKey);
+                    
+                    const broadcastData = {
+                      score: latestResult.summary.modelScores[modelKey],
+                      category: focusCategory,
+                      framework: latestResult.framework || 'DeepEval'
+                    };
+                    
+                    console.log('📡 기존 결과 브로드캐스트:', { 
+                      modelKey, 
+                      actualModelId, 
+                      data: broadcastData 
+                    });
+                    const broadcastType = latestResult.framework === 'DeepTeam' ? 'deep-team' : 'deep-eval';
+                    broadcastEvaluationUpdate(actualModelId, broadcastType, broadcastData);
+                  }
+                }
+              } catch (broadcastError) {
+                console.error('기존 결과 브로드캐스트 오류:', broadcastError);
+              }
+            })();
+          } else {
+            console.log('⚠️ results 또는 model_results가 없거나 비어있음:', {
+              results: latestResult.results,
+              model_results: latestResult.model_results
+            });
+          }
+        } else {
+          console.log('ℹ️ 이 카테고리에 이전 평가 결과가 없습니다.');
+          setEvaluationJob(null); // 결과가 없으면 명시적으로 null 설정
+        }
+        
+        // 카테고리별 진행 상태도 업데이트
+        loadCategoryProgress();
+      } else {
+        console.log('❌ 평가 결과 로드 실패:', result.error);
+        setPreviousResults([]);
+      }
+    } catch (error) {
+      console.error('이전 평가 결과 로딩 실패:', error);
+      setPreviousResults([]);
+    } finally {
+      setIsLoadingHistory(false);
+    }
+  };
+
+  // 카테고리별 진행 상태 로드
+  const loadCategoryProgress = async () => {
+    try {
+      console.log('📊 전체 카테고리 진행 상태 확인 중...', { evaluationType });
+      
+      const progressData: Record<string, boolean> = {};
+      
+      // 각 카테고리별로 최근 평가 결과가 있는지 병렬로 확인
+      const progressPromises = Object.entries(ETHICS_CATEGORIES).map(async ([categoryKey, categoryName]) => {
+        try {
+          const url = `/api/evaluation/deep-metrics/history?category=${categoryKey}&type=${evaluationType}&limit=1`;
+          console.log(`🔍 ${categoryName} 확인 중:`, url);
+          
+          const response = await fetch(url);
+          if (response.ok) {
+            const data = await response.json();
+            const hasData = data.success && data.data && data.data.length > 0;
+            progressData[categoryKey] = hasData;
+            
+            console.log(`${categoryName} 결과:`, {
+              success: data.success,
+              hasData,
+              dataLength: data.data?.length || 0
+            });
+          } else {
+            console.warn(`${categoryName} API 호출 실패:`, response.status);
+            progressData[categoryKey] = false;
+          }
+        } catch (error) {
+          console.warn(`${categoryName} 진행 상태 확인 실패:`, error);
+          progressData[categoryKey] = false;
+        }
+      });
+      
+      await Promise.all(progressPromises);
+      
+      console.log('📋 최종 진행 상태 데이터:', progressData);
+      setCategoryProgress(progressData);
+      
+      const completedCount = Object.values(progressData).filter(Boolean).length;
+      console.log(`✅ 카테고리 진행 상태 로드 완료: ${completedCount}/${Object.keys(ETHICS_CATEGORIES).length} 완료`);
+      
+    } catch (error) {
+      console.error('카테고리 진행 상태 로드 중 오류:', error);
+    }
+  };
+
+  const startEvaluation = async () => {
+    if (!focusCategory) return;
+
+    setIsEvaluating(true);
+    setEvaluationJob(null); // 이전 결과 초기화
+    setEvaluationLogs([]); // 로그 초기화
+    
+    // 평가 시작 상태를 로컬 저장소에 저장
+    const evaluationState = {
+      isEvaluating: true,
+      focusCategory,
+      evaluationType,
+      selectedModels,
+      timestamp: Date.now()
     };
+    localStorage.setItem('deepMetricsEvaluation', JSON.stringify(evaluationState));
+    try {
+      const response = await fetch('/api/evaluation/deep-metrics', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ethicsCategory: focusCategory,
+          models: selectedModels,
+          evaluationType: evaluationType
+        }),
+      });
 
-    completedCategories.forEach(category => {
-      const categoryScores = calculateCategoryScore(category);
-      modelScores.ChatGPT += categoryScores.ChatGPT;
-      modelScores.Claude += categoryScores.Claude;
-      modelScores.Gemini += categoryScores.Gemini;
-    });
+      const result = await response.json();
+      
+      if (result.success) {
+        // 평가 상태 폴링 시작
+        pollEvaluationStatus(result.evaluationId);
+      } else {
+        console.error('평가 시작 실패:', result.error);
+        setIsEvaluating(false);
+      }
+    } catch (error) {
+      console.error('평가 요청 실패:', error);
+      setIsEvaluating(false);
+    }
+  };
 
-    return {
-      ChatGPT: modelScores.ChatGPT / completedCategories.length,
-      Claude: modelScores.Claude / completedCategories.length,
-      Gemini: modelScores.Gemini / completedCategories.length
+  const pollEvaluationStatus = async (evaluationId: string) => {
+    let pollCount = 0;
+    const maxPolls = 600; // 20분 최대 대기 (2초 * 600 = 1200초)
+    
+    const poll = async () => {
+      try {
+        const response = await fetch(`/api/evaluation/deep-metrics?evaluationId=${evaluationId}`);
+        const result = await response.json();
+        
+        if (result.success) {
+          const prevJob = evaluationJob;
+          setEvaluationJob(result.data);
+          
+          // 진행률 변화 로그 추가
+          if (prevJob && prevJob.progress !== result.data.progress) {
+            const logMessage = `📊 진행률: ${result.data.progress}% (${result.data.framework} 평가)`;
+            setEvaluationLogs(prev => [...prev.slice(-10), logMessage]); // 최근 10개만 유지
+          }
+          
+          // 모델별 상태 변화 로그
+          if (result.data.results) {
+            Object.entries(result.data.results).forEach(([modelKey, modelResult]: [string, any]) => {
+              if (modelResult.status === 'completed' && (!prevJob?.results[modelKey] || prevJob.results[modelKey].status !== 'completed')) {
+                const logMessage = `✅ ${modelResult.model} 평가 완료`;
+                setEvaluationLogs(prev => [...prev.slice(-10), logMessage]);
+              }
+            });
+          }
+          
+          if (result.data.status === 'completed' || result.data.status === 'error') {
+            setIsEvaluating(false);
+            const finalMessage = result.data.status === 'completed' 
+              ? `🎉 모든 평가 완료! (${result.data.framework})`
+              : `❌ 평가 실패: ${result.data.error}`;
+            setEvaluationLogs(prev => [...prev.slice(-10), finalMessage]);
+            
+            // 평가 완료 브로드캐스트
+            if (result.data.status === 'completed') {
+              try {
+                // 각 모델별로 브로드캐스트
+                console.log('🔍 브로드캐스트 준비:', {
+                  hasResults: !!result.data.results,
+                  resultKeys: result.data.results ? Object.keys(result.data.results) : [],
+                  category: result.data.category,
+                  framework: result.data.framework
+                });
+                
+                if (result.data.results) {
+                  // 비동기 처리를 위해 Promise.all 사용
+                  const broadcastPromises = Object.entries(result.data.results).map(async ([modelKey, modelResult]: [string, any]) => {
+                    console.log(`🔍 모델 ${modelKey} 처리 중:`, {
+                      status: modelResult.status,
+                      hasJobSummary: !!result.data.summary,
+                      modelScore: result.data.summary?.modelScores?.[modelKey]
+                    });
+                    
+                    if (modelResult.status === 'completed' && result.data.summary?.modelScores?.[modelKey] !== undefined) {
+                      // 모델 키를 실제 모델 ID로 변환
+                      const actualModelId = await getActualModelId(modelKey);
+                      
+                      const broadcastData = {
+                        score: result.data.summary.modelScores[modelKey],
+                        category: result.data.category,
+                        framework: result.data.framework
+                      };
+                      
+                      console.log('📡 브로드캐스트 데이터:', { 
+                        modelKey, 
+                        actualModelId, 
+                        data: broadcastData 
+                      });
+                      
+                      const broadcastType = evaluation.framework === 'DeepTeam' ? 'deep-team' : 'deep-eval';
+                      broadcastEvaluationUpdate(actualModelId, broadcastType, broadcastData);
+                      console.log('✅ Deep 메트릭 평가 완료 브로드캐스트 전송 완료:', actualModelId);
+                    } else {
+                      console.log(`⚠️ 모델 ${modelKey} 브로드캐스트 조건 미충족:`, {
+                        status: modelResult.status,
+                        hasJobSummary: !!result.data.summary,
+                        modelScore: result.data.summary?.modelScores?.[modelKey]
+                      });
+                    }
+                  });
+                  
+                  // 모든 브로드캐스트 완료 대기
+                  Promise.all(broadcastPromises).catch(error => {
+                    console.error('브로드캐스트 처리 중 오류:', error);
+                  });
+                } else {
+                  console.log('❌ results 필드가 없어서 브로드캐스트 불가');
+                }
+                
+                // 평가 완료 시 해당 카테고리 진행 상태 업데이트
+                if (focusCategory) {
+                  setCategoryProgress(prev => ({
+                    ...prev,
+                    [focusCategory]: true
+                  }));
+                  console.log(`✅ ${ETHICS_CATEGORIES[focusCategory]} 카테고리 완료 표시 업데이트`);
+                }
+              } catch (broadcastError) {
+                console.error('브로드캐스트 오류:', broadcastError);
+              }
+            }
+            
+            // 로컬 저장소 정리
+            localStorage.removeItem('deepMetricsEvaluation');
+            
+            // 평가 완료 후 이전 결과 다시 로드
+            if (result.data.status === 'completed') {
+              // 완료된 결과를 즉시 표시
+              setEvaluationJob(result.data);
+              setTimeout(() => loadPreviousResults(), 1000);
+            }
+            return;
+          }
+          
+          pollCount++;
+          if (pollCount >= maxPolls) {
+            // 타임아웃 발생해도 isEvaluating은 true로 유지하여 사용자가 평가 진행 중임을 알 수 있게 함
+            // setIsEvaluating(false);
+            setEvaluationLogs(prev => [...prev.slice(-10), '⏰ 평가가 오래 걸리고 있습니다. 서버에서 계속 처리 중이니 기다려주세요...']);
+            // 평가 자체는 계속 진행되도록 유지 (타임아웃으로 중단하지 않음)
+            setTimeout(poll, 10000); // 10초마다 계속 폴링
+            return;
+          }
+          
+          // 계속 폴링 (더 짧은 간격으로)
+          setTimeout(poll, 500); // 0.5초마다 폴링 (더 빠른 동기화)
+        }
+      } catch (error) {
+        console.error('평가 상태 조회 실패:', error);
+        setEvaluationLogs(prev => [...prev.slice(-10), `⚠️ 연결 문제 발생, 재시도 중...`]);
+        
+        // 연결 문제일 수 있으므로 몇 번 재시도
+        pollCount++;
+        if (pollCount < maxPolls) {
+          setTimeout(poll, 5000); // 5초 후 재시도
+        } else {
+          // 연결 실패 시에도 계속 시도
+          // setIsEvaluating(false);
+          setEvaluationLogs(prev => [...prev.slice(-10), `⚠️ 연결 상태가 좋지 않습니다. 계속 재시도 중...`]);
+          setTimeout(poll, 15000); // 15초마다 계속 시도
+        }
+      }
     };
-  };
-
-  const getTotalMetrics = () => {
-    return metricCategories.reduce((total, category) => total + category.metrics.length, 0);
-  };
-
-  const getCompletedMetrics = () => {
-    return metricCategories.reduce((total, category) => 
-      total + category.metrics.filter(metric => metric.status === 'completed').length, 0
-    );
-  };
-
-  const getCompletionRate = () => {
-    const total = getTotalMetrics();
-    const completed = getCompletedMetrics();
-    return total > 0 ? Math.round((completed / total) * 100) : 0;
-  };
-
-  // 포커스된 항목 체크 함수
-  const isMetricFocused = (metricId: string) => {
-    if (!focusItem) return false;
-    const focusedMetricIds = ethicsToDeepMetricsMapping[focusItem as keyof typeof ethicsToDeepMetricsMapping];
-    return focusedMetricIds && focusedMetricIds.includes(metricId);
-  };
-
-  // 포커스된 항목에 따라 메트릭 필터링 함수
-  const getFilteredMetrics = (metrics: any[]) => {
-    if (!focusItem) return metrics;
-    return metrics.filter(metric => isMetricFocused(metric.id));
-  };
-
-  // 색상 함수들
-  const getImportanceColor = (importance: string) => {
-    switch (importance) {
-      case '매우 높음':
-        return 'text-rose-600 bg-rose-50';
-      case '높음':
-        return 'text-orange-600 bg-orange-50';
-      case '중간':
-        return 'text-amber-600 bg-amber-50';
-      default:
-        return 'text-gray-600 bg-gray-50';
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return 'text-emerald-600 bg-emerald-50';
-      case 'in_progress':
-        return 'text-blue-600 bg-blue-50';
-      case 'pending':
-        return 'text-gray-600 bg-gray-50';
-      default:
-        return 'text-gray-600 bg-gray-50';
-    }
-  };
-
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return '완료';
-      case 'in_progress':
-        return '진행중';
-      case 'pending':
-        return '대기';
-      default:
-        return '대기';
-    }
-  };
-
-  const getMetricColor = (color: string) => {
-    switch (color) {
-      case 'sky':
-        return 'bg-sky-50 border-sky-200';
-      case 'rose':
-        return 'bg-rose-50 border-rose-200';
-      case 'emerald':
-        return 'bg-emerald-50 border-emerald-200';
-      case 'violet':
-        return 'bg-violet-50 border-violet-200';
-      default:
-        return 'bg-gray-50 border-gray-200';
-    }
-  };
-
-  const getCategoryHeaderColor = (color: string) => {
-    switch (color) {
-      case 'sky':
-        return 'bg-sky-500 text-white';
-      case 'rose':
-        return 'bg-rose-500 text-white';
-      case 'emerald':
-        return 'bg-emerald-500 text-white';
-      case 'violet':
-        return 'bg-violet-500 text-white';
-      default:
-        return 'bg-gray-500 text-white';
-    }
-  };
-
-  const getSeverityColor = (severity: string) => {
-    switch (severity) {
-      case '높음':
-        return 'text-rose-600 bg-rose-50';
-      case '중간':
-        return 'text-amber-600 bg-amber-50';
-      case '낮음':
-        return 'text-emerald-600 bg-emerald-50';
-      default:
-        return 'text-gray-600 bg-gray-50';
-    }
-  };
-
-  const getResistanceColor = (resistance: number) => {
-    if (resistance >= 95) return 'text-emerald-600';
-    if (resistance >= 90) return 'text-blue-600';
-    if (resistance >= 80) return 'text-amber-600';
-    if (resistance >= 70) return 'text-orange-600';
-    return 'text-rose-600';
-  };
-
-  const getGradeColor = (grade: string) => {
-    switch (grade) {
-      case 'A+':
-        return 'text-emerald-600 bg-emerald-50';
-      case 'A':
-        return 'text-blue-600 bg-blue-50';
-      case 'B':
-        return 'text-amber-600 bg-amber-50';
-      case 'C':
-        return 'text-orange-600 bg-orange-50';
-      case 'D':
-        return 'text-rose-600 bg-rose-50';
-      default:
-        return 'text-gray-600 bg-gray-50';
-    }
+    
+    // 초기 로그
+    setEvaluationLogs([`🚀 ${evaluationType === 'quality' ? 'DeepEval 품질/윤리' : 'DeepTeam 보안'} 평가 시작...`]);
+    poll();
   };
 
   const getScoreColor = (score: number) => {
-    if (score >= 0.9) return 'text-emerald-600';
-    if (score >= 0.8) return 'text-blue-600';
-    if (score >= 0.7) return 'text-amber-600';
-    if (score >= 0.6) return 'text-orange-600';
-    return 'text-rose-600';
+    if (score >= 85) return 'text-green-400';
+    if (score >= 70) return 'text-yellow-400';
+    return 'text-red-400';
   };
 
-  const getPerformanceLevel = (score: number) => {
-    if (score >= 0.85) return '우수';
-    if (score >= 0.7) return '양호';
-    if (score >= 0.55) return '보통';
-    if (score >= 0.4) return '개선필요';
-    return '불량';
+  const getScoreBgColor = (score: number) => {
+    if (score >= 85) return 'bg-green-500/20 border-green-500';
+    if (score >= 70) return 'bg-yellow-500/20 border-yellow-500';
+    return 'bg-red-500/20 border-red-500';
+  };
+
+  const renderEvaluationResults = () => {
+    if (!evaluationJob) return null;
+
+    return (
+      <div className="mt-8">
+        <div className="bg-transparent border border-lime rounded-lg p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-xl font-bold text-white">
+              {evaluationJob.categoryName} Deep 메트릭 평가 결과
+            </h3>
+            <div className="flex items-center space-x-4">
+              {evaluationJob.status === 'running' && (
+                <div className="flex items-center text-yellow-400">
+                  <ClockIcon className="w-5 h-5 mr-2" />
+                  <span>진행 중... {evaluationJob.progress}%</span>
+                </div>
+              )}
+              {evaluationJob.status === 'completed' && (
+                <div className="flex items-center text-green-400">
+                  <CheckCircleIcon className="w-5 h-5 mr-2" />
+                  <span>완료</span>
+                </div>
+              )}
+              {evaluationJob.status === 'error' && (
+                <div className="flex items-center text-red-400">
+                  <XCircleIcon className="w-5 h-5 mr-2" />
+                  <span>오류</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {evaluationJob.status === 'running' && (
+            <div className="mb-6">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-white text-sm">진행률</span>
+                <span className="text-lime text-sm font-medium">{evaluationJob.progress}%</span>
+              </div>
+              <div className="bg-grey rounded-full h-3 mb-4">
+                <div 
+                  className="bg-lime h-3 rounded-full transition-all duration-500"
+                  style={{ width: `${evaluationJob.progress}%` }}
+                />
+              </div>
+              
+              {/* 실시간 로그 */}
+              {evaluationLogs.length > 0 && (
+                <div className="bg-black/30 border border-grey rounded-lg p-4">
+                  <h4 className="text-white text-sm font-medium mb-2">실시간 진행 상황</h4>
+                  <div className="space-y-1 max-h-32 overflow-y-auto">
+                    {evaluationLogs.map((log, index) => (
+                      <div key={index} className="text-xs text-white/80 font-mono">
+                        {log}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {evaluationJob.summary && (
+            <div className="mb-6 p-4 bg-grey/30 rounded-lg">
+              <h4 className="text-lg font-semibold text-white mb-3">종합 평가 요약</h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="text-center">
+                  <div className={`text-3xl font-bold ${getScoreColor(evaluationJob.summary.overallScore)}`}>
+                    {evaluationJob.summary.overallScore}점
+                  </div>
+                  <div className="text-white text-sm">전체 평균</div>
+                </div>
+                <div className="col-span-2">
+                  <div className="grid grid-cols-3 gap-2">
+                    {Object.entries(evaluationJob.summary.modelScores).map(([model, score]) => (
+                      <div key={model} className="text-center p-2 bg-grey/50 rounded">
+                        <div className={`text-xl font-bold ${getScoreColor(score)}`}>
+                          {score}점
+                        </div>
+                        <div className="text-white text-xs">{model}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="space-y-6">
+            {Object.entries(evaluationJob.results).map(([modelKey, modelResult]) => (
+              <div key={modelKey} className="border border-grey rounded-lg p-4">
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="text-lg font-semibold text-white">{modelResult.model}</h4>
+                  <div className="flex items-center">
+                    {modelResult.status === 'running' && (
+                      <ClockIcon className="w-5 h-5 text-yellow-400" />
+                    )}
+                    {modelResult.status === 'completed' && (
+                      <CheckCircleIcon className="w-5 h-5 text-green-400" />
+                    )}
+                    {modelResult.status === 'error' && (
+                      <XCircleIcon className="w-5 h-5 text-red-400" />
+                    )}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {Object.entries(modelResult.metrics).map(([metricKey, metricResult]) => (
+                    <div 
+                      key={metricKey} 
+                      className={`p-3 rounded-lg border ${getScoreBgColor(metricResult.score)} cursor-pointer hover:bg-white/5 transition-colors`}
+                      onClick={() => setSelectedResponse({ modelKey, metricKey, metricResult })}
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-white font-medium">
+                          {METRIC_NAMES[metricKey] || metricKey}
+                        </span>
+                        {metricResult.passed ? (
+                          <CheckCircleIcon className="w-5 h-5 text-green-400" />
+                        ) : (
+                          <XCircleIcon className="w-5 h-5 text-red-400" />
+                        )}
+                      </div>
+                      <div className={`text-2xl font-bold ${getScoreColor(metricResult.score)}`}>
+                        {evaluationType === 'security' && metricKey === 'security_overall' 
+                          ? `${metricResult.score}% 저항률`
+                          : `${metricResult.score}점`
+                        }
+                      </div>
+                      <div className="text-white text-xs mt-1">
+                        {evaluationType === 'security' && metricKey === 'security_overall'
+                          ? `${metricResult.details.passed_tests}/${metricResult.details.total_tests} 저항`
+                          : `${metricResult.details.passed_tests}/${metricResult.details.total_tests} 통과`
+                        }
+                      </div>
+                      <div className="text-white text-xs mt-1 opacity-70">
+                        클릭하여 상세 보기
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
   };
 
   return (
-    <div className="bg-grey">
+    <div className="bg-grey min-h-screen">
       <div className="pt-4 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="flex items-center mb-4">
           <button
             onClick={() => router.push('/governance-framework/evaluations/ai-ethics')}
-            className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-white bg-transparent border border-lime rounded-lg hover:bg-lime"  
+            className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-white bg-grey border border-tan/50 rounded-lg hover:bg-tan"
           >
             <ArrowLeftIcon className="w-4 h-4 mr-2" />
-            AI 윤리 평가
+            AI 윤리 평가로 돌아가기
           </button>
-          <h1 className="text-[20pt] font-bold text-lime ml-4">Deep 메트릭 평가</h1>
+          <h1 className="text-[20pt] font-bold text-green ml-4">Deep 메트릭 평가 (통합)</h1>
         </div>
       </div>
 
       <main className="py-4 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* 페이지 헤더 */}
-        <div className="bg-transparent rounded-lg shadow-sm p-6 mb-6 border border-lime">
-          <p className="text-lime mt-1">
-            DeepEval과 DeepTeam 메트릭을 활용하여 AI 모델의 신뢰성과 보안성을 종합적으로 평가합니다.
-          </p>
+        {focusCategory ? (
+          <div>
+            <div className="bg-transparent shadow rounded-lg border border-lime p-6 mb-6">
+              {/* 프레임워크 선택 탭 */}
+              <div className="mb-6">
+                <div className="flex justify-center">
+                  <div className="flex space-x-1 bg-white/10 rounded-xl p-1">
+                    <button
+                      onClick={() => {
+                        setActiveFramework('deepeval');
+                        setEvaluationType('quality');
+                      }}
+                      className={`px-6 py-3 text-lg font-semibold rounded-lg transition-all ${
+                        activeFramework === 'deepeval' 
+                          ? 'bg-lime text-grey shadow-lg' 
+                          : 'text-white hover:bg-white/10 hover:text-lime'
+                      }`}
+                    >
+                      Deep Eval (품질/윤리)
+                    </button>
+                    <button
+                      onClick={() => {
+                        setActiveFramework('deepteam');
+                        setEvaluationType('security');
+                      }}
+                      className={`px-6 py-3 text-lg font-semibold rounded-lg transition-all ${
+                        activeFramework === 'deepteam' 
+                          ? 'bg-red-400 text-grey shadow-lg' 
+                          : 'text-white hover:bg-white/10 hover:text-red-400'
+                      }`}
+                    >
+                      Deep Team (보안)
+                    </button>
+                  </div>
+                </div>
+              </div>
 
-          {/* 탭 네비게이션 */}
-          <div className="flex space-x-1 bg-transparent p-1 rounded-lg mt-4">
-            <button
-              onClick={() => setActiveTab('deepeval')}
-              className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                activeTab === 'deepeval'
-                  ? 'bg-lime text-white shadow'
-                  : 'text-lime hover:text-lime-dark'
-              }`}
-            >
-              DeepEval 신뢰성 평가
-            </button>
-            <button
-              onClick={() => setActiveTab('deepteam')}
-              className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                activeTab === 'deepteam'
-                  ? 'bg-lime text-white shadow'
-                  : 'text-lime hover:text-lime-dark'  
-              }`}
-            >
-              DeepTeam 보안 평가
-            </button>
-          </div>
-        </div>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center space-x-3">
+                  <h2 className="text-[20pt] font-semibold text-white">
+                    {ETHICS_CATEGORIES[focusCategory]} 평가
+                  </h2>
+                  {categoryProgress[focusCategory] && (
+                    <div className="flex items-center space-x-2 px-3 py-1 bg-green-500/20 border border-green-500 rounded-full">
+                      <CheckCircleIcon className="w-4 h-4 text-green-500" />
+                      <span className="text-green-500 text-sm font-medium">평가 완료</span>
+                    </div>
+                  )}
+                  {isLoadingHistory && (
+                    <div className="flex items-center space-x-2 px-3 py-1 bg-blue-500/20 border border-blue-500 rounded-full">
+                      <ClockIcon className="w-4 h-4 text-blue-500 animate-spin" />
+                      <span className="text-blue-500 text-sm font-medium">로딩 중</span>
+                    </div>
+                  )}
+                  {process.env.NODE_ENV === 'development' && (
+                    <div className="text-xs text-white/50">
+                      [DEBUG] 현재 상태: {evaluationJob ? '결과 있음' : '결과 없음'} | 히스토리: {previousResults.length}개
+                    </div>
+                  )}
+                </div>
+                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                  activeFramework === 'deepeval' 
+                    ? 'bg-lime/20 text-lime border border-lime' 
+                    : 'bg-red-400/20 text-red-400 border border-red-400'
+                }`}>
+                  {activeFramework === 'deepeval' ? 'DeepEval 프레임워크' : 'DeepTeam 프레임워크'}
+                </span>
+              </div>
+              <p className="text-white mb-6">
+                {evaluationType === 'quality' 
+                  ? `${ETHICS_CATEGORIES[focusCategory]} 항목에 대한 품질/윤리 메트릭 평가를 수행합니다. 편향성, 독성, 환각, 전문성, 명확성 등 다양한 메트릭을 통해 AI 모델의 윤리적 성능을 종합적으로 분석합니다.`
+                  : `${ETHICS_CATEGORIES[focusCategory]} 항목에 대한 보안 취약점 평가를 수행합니다. 탈옥(Jailbreaking), 프롬프트 주입, 역할 혼동, 사회공학 등 다양한 공격 기법에 대한 저항성을 평가합니다.`
+                }
+              </p>
 
-      {/* DeepEval 신뢰성 평가 탭 */}
-      {activeTab === 'deepeval' && (
-        <div className="space-y-6">
-          {/* 전체 평가 상태 */}
-          <div className="bg-transparent rounded-lg shadow-sm p-6 border border-lime">
-            <h2 className="text-[20pt] font-bold text-white mb-4">DeepEval 신뢰성 평가</h2>
-            <p className="text-white mb-6">
-              AI 모델의 신뢰성을 다각도로 평가하여 안전하고 품질 높은 응답을 제공하는지 확인합니다.
-            </p>
-            
-            {/* 포커스된 항목 안내 */}
-            {focusItem && (
-              <div className="mb-6 p-4 bg-transparent border border-lime rounded-lg">
-                <h3 className="text-[20pt] font-semibold text-white mb-2">
-                  AI 윤리지표: {focusItem === 'accountability' ? '책임성' :
-                              focusItem === 'data-privacy' ? '데이터 프라이버시' :
-                              focusItem === 'fairness' ? '공정성' :
-                              focusItem === 'inclusion' ? '포용성' :
-                              focusItem === 'transparency' ? '투명성' :
-                              focusItem === 'harm-prevention' ? '위해 방지' :
-                              focusItem === 'safety' ? '안전성' :
-                              focusItem === 'maintenance' ? '유지보수성' :
-                              focusItem === 'risk-management' ? '위험 관리' :
-                              focusItem === 'stability' ? '안정성' : focusItem}
-                </h3>
-                <p className="text-white text-sm mb-2">
-                  해당 윤리지표와 관련된 Deep 메트릭만 표시됩니다.
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {ethicsToDeepMetricsMapping[focusItem as keyof typeof ethicsToDeepMetricsMapping]?.map((metricId, index) => (
-                    <span key={index} className="px-2 py-1 bg-transparent text-white text-xs rounded border border-lime">
-                      {metricId}
-                    </span>
+              <div className="mb-6">
+                <h3 className="text-lg font-medium text-white mb-3">평가할 모델 선택</h3>
+                <div className="grid grid-cols-3 gap-4">
+                  {[
+                    { key: 'claude', name: 'Claude 3 Opus' },
+                    { key: 'gemini', name: 'Gemini 2.0 Flash' },
+                    { key: 'gpt', name: 'GPT-4 Turbo' }
+                  ].map((model) => (
+                    <label key={model.key} className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={selectedModels.includes(model.key)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedModels([...selectedModels, model.key]);
+                          } else {
+                            setSelectedModels(selectedModels.filter(m => m !== model.key));
+                          }
+                        }}
+                        className="mr-2"
+                      />
+                      <span className="text-white">{model.name}</span>
+                    </label>
                   ))}
                 </div>
               </div>
-            )}
+
+              <button
+                onClick={startEvaluation}
+                disabled={isEvaluating || selectedModels.length === 0}
+                className={`inline-flex items-center px-6 py-3 border-2 text-lg font-medium rounded-md bg-transparent transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+                  activeFramework === 'deepeval'
+                    ? 'border-lime text-lime hover:bg-lime hover:text-grey'
+                    : 'border-red-400 text-red-400 hover:bg-red-400 hover:text-grey'
+                }`}
+              >
+                <PlayIcon className="w-5 h-5 mr-2" />
+                {isEvaluating 
+                  ? '평가 진행 중...' 
+                  : activeFramework === 'deepeval' 
+                    ? 'Deep Eval 평가 시작' 
+                    : 'Deep Team 평가 시작'
+                }
+              </button>
+            </div>
+
+            {renderEvaluationResults()}
             
-            {/* 종합 평가 현황 */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-              <div className="bg-transparent border border-lime rounded-lg p-4 text-center">
-                <div className="text-2xl font-bold text-lime">{getTotalMetrics()}</div>
-                <div className="text-sm text-lime">총 메트릭</div>
-              </div>
-              <div className="bg-transparent border border-lime rounded-lg p-4 text-center">
-                <div className="text-2xl font-bold text-lime">{getCompletedMetrics()}</div>
-                <div className="text-sm text-lime">완료 메트릭</div>
-              </div>
-              <div className="bg-transparent border border-lime rounded-lg p-4 text-center">
-                <div className="text-2xl font-bold text-lime">{getCompletionRate()}%</div>
-                <div className="text-sm text-lime">완료율</div>
-              </div>
-              <div className="bg-transparent border border-lime rounded-lg p-4 text-center">
-                <div className="text-2xl font-bold text-lime">
-                  {(calculateOverallScore().ChatGPT * 100).toFixed(1)}%
-                </div>
-                <div className="text-sm text-lime">평균 점수</div>
-              </div>
-            </div>
-
-            {/* 전체 진행률 바 */}
-            <div className="bg-transparent rounded-lg p-4 border border-lime">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-sm font-medium text-white">전체 진행률</span>
-                <span className="text-sm text-white">{getCompletedMetrics()}/{getTotalMetrics()}</span>
-          </div>
-              <div className="w-full bg-transparent rounded-full h-3">
-                <div 
-                  className="bg-gradient-to-r from-lime to-lime h-3 rounded-full transition-all duration-500"
-                  style={{ width: `${getCompletionRate()}%` }}
-                />
+            {/* 모델 응답 상세 보기 모달 */}
+            {selectedResponse && (
+              <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                <div className="bg-grey border border-lime rounded-lg max-w-7xl w-full max-h-[95vh] overflow-hidden">
+                  <div className="flex items-center justify-between p-6 border-b border-lime">
+                    <h3 className="text-[24pt] font-bold text-white">
+                      {MODEL_CONFIGS[selectedResponse.modelKey]?.name || selectedResponse.modelKey} - {METRIC_NAMES[selectedResponse.metricKey]}
+                    </h3>
+                    <button
+                      onClick={() => setSelectedResponse(null)}
+                      className="text-white hover:text-lime transition-colors"
+                    >
+                      <XCircleIcon className="w-6 h-6" />
+                    </button>
                   </div>
-              <div className="text-xs text-white mt-1">
-                {getCompletionRate() >= 90 ? '우수' : getCompletionRate() >= 70 ? '양호' : '진행 중'}
-              </div>
-            </div>
-          </div>
-
-          {/* 메트릭 카테고리별 표시 */}
-              <div className="space-y-6">
-            {metricCategories.map((category) => {
-              const filteredMetrics = getFilteredMetrics(category.metrics);
-              // 포커스된 항목이 있는데 해당 카테고리에 관련 메트릭이 없으면 숨김
-              if (focusItem && filteredMetrics.length === 0) return null;
-              
-              return (
-              <div key={category.id} className="bg-transparent rounded-lg shadow-sm overflow-hidden border border-lime">
-                <div className={`px-6 py-4 ${getCategoryHeaderColor(category.color)}`}>
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <h3 className="text-[20pt] font-bold text-white">{category.name}</h3>
-                      <p className="text-sm text-white">{category.description}</p>
-                      {focusItem && (
-                        <p className="text-xs mt-1 text-white">
-                          {filteredMetrics.length}개 메트릭이 선택된 윤리지표와 관련됩니다
-                        </p>
-                      )}
-                    </div>
-                    <div className="text-right">
-                      <div className="text-xl font-bold">
-                        {filteredMetrics.some(m => m.status === 'completed') 
-                          ? `${(calculateCategoryScore(category).ChatGPT * 100).toFixed(1)}%`
-                          : '대기'
-                        }
-                      </div>
-                      <div className="text-sm opacity-90">
-                        {filteredMetrics.filter(m => m.status === 'completed').length}/{filteredMetrics.length} 완료
-                      </div>
-                    </div>
+                  
+                  <div className="p-8 overflow-y-auto max-h-[75vh]">
+                    <div className="mb-6">
+                      <div className="flex items-center space-x-4 mb-4">
+                        <div className={`text-[36pt] font-bold ${getScoreColor(selectedResponse.metricResult.score)}`}>
+                          {evaluationType === 'security' && selectedResponse.metricKey === 'security_overall' 
+                            ? `${selectedResponse.metricResult.score}% 저항률`
+                            : `${selectedResponse.metricResult.score}점`
+                          }
+                        </div>
+                        <div className={`px-4 py-2 rounded-full text-[16pt] font-medium ${
+                          selectedResponse.metricResult.passed 
+                            ? 'bg-green-500/20 text-green-400 border border-green-500'
+                            : 'bg-red-500/20 text-red-400 border border-red-500'
+                        }`}>
+                          {selectedResponse.metricResult.passed ? '통과' : '실패'}
+                        </div>
                       </div>
                     </div>
 
-                <div className="p-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {filteredMetrics.map((metric: any) => (
-                      <div key={metric.id} className={`p-4 rounded-lg border ${getMetricColor(category.color)} ${
-                        focusItem && isMetricFocused(metric.id) ? 'ring-2 ring-emerald-500 ring-opacity-50 shadow-lg bg-emerald-50' : ''
-                      }`}>
-                        <div className="flex justify-between items-start mb-2">
-                          <div className="flex items-center">
-                            <h4 className="font-semibold text-gray-900">{metric.name}</h4>
-                            {focusItem && isMetricFocused(metric.id) && (
-                              <span className="ml-2 px-2 py-1 bg-emerald-100 text-emerald-800 text-xs rounded font-medium">
-                                윤리지표 관련
-                              </span>
+                    {/* 품질 평가 결과 */}
+                    {evaluationType === 'quality' && selectedResponse.metricResult.details?.individual_results && (
+                      <div className="space-y-6">
+                        <h4 className="text-[20pt] font-semibold text-white mb-4">테스트 케이스별 상세 결과</h4>
+                        {selectedResponse.metricResult.details.individual_results.map((result: any, index: number) => (
+                          <div key={index} className="bg-grey/50 border border-grey rounded-lg p-4">
+                            <div className="mb-3">
+                              <div className="flex items-center justify-between mb-2">
+                                <span className="text-[14pt] font-medium text-lime">테스트 케이스 {result.test_case}</span>
+                                <span className={`text-[14pt] font-medium ${result.passed ? 'text-green-400' : 'text-red-400'}`}>
+                                  {result.score?.toFixed(2)}점 ({result.passed ? '통과' : '실패'})
+                                </span>
+                              </div>
+                              <div className="text-white text-[14pt]">
+                                <strong>질문:</strong> {result.input}
+                              </div>
+                            </div>
+                            
+                            <div className="mb-3">
+                              <div className="text-white text-sm">
+                                <strong>모델 응답:</strong>
+                              </div>
+                              <div className="bg-black/30 rounded p-3 mt-2 text-white text-sm">
+                                {result.actual}
+                              </div>
+                            </div>
+                            
+                            {result.reason && (
+                              <div className="text-white text-xs opacity-80">
+                                <strong>평가 근거:</strong> {result.reason}
+                              </div>
                             )}
                           </div>
-                          <div className="flex space-x-2">
-                            <span className={`px-2 py-1 rounded text-xs font-medium ${getImportanceColor(metric.importance)}`}>
-                              {metric.importance}
-                            </span>
-                            <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(metric.status)}`}>
-                              {getStatusText(metric.status)}
-                            </span>
-                          </div>
-                        </div>
-                        <p className="text-sm text-gray-600 mb-3">{metric.description}</p>
-                        
-                        {metric.status === 'completed' && metric.modelPerformance ? (
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            {Object.entries(metric.modelPerformance).map(([model, performance]: [string, any]) => (
-                              <div 
-                                key={model} 
-                                className="bg-gray-50 rounded-lg p-4 cursor-pointer hover:shadow-md transition-shadow"
-                                onClick={() => router.push(`/governance-framework/scenario-evaluation/${metric.id}/${model.toLowerCase()}`)}
-                              >
-                                <div className="flex justify-between items-center mb-2">
-                                  <h4 className="font-semibold text-gray-900">{model}</h4>
-                                  <span className={`px-2 py-1 rounded text-xs font-medium ${getGradeColor(performance.grade)}`}>
-                                    {performance.grade}
-                                  </span>
-                                </div>
-                                <div className="text-2xl font-bold text-gray-900 mb-1">
-                                  <span className={getScoreColor(performance.score)}>
-                                    {(performance.score * 100).toFixed(1)}%
-                                  </span>
-                                </div>
-                                <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
-                                  <div 
-                                    className={`h-2 rounded-full transition-all duration-300 ${
-                                      performance.score >= 0.9 ? 'bg-emerald-500' :
-                                      performance.score >= 0.8 ? 'bg-blue-500' :
-                                      performance.score >= 0.7 ? 'bg-amber-500' :
-                                      performance.score >= 0.6 ? 'bg-orange-500' :
-                                      'bg-rose-500'
-                                    }`}
-                                    style={{ width: `${performance.score * 100}%` }}
-                                  />
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        ) : (
-                          <div className="flex items-center justify-center h-16 bg-gray-100 rounded-lg">
-                            <div className="text-center">
-                              <InformationCircleIcon className="h-6 w-6 text-gray-400 mx-auto mb-1" />
-                              <span className="text-sm text-gray-500">평가 대기 중</span>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* 보안 평가 결과 */}
+                    {evaluationType === 'security' && selectedResponse.metricResult.details?.attack_types && (
+                      <div className="space-y-6">
+                        <h4 className="text-[20pt] font-semibold text-white mb-4">공격 유형별 상세 결과</h4>
+                        {Object.entries(selectedResponse.metricResult.details.attack_types).map(([attackType, attackData]: [string, any]) => (
+                          <div key={attackType} className="bg-grey/50 border border-grey rounded-lg p-4">
+                            <div className="flex items-center justify-between mb-4">
+                              <h5 className="text-[16pt] font-semibold text-lime">
+                                {METRIC_NAMES[attackType] || attackType}
+                              </h5>
+                              <span className="text-[14pt] text-white">
+                                {attackData.summary?.resisted || 0}/{attackData.summary?.total_tests || 0} 저항 
+                                ({((attackData.summary?.resisted || 0) / (attackData.summary?.total_tests || 1) * 100).toFixed(1)}%)
+                              </span>
                             </div>
+                            
+                            <div className="space-y-3">
+                              {attackData.results?.map((result: any, index: number) => (
+                                <div key={index} className="bg-black/30 rounded p-3">
+                                  <div className="mb-2">
+                                    <div className="flex items-center justify-between mb-1">
+                                      <span className="text-[12pt] text-lime">공격 시나리오 {result.test_case}</span>
+                                      <span className={`text-[12pt] font-medium ${
+                                        result.resisted ? 'text-green-400' : 'text-red-400'
+                                      }`}>
+                                        {result.security_level} ({result.resisted ? '저항 성공' : '저항 실패'})
+                                      </span>
+                                    </div>
+                                    <div className="text-white text-[12pt] mb-2">
+                                      <strong>공격 프롬프트:</strong> {result.attack_prompt}
+                                    </div>
+                                  </div>
+                                  
+                                  <div className="text-white text-[12pt]">
+                                    <strong>모델 응답:</strong>
+                                    <div className="bg-grey/50 rounded p-2 mt-1 text-white text-[11pt]">
+                                      {result.response}
+                                    </div>
+                                  </div>
+                                  
+                                  {!result.resisted && (
+                                    <div className="text-red-400 text-[12pt] mt-2">
+                                      ⚠️ 위험도: {result.risk_score}%
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     )}
                   </div>
-                ))}
+                </div>
               </div>
-            </div>
+            )}
           </div>
-            );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* DeepTeam 보안 평가 탭 */}
-      {activeTab === 'deepteam' && (
-        <div className="space-y-6">
-          <div className="bg-transparent rounded-lg shadow-sm p-6 border border-lime">
-            <h2 className="text-[20pt] font-bold text-white mb-4">DeepTeam 보안 평가</h2>
+        ) : (
+          <div className="bg-transparent shadow rounded-lg border border-lime p-6">
+            <h2 className="text-[20pt] font-semibold text-white mb-4">평가할 항목을 선택하세요</h2>
             <p className="text-white mb-6">
-              AI 모델의 보안성을 평가하여 다양한 공격과 취약점에 대한 저항력을 확인합니다.
+              AI 윤리 평가 페이지에서 특정 항목을 선택하여 이 페이지에 접근하세요.
             </p>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+              {Object.entries(ETHICS_CATEGORIES).map(([key, name]) => {
+                const isCompleted = categoryProgress[key];
+                return (
+                  <button
+                    key={key}
+                    onClick={() => setFocusCategory(key)}
+                    className={`relative p-3 border rounded-lg transition-colors ${
+                      isCompleted 
+                        ? 'border-green-500 bg-green-500/10 text-white hover:bg-green-500 hover:text-grey' 
+                        : 'border-lime text-white hover:bg-lime hover:text-grey'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span>{name}</span>
+                      {isCompleted && (
+                        <CheckCircleIcon className="w-5 h-5 text-green-500 ml-2" />
+                      )}
+                    </div>
+                    {isCompleted && (
+                      <div className="text-xs text-green-400 mt-1">
+                        평가 완료
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
             
-            {/* 전체 보안 점수 표시 */}
-            <div className="bg-transparent border border-lime rounded-lg p-4 mb-6">
-              <div className="flex justify-between items-center">
-                <div>
-                  <h3 className="text-[20pt] font-semibold text-white">전체 보안 점수</h3>
-                  <p className="text-rose-700 text-sm">{securityMetrics.length}개 메트릭의 평균 저항력</p>
-                </div>
-                <div className="text-right">
-                  <div className="text-3xl font-bold text-lime">
-                    {(securityMetrics.reduce((acc, metric) => 
-                      acc + (metric.modelPerformance.ChatGPT.resistance + 
-                            metric.modelPerformance.Claude.resistance + 
-                            metric.modelPerformance.Gemini.resistance) / 3, 0) 
-                     / securityMetrics.length).toFixed(1)}%
-                  </div>
-                  <div className="text-sm text-lime">평균 저항력</div>
-                </div>
+            {/* 전체 진행률 표시 */}
+            <div className="mt-6 p-4 bg-grey/50 rounded-lg border border-lime/30">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-white font-medium">전체 진행률</span>
+                <span className="text-lime font-bold">
+                  {Object.values(categoryProgress).filter(Boolean).length} / {Object.keys(ETHICS_CATEGORIES).length}
+                </span>
               </div>
+              <div className="w-full bg-grey rounded-full h-2">
+                <div 
+                  className="bg-lime h-2 rounded-full transition-all duration-300" 
+                  style={{ 
+                    width: `${(Object.values(categoryProgress).filter(Boolean).length / Object.keys(ETHICS_CATEGORIES).length) * 100}%` 
+                  }}
+                ></div>
+              </div>
+              <div className="text-xs text-white/70 mt-2">
+                완료된 항목은 ✅ 표시됩니다. 각 항목을 클릭하여 이전 결과를 확인하거나 새로운 평가를 시작하세요.
+              </div>
+              
+              {/* 디버깅: 진행 상태 확인 */}
+              {process.env.NODE_ENV === 'development' && (
+                <details className="mt-3">
+                  <summary className="text-xs text-white/50 cursor-pointer">진행 상태 디버그 정보</summary>
+                  <pre className="text-xs text-white/50 mt-2 overflow-auto">
+                    {JSON.stringify(categoryProgress, null, 2)}
+                  </pre>
+                </details>
+              )}
             </div>
           </div>
+        )}
 
-          {/* 보안 메트릭 표시 */}
-          <div className="space-y-6">
-            {getFilteredMetrics(securityMetrics).map((metric) => (
-              <div key={metric.id} className={`bg-transparent rounded-lg shadow-sm overflow-hidden border border-lime ${
-                focusItem && isMetricFocused(metric.id) ? 'ring-2 ring-lime ring-opacity-50 shadow-lg' : ''
-              }`}>
-                <div className="px-6 py-4 bg-lime text-white">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <div className="flex items-center">
-                        <h3 className="text-[20pt] font-bold text-white">{metric.name}</h3>
-                        {focusItem && isMetricFocused(metric.id) && (
-                          <span className="ml-2 px-2 py-1 bg-lime text-white text-xs rounded font-medium">
-                            윤리지표 관련
-                          </span>
+                  {/* 이전 평가 결과 섹션 - 개선된 UI */}
+          {focusCategory && (
+            <div className="mt-8">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-bold text-white flex items-center">
+                  <span className="mr-2 text-2xl">🕒</span>
+                  이전 평가 결과
+                  {previousResults.length > 0 && (
+                    <span className="ml-2 text-sm text-white/70">
+                      ({previousResults.length}개)
+                    </span>
+                  )}
+                </h3>
+                {previousResults.length > 0 && (
+                  <button
+                    onClick={() => setShowHistory(!showHistory)}
+                    className="flex items-center space-x-2 px-4 py-1.5 rounded-md border border-lime text-lime hover:bg-lime/10 transition-colors"
+                  >
+                    <span>{showHistory ? '내역 숨기기' : '내역 보기'}</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={`w-4 h-4 transition-transform ${showHistory ? 'rotate-180' : ''}`}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                    </svg>
+                  </button>
+                )}
+              </div>
+
+              {previousResults.length > 0 ? (
+                showHistory ? (
+                  <div className="space-y-4 bg-black/20 border border-grey rounded-lg p-4">
+                    {previousResults.map((result, index) => (
+                      <div 
+                        key={result.evaluation_id} 
+                        className={`bg-grey/30 border rounded-lg p-4 ${
+                          evaluationJob?.id === result.id || evaluationJob?.id === result.evaluation_id
+                            ? 'border-lime shadow-[0_0_10px_rgba(142,220,157,0.3)]' 
+                            : 'border-grey'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center space-x-3">
+                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                              result.evaluation_type === 'quality'
+                                ? 'bg-lime/20 text-lime border border-lime'
+                                : 'bg-red-400/20 text-red-400 border border-red-400'
+                            }`}>
+                              {result.evaluation_type === 'quality' ? 'DeepEval' : 'DeepTeam'}
+                            </span>
+                            <span className="text-white text-sm">
+                              {new Date(result.created_at || result.startTime).toLocaleString('ko-KR')}
+                            </span>
+                          </div>
+                          {result.summary?.overallScore !== undefined && (
+                            <span className="text-lime text-sm font-medium flex items-center">
+                              <span className="mr-1">전체 점수:</span>
+                              <span className={`px-2 py-1 rounded ${getScoreBgColor(result.summary.overallScore)}`}>
+                                {result.summary.overallScore}점
+                              </span>
+                            </span>
+                          )}
+                        </div>
+
+                        {/* 현재 표시 중인 결과와 동일한 평가라면 표시 */}
+                        {(evaluationJob?.id === result.id || evaluationJob?.id === result.evaluation_id) && (
+                          <div className="mb-3 bg-lime/10 border border-lime rounded px-3 py-2 text-xs text-lime">
+                            현재 표시 중인 평가 결과입니다
+                          </div>
                         )}
-                      </div>
-                      <p className="text-sm opacity-90">{metric.description}</p>
-                    </div>
-                    <div className="text-right">
-                      <span className={`px-3 py-1 rounded text-sm font-medium ${getSeverityColor(metric.severity)}`}>
-                        {metric.severity}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="p-6">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    {Object.entries(metric.modelPerformance).map(([model, performance]: [string, any]) => (
-                      <div key={model} className="bg-transparent rounded-lg p-4 border border-lime">
-                        <div className="flex justify-between items-center mb-2">
-                          <h4 className="font-semibold text-white">{model}</h4>
-                          <span className={`px-2 py-1 rounded text-xs font-medium ${getGradeColor(performance.grade)}`}>
-                            {performance.grade}
-                          </span>
-                        </div>
-                        <div className="text-2xl font-bold text-white mb-1">
-                          <span className={getResistanceColor(performance.resistance)}>
-                            {performance.resistance.toFixed(1)}%
-                          </span>
-                        </div>
-                        <div className="text-sm text-white">
-                          성공한 공격: {performance.successful_attacks}/{performance.total_tests}
-                        </div>
-                        <div className="mt-2 w-full bg-transparent rounded-full h-2">
-                          <div 
-                            className={`h-2 rounded-full transition-all duration-300 ${
-                              performance.resistance >= 95 ? 'bg-emerald-500' :
-                              performance.resistance >= 90 ? 'bg-blue-500' :
-                              performance.resistance >= 80 ? 'bg-amber-500' :
-                              performance.resistance >= 70 ? 'bg-orange-500' :
-                              'bg-rose-500'
-                            }`}
-                            style={{ width: `${performance.resistance}%` }}
-                          />
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          {Object.entries(result.results || {}).map(([modelKey, modelResult]: [string, any]) => (
+                            <div key={modelKey} className="bg-black/30 rounded p-3">
+                              <h4 className="text-white font-medium mb-2 flex justify-between">
+                                <span>{MODEL_CONFIGS[modelKey]?.name || modelKey}</span>
+                                {modelResult.status === 'completed' ? (
+                                  <span className="text-green-400 text-xs">완료됨</span>
+                                ) : (
+                                  <span className="text-yellow-400 text-xs">진행 중</span>
+                                )}
+                              </h4>
+                              <div className="space-y-2">
+                                {Object.entries(modelResult.metrics || {}).map(([metricKey, metricData]: [string, any]) => (
+                                  <div key={metricKey} className="flex items-center justify-between">
+                                    <span className="text-white/70 text-xs">
+                                      {METRIC_NAMES[metricKey] || metricKey}
+                                    </span>
+                                    <div className="flex items-center space-x-2">
+                                      <span className={`text-xs font-medium ${getScoreColor(metricData.score)}`}>
+                                        {metricData.score}점
+                                      </span>
+                                      <button
+                                        onClick={() => setSelectedResponse({
+                                          modelKey,
+                                          metricKey,
+                                          metricResult: metricData
+                                        })}
+                                        className="text-lime hover:text-lime/80 text-xs hover:underline"
+                                      >
+                                        상세
+                                      </button>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                              
+                              {/* 즉시 결과 보기 버튼 */}
+                              <button
+                                onClick={() => setEvaluationJob(result)}
+                                className="w-full mt-3 text-xs py-1 px-2 rounded border border-lime text-lime hover:bg-lime/10"
+                              >
+                                이 결과 보기
+                              </button>
+                            </div>
+                          ))}
                         </div>
                       </div>
                     ))}
                   </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <h4 className="font-semibold text-gray-900 mb-3">평가 기준</h4>
-                      <ul className="space-y-2">
-                        {metric.criteria.map((criterion: string, index: number) => (
-                          <li key={index} className="flex items-start">
-                            <CheckCircleIcon className="h-5 w-5 text-emerald-500 mr-2 mt-0.5 flex-shrink-0" />
-                            <span className="text-sm text-gray-700">{criterion}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                    
-                    <div>
-                      <h4 className="font-semibold text-gray-900 mb-3">공격 사례</h4>
-                      <ul className="space-y-2">
-                        {metric.examples.map((example: string, index: number) => (
-                          <li key={index} className="flex items-start">
-                            <ExclamationTriangleIcon className="h-5 w-5 text-amber-500 mr-2 mt-0.5 flex-shrink-0" />
-                            <span className="text-sm text-gray-700">{example}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
+                ) : (
+                  <div className="text-center py-8 border border-grey rounded-lg">
+                    <p className="text-white/70">
+                      {previousResults.length}개의 이전 평가 결과가 있습니다. '내역 보기' 버튼을 클릭하여 확인하세요.
+                    </p>
                   </div>
+                )
+              ) : (
+                <div className="text-center py-8 border border-grey rounded-lg">
+                  <p className="text-white/70">
+                    아직 실행된 평가 결과가 없습니다. '평가 시작' 버튼을 클릭하여 새 평가를 시작하세요.
+                  </p>
                 </div>
-              </div>
-            ))}
+              )}
             </div>
-        </div>
-      )}
+          )}
       </main>
     </div>
   );
-} 
+}

@@ -4,6 +4,7 @@ import { ArrowLeftIcon, PlayIcon, StopIcon } from '@heroicons/react/24/outline';
 import { useRouter } from 'next/navigation';
 import { useActiveModels } from '@/lib/hooks/useActiveModels';
 import { useState, useEffect } from 'react';
+import { broadcastEvaluationUpdate } from '@/lib/evaluation-sync';
 
 // 평가 결과 interface
 interface EvaluationResult {
@@ -59,7 +60,8 @@ function EvaluationResultCard({ result, onClick }: { result: EvaluationResult; o
     collaborative_learning: '협력학습 지도',
     confidence_building: '자신감 키우기',
     individual_recognition: '개성 인정',
-    clear_communication: '명확한 소통'
+    clear_communication: '명확한 소통',
+    cognitive_load_management: '인지부하 관리'
   };
 
   return (
@@ -125,7 +127,8 @@ function DetailModal({ result, isOpen, onClose }: { result: EvaluationResult | n
     collaborative_learning: '협력학습 지도',
     confidence_building: '자신감 키우기',
     individual_recognition: '개성 인정',
-    clear_communication: '명확한 소통'
+    clear_communication: '명확한 소통',
+    cognitive_load_management: '인지부하 관리'
   };
 
   return (
@@ -255,23 +258,30 @@ export default function PsychologicalEvaluation() {
   });
   const [selectedResult, setSelectedResult] = useState<EvaluationResult | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [previousResults, setPreviousResults] = useState<EvaluationResult[]>([]);
+  const [previousResultsLoading, setPreviousResultsLoading] = useState(true);
 
   // 모델 옵션 (DB에서 동적 로드)
-  const models = useActiveModels();
+  const { models, isLoading: modelsLoading } = useActiveModels();
 
   // 이전 평가 결과 로드
   useEffect(() => {
     const fetchPreviousResults = async () => {
       try {
+        setPreviousResultsLoading(true);
         const response = await fetch('/api/evaluation/psychological');
         if (response.ok) {
           const data = await response.json();
           if (data && data.results) {
+            // 최신 평가 결과를 현재 결과로, 전체를 이전 결과로 설정
             setEvaluationState(prev => ({ ...prev, results: data.results }));
+            setPreviousResults(data.results);
           }
         }
       } catch (error) {
         console.error('Failed to fetch previous results', error);
+      } finally {
+        setPreviousResultsLoading(false);
       }
     };
     fetchPreviousResults();
@@ -330,9 +340,9 @@ export default function PsychologicalEvaluation() {
           }));
         }, 1000);
 
-        // API 호출로 평가 실행 (타임아웃 설정)
+        // API 호출로 평가 실행 (확장된 타임아웃 설정)
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 300000); // 5분 타임아웃
+        const timeoutId = setTimeout(() => controller.abort(), 1800000); // 30분 타임아웃
         
         try {
           const response = await fetch('/api/evaluation/psychological', {
@@ -354,7 +364,8 @@ export default function PsychologicalEvaluation() {
           if (response.ok) {
             const result = await response.json();
             console.log('✅ 심리학 평가 결과 수신', result);
-            newResults.push({
+            
+            const evaluationResult = {
               model: model.name,
               overall_score: result.overall_score || 0,
               percentage: result.percentage || 0,
@@ -364,13 +375,24 @@ export default function PsychologicalEvaluation() {
                 collaborative_learning: 0,
                 confidence_building: 0,
                 individual_recognition: 0,
-                clear_communication: 0
+                clear_communication: 0,
+                cognitive_load_management: 0
               },
               details: result.details || '',
               user_friendly_summary: result.user_friendly_summary || '평가 완료',
               evaluation_data: result.evaluation_data,
               timestamp: new Date().toISOString()
-            });
+            };
+            
+            newResults.push(evaluationResult);
+            
+            // 평가 완료 브로드캐스트
+            try {
+              broadcastEvaluationUpdate(modelId, 'psychology', result);
+              console.log('📡 심리학 평가 완료 브로드캐스트 전송:', modelId);
+            } catch (broadcastError) {
+              console.error('브로드캐스트 오류:', broadcastError);
+            }
           } else {
             console.error(`❌ 평가 실패: ${model.name}`, await response.text());
             clearInterval(progressInterval);
@@ -383,20 +405,23 @@ export default function PsychologicalEvaluation() {
           clearTimeout(timeoutId);
           clearInterval(progressInterval);
           
-          if (fetchError.name === 'AbortError') {
-            console.error(`⏰ 평가 타임아웃: ${model.name}`);
+          if (fetchError && typeof fetchError === 'object' && 'name' in fetchError && fetchError.name === 'AbortError') {
+            console.error(`⏰ 평가가 예상보다 오래 걸리고 있습니다: ${model.name}`);
+            // 타임아웃 발생해도 평가를 중단하지 않고 계속 진행하도록 변경
             setEvaluationState(prev => ({ 
               ...prev, 
-              error: `${model.name} 평가가 타임아웃되었습니다. 네트워크를 확인해주세요.`
+              error: `⏰ ${model.name} 평가가 오래 걸리고 있습니다. 서버에서 계속 처리 중이니 기다려주세요...`
             }));
+            // 평가 중단하지 않고 계속 진행
+            console.log(`🔄 ${model.name} 평가 계속 진행 중...`);
           } else {
             console.error(`❌ 네트워크 오류: ${model.name}`, fetchError);
             setEvaluationState(prev => ({ 
               ...prev, 
               error: `${model.name} 평가 중 네트워크 오류가 발생했습니다.`
             }));
+            break; // 실제 네트워크 오류 시에만 평가 중단
           }
-          break; // 오류 발생 시 평가 중단
         }
       }
 
@@ -407,6 +432,9 @@ export default function PsychologicalEvaluation() {
         results: [...prev.results, ...newResults],
         currentModel: ''
       }));
+
+      // 새로운 결과를 이전 결과 목록에도 추가
+      setPreviousResults(prev => [...newResults, ...prev]);
 
       if (newResults.length > 0) {
         alert(`${newResults.length}개 모델의 평가가 완료되었습니다.`);
@@ -458,6 +486,11 @@ export default function PsychologicalEvaluation() {
       name: '정보처리 이론',
       description: '주의집중, 기억, 인지부하 최적화 분석',
       keywords: ['집중', '기억', '인지부하', '정보처리']
+    },
+    {
+      name: '인지부하 이론',
+      description: '학습 시 정보 처리 부담 조절과 효율적 인지 자원 활용 분석',
+      keywords: ['단계적', '적절한난이도', '방해요소제거', '개념연결']
     }
   ];
 
@@ -515,25 +548,38 @@ export default function PsychologicalEvaluation() {
               {/* 모델 선택 */}
               <div className="mb-6">
                 <h3 className="text-lg font-medium text-gray-800 mb-4">평가 대상 모델 선택</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {models.map((model) => (
-                    <div
-                      key={model.id}
-                      className={`cursor-pointer p-4 border-2 rounded-xl transition-all ${
-                        selectedModels.includes(model.id)
-                          ? 'border-green-500 bg-transparent ring-2 ring-orange'
-                          : 'border-gray-300 hover:border-orange'
-                      }`}
-                      onClick={() => handleModelSelection(model.id)}
-                    >
-                      <div className="text-lg font-semibold text-gray-800">{model.name}</div>
-                      <div className="text-sm text-gray-500">{model.provider}</div>
-                      {selectedModels.includes(model.id) && (
-                        <div className="mt-2 text-xs font-bold text-orange">✓ 선택됨</div>
-                      )}
+                {modelsLoading ? (
+                  <div className="text-center py-8">
+                    <div className="animate-spin inline-block w-6 h-6 border-[3px] border-current border-t-transparent text-lime rounded-full" role="status" aria-label="loading">
+                      <span className="sr-only">Loading...</span>
                     </div>
-                  ))}
-                </div>
+                    <p className="mt-2 text-sm text-gray-600">모델 목록을 불러오는 중...</p>
+                  </div>
+                ) : models.length === 0 ? (
+                  <div className="text-center py-8">
+                    <p className="text-sm text-gray-500">사용 가능한 모델이 없습니다.</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {models.map((model) => (
+                      <div
+                        key={model.id}
+                        className={`cursor-pointer p-4 border-2 rounded-xl transition-all ${
+                          selectedModels.includes(model.id)
+                            ? 'border-green-500 bg-transparent ring-2 ring-orange'
+                            : 'border-gray-300 hover:border-orange'
+                        }`}
+                        onClick={() => handleModelSelection(model.id)}
+                      >
+                        <div className="text-lg font-semibold text-gray-800">{model.name}</div>
+                        <div className="text-sm text-gray-500">{model.provider}</div>
+                        {selectedModels.includes(model.id) && (
+                          <div className="mt-2 text-xs font-bold text-orange">✓ 선택됨</div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* 평가 진행 상태 */}
@@ -543,7 +589,7 @@ export default function PsychologicalEvaluation() {
                     <div className="text-sm font-medium text-lime">
                       평가 진행 중: {evaluationState.currentModel}
                       <div className="text-xs text-lime mt-2">
-                        30개 시나리오 평가 중... (약 30-60초 소요)
+                        30개 시나리오 평가 중... (약 1-3분 소요, 때로는 더 오래 걸릴 수 있습니다)
                       </div>
                     </div>
                     <div className="text-sm text-lime">
@@ -574,7 +620,7 @@ export default function PsychologicalEvaluation() {
               <h2 className="text-[20pt] font-semibold text-green-800 mb-4">평가 개요</h2>
               <p className="text-[12pt] text-gray-600 mb-4">
                 본 평가 시스템은 아동을 대상으로 하는 AI 서비스가 인간의 인지적, 정서적, 사회적 특성을 얼마나 잘 반영하고 있는지를 평가하기 위한 도구입니다.<br/>
-                5개의 심리학 이론을 기반으로 하여 체계적이고 포괄적인 평가를 제공합니다.
+                6개의 심리학 이론을 기반으로 하여 체계적이고 포괄적인 평가를 제공합니다.
               </p>
               <div className="bg-transparent border border-green-200 rounded-lg p-4">
                 <h3 className="text-lg font-semibold text-green-800 mb-2">평가 방식</h3>
@@ -593,7 +639,7 @@ export default function PsychologicalEvaluation() {
             <div className="px-6 py-6">
               <h2 className="text-[20pt] font-semibold text-green-800 mb-6">심리학 이론 안내</h2>
               <p className="text-[12pt] text-gray-600 mb-6">
-                평가에 사용되는 5가지 주요 심리학 이론을 쉽게 설명해드립니다.
+                평가에 사용되는 6가지 주요 심리학 이론을 쉽게 설명해드립니다.
               </p>
               
               <div className="space-y-6">
@@ -627,7 +673,7 @@ export default function PsychologicalEvaluation() {
           {evaluationState.results.length > 0 && (
             <div className="mt-8 bg-transparent p-6 border-2 border-lime rounded-xl shadow-md border border-gray-300">
               <div className="px-6 py-6">
-                <h2 className="text-[20pt] font-semibold text-green-800 mb-6">평가 결과</h2>
+                <h2 className="text-[20pt] font-semibold text-green-800 mb-6">최신 평가 결과</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {evaluationState.results.map((result, index) => (
                     <EvaluationResultCard 
@@ -643,6 +689,116 @@ export default function PsychologicalEvaluation() {
               </div>
             </div>
           )}
+
+          {/* 지난 평가 결과 */}
+          <div className="mt-8 bg-transparent p-6 border-2 border-lime rounded-xl shadow-md border border-gray-300">
+            <div className="px-6 py-6">
+              <h2 className="text-[20pt] font-semibold text-green-800 mb-6">지난 평가 결과</h2>
+              
+              {previousResultsLoading ? (
+                <div className="text-center py-8">
+                  <div className="animate-spin inline-block w-6 h-6 border-[3px] border-current border-t-transparent text-lime rounded-full" role="status" aria-label="loading">
+                    <span className="sr-only">Loading...</span>
+                  </div>
+                  <p className="mt-2 text-sm text-gray-600">평가 결과를 불러오는 중...</p>
+                </div>
+              ) : previousResults.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-sm text-gray-500">아직 평가 결과가 없습니다. 첫 번째 평가를 실행해보세요!</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {/* 테이블 헤더 */}
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full table-auto">
+                      <thead>
+                        <tr className="border-b border-gray-200">
+                          <th className="text-left py-3 px-4 font-semibold text-gray-800">평가 일시</th>
+                          <th className="text-left py-3 px-4 font-semibold text-gray-800">모델명</th>
+                          <th className="text-center py-3 px-4 font-semibold text-gray-800">종합 점수</th>
+                          <th className="text-center py-3 px-4 font-semibold text-gray-800">적합도</th>
+                          <th className="text-center py-3 px-4 font-semibold text-gray-800">등급</th>
+                          <th className="text-center py-3 px-4 font-semibold text-gray-800">상세보기</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {previousResults.map((result, index) => (
+                          <tr key={index} className="border-b border-gray-100 hover:bg-gray-50">
+                            <td className="py-3 px-4 text-sm text-gray-600">
+                              {new Date(result.timestamp).toLocaleString('ko-KR', {
+                                year: 'numeric',
+                                month: '2-digit',
+                                day: '2-digit',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}
+                            </td>
+                            <td className="py-3 px-4">
+                              <div className="font-medium text-gray-800">{result.model}</div>
+                            </td>
+                            <td className="py-3 px-4 text-center">
+                              <span className="text-lg font-bold text-green-600">{result.overall_score.toFixed(2)}/5.0</span>
+                            </td>
+                            <td className="py-3 px-4 text-center">
+                              <span className="text-lg font-bold text-blue-600">{result.percentage.toFixed(1)}%</span>
+                            </td>
+                            <td className="py-3 px-4 text-center">
+                              <span className={`px-2 py-1 rounded-full text-sm font-bold border ${
+                                result.grade === 'A+' || result.grade === 'A' ? 'text-green-600 bg-green-100 border-green-300' :
+                                result.grade === 'B+' || result.grade === 'B' ? 'text-blue-600 bg-blue-100 border-blue-300' :
+                                result.grade === 'C' ? 'text-yellow-600 bg-yellow-100 border-yellow-300' :
+                                result.grade === 'D' ? 'text-orange-600 bg-orange-100 border-orange-300' :
+                                'text-red-600 bg-red-100 border-red-300'
+                              }`}>
+                                {result.grade}
+                              </span>
+                            </td>
+                            <td className="py-3 px-4 text-center">
+                              <button
+                                onClick={() => {
+                                  setSelectedResult(result);
+                                  setShowDetailModal(true);
+                                }}
+                                className="text-lime hover:text-green-700 text-sm font-medium underline"
+                              >
+                                자세히 보기
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  
+                  {/* 요약 통계 */}
+                  <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="bg-gray-50 rounded-lg p-4 text-center">
+                      <div className="text-2xl font-bold text-gray-800">{previousResults.length}</div>
+                      <div className="text-sm text-gray-600">총 평가 횟수</div>
+                    </div>
+                    <div className="bg-gray-50 rounded-lg p-4 text-center">
+                      <div className="text-2xl font-bold text-green-600">
+                        {previousResults.length > 0 ? 
+                          (previousResults.reduce((sum, r) => sum + r.overall_score, 0) / previousResults.length).toFixed(2) : 
+                          '0.00'
+                        }
+                      </div>
+                      <div className="text-sm text-gray-600">평균 점수</div>
+                    </div>
+                    <div className="bg-gray-50 rounded-lg p-4 text-center">
+                      <div className="text-2xl font-bold text-blue-600">
+                        {previousResults.length > 0 ? 
+                          (previousResults.reduce((sum, r) => sum + r.percentage, 0) / previousResults.length).toFixed(1) : 
+                          '0.0'
+                        }%
+                      </div>
+                      <div className="text-sm text-gray-600">평균 적합도</div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
 
         </div>
       </main>

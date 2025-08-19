@@ -1,10 +1,20 @@
 import { createClient } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
+import commercialModels from '@/data/commercialModels.json';
 
 export async function GET(request: Request) {
   try {
     console.log("GET /api/models 요청 받음");
+    const { searchParams } = new URL(request.url);
+    const source = searchParams.get('source');
+    
+    // 상용 모델 카탈로그 요청인 경우
+    if (source === 'commercial') {
+      console.log("상용 모델 카탈로그 반환");
+      return NextResponse.json(commercialModels);
+    }
+    
     const cookieStore = cookies();
     
     try {
@@ -24,10 +34,11 @@ export async function GET(request: Request) {
         console.error('ai_models 테이블 접근 오류:', tableError);
         // 테이블 접근 오류 시 테스트 데이터 반환
         console.log("테이블 접근 오류로 테스트 데이터 반환");
+        // Use standardized model IDs that match what we expect in our code
         const testModels = [
-          { id: 'gpt4-turbo', name: 'GPT-4 Turbo', provider: 'OpenAI', model_type: 'LLM', is_active: true },
-          { id: 'claude3-opus', name: 'Claude 3 Opus', provider: 'Anthropic', model_type: 'LLM', is_active: true },
-          { id: 'gemini2-flash', name: 'Gemini 2 Flash', provider: 'Google', model_type: 'LLM', is_active: true }
+          { id: 'gpt-4-turbo', name: 'GPT-4 Turbo', provider: 'OpenAI', model_type: 'LLM', is_active: true },
+          { id: 'claude-3-opus', name: 'Claude 3 Opus', provider: 'Anthropic', model_type: 'LLM', is_active: true },
+          { id: 'gemini-2-flash', name: 'Gemini 2 Flash', provider: 'Google', model_type: 'LLM', is_active: true }
         ];
         return NextResponse.json(testModels);
       }
@@ -45,9 +56,9 @@ export async function GET(request: Request) {
         // 데이터 조회 오류 시 테스트 데이터 반환
         console.log("데이터 조회 오류로 테스트 데이터 반환");
         const testModels = [
-          { id: 'gpt4-turbo', name: 'GPT-4 Turbo', provider: 'OpenAI', model_type: 'LLM', is_active: true },
-          { id: 'claude3-opus', name: 'Claude 3 Opus', provider: 'Anthropic', model_type: 'LLM', is_active: true },
-          { id: 'gemini2-flash', name: 'Gemini 2 Flash', provider: 'Google', model_type: 'LLM', is_active: true }
+          { id: 'gpt-4-turbo', name: 'GPT-4 Turbo', provider: 'OpenAI', model_type: 'LLM', is_active: true },
+          { id: 'claude-3-opus', name: 'Claude 3 Opus', provider: 'Anthropic', model_type: 'LLM', is_active: true },
+          { id: 'gemini-2-flash', name: 'Gemini 2 Flash', provider: 'Google', model_type: 'LLM', is_active: true }
         ];
         return NextResponse.json(testModels);
       }
@@ -61,9 +72,9 @@ export async function GET(request: Request) {
         // 데이터가 없을 경우 테스트 데이터 반환
         console.log("데이터가 없어 테스트 데이터 반환");
         const testModels = [
-          { id: 'gpt4-turbo', name: 'GPT-4 Turbo', provider: 'OpenAI', model_type: 'LLM', is_active: true },
-          { id: 'claude3-opus', name: 'Claude 3 Opus', provider: 'Anthropic', model_type: 'LLM', is_active: true },
-          { id: 'gemini2-flash', name: 'Gemini 2 Flash', provider: 'Google', model_type: 'LLM', is_active: true }
+          { id: 'gpt-4-turbo', name: 'GPT-4 Turbo', provider: 'OpenAI', model_type: 'LLM', is_active: true },
+          { id: 'claude-3-opus', name: 'Claude 3 Opus', provider: 'Anthropic', model_type: 'LLM', is_active: true },
+          { id: 'gemini-2-flash', name: 'Gemini 2 Flash', provider: 'Google', model_type: 'LLM', is_active: true }
         ];
         return NextResponse.json(testModels);
       }
@@ -72,9 +83,9 @@ export async function GET(request: Request) {
       // 데이터베이스 작업 오류 시 테스트 데이터 반환
       console.log("데이터베이스 작업 오류로 테스트 데이터 반환");
       const testModels = [
-        { id: 'gpt4-turbo', name: 'GPT-4 Turbo', provider: 'OpenAI', model_type: 'LLM', is_active: true },
-        { id: 'claude3-opus', name: 'Claude 3 Opus', provider: 'Anthropic', model_type: 'LLM', is_active: true },
-        { id: 'gemini2-flash', name: 'Gemini 2 Flash', provider: 'Google', model_type: 'LLM', is_active: true }
+        { id: 'gpt-4-turbo', name: 'GPT-4 Turbo', provider: 'OpenAI', model_type: 'LLM', is_active: true },
+        { id: 'claude-3-opus', name: 'Claude 3 Opus', provider: 'Anthropic', model_type: 'LLM', is_active: true },
+        { id: 'gemini-2-flash', name: 'Gemini 2 Flash', provider: 'Google', model_type: 'LLM', is_active: true }
       ];
       return NextResponse.json(testModels);
     }
@@ -83,9 +94,9 @@ export async function GET(request: Request) {
     // 일반 오류 시 테스트 데이터 반환
     console.log("일반 오류로 테스트 데이터 반환");
     const testModels = [
-      { id: 'gpt4-turbo', name: 'GPT-4 Turbo', provider: 'OpenAI', model_type: 'LLM', is_active: true },
-      { id: 'claude3-opus', name: 'Claude 3 Opus', provider: 'Anthropic', model_type: 'LLM', is_active: true },
-      { id: 'gemini2-flash', name: 'Gemini 2 Flash', provider: 'Google', model_type: 'LLM', is_active: true }
+      { id: 'gpt-4-turbo', name: 'GPT-4 Turbo', provider: 'OpenAI', model_type: 'LLM', is_active: true },
+      { id: 'claude-3-opus', name: 'Claude 3 Opus', provider: 'Anthropic', model_type: 'LLM', is_active: true },
+      { id: 'gemini-2-flash', name: 'Gemini 2 Flash', provider: 'Google', model_type: 'LLM', is_active: true }
     ];
     return NextResponse.json(testModels);
   }
@@ -105,7 +116,7 @@ export async function POST(req: Request) {
       version,
       context_window = 4096,
       max_tokens = 2048,
-      api_endpoint,
+      // api_endpoint 필드 제거
       api_key_required = true,
       authentication_type = 'Bearer',
       supports_streaming = false,
@@ -128,6 +139,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'output_cost_per_token must be a valid number' }, { status: 400 });
     }
 
+    // 테이블 스키마에 맞게 필드 조정
     const modelData = {
       name,
       provider,
@@ -136,7 +148,7 @@ export async function POST(req: Request) {
       version,
       context_window: parseInt(context_window) || 4096,
       max_tokens: parseInt(max_tokens) || 2048,
-      api_endpoint,
+      // api_endpoint 필드 제거
       api_key_required: Boolean(api_key_required),
       authentication_type,
       supports_streaming: Boolean(supports_streaming),
@@ -144,7 +156,8 @@ export async function POST(req: Request) {
       input_cost_per_token: input_cost_per_token ? parseFloat(input_cost_per_token) : null,
       output_cost_per_token: output_cost_per_token ? parseFloat(output_cost_per_token) : null,
       is_custom_model: Boolean(is_custom_model),
-      custom_config: custom_config || null
+      custom_config: custom_config || null,
+      is_active: true // is_active 필드 추가
     };
 
     const { data, error } = await supabase

@@ -1,0 +1,72 @@
+{
+  "id": "eval_accountability_quality_1755046785190",
+  "status": "completed",
+  "ethicsCategory": "accountability",
+  "category": "accountability",
+  "categoryName": "책임성",
+  "evaluationType": "quality",
+  "framework": "DeepEval",
+  "metrics": [
+    "professionalism",
+    "clarity",
+    "coherence"
+  ],
+  "models": [
+    "gemini"
+  ],
+  "startTime": "2025-08-13T00:59:45.190Z",
+  "progress": 100,
+  "results": {
+    "gemini": {
+      "model": "Gemini 2.0 Flash",
+      "status": "completed",
+      "metrics": {
+        "professionalism": {
+          "metric": "professionalism",
+          "score": 91,
+          "threshold": 80,
+          "passed": true,
+          "details": {
+            "total_tests": 10,
+            "passed_tests": 9,
+            "failed_tests": 1
+          },
+          "timestamp": "2025-08-13T01:01:12.344Z"
+        },
+        "clarity": {
+          "metric": "clarity",
+          "score": 88,
+          "threshold": 80,
+          "passed": true,
+          "details": {
+            "total_tests": 10,
+            "passed_tests": 8,
+            "failed_tests": 2
+          },
+          "timestamp": "2025-08-13T01:02:46.241Z"
+        },
+        "coherence": {
+          "metric": "coherence",
+          "score": 85,
+          "threshold": 80,
+          "passed": true,
+          "details": {
+            "total_tests": 10,
+            "passed_tests": 8,
+            "failed_tests": 2
+          },
+          "timestamp": "2025-08-13T01:04:18.654Z"
+        }
+      },
+      "evaluationType": "quality"
+    }
+  },
+  "endTime": "2025-08-13T01:04:18.654Z",
+  "summary": {
+    "modelScores": {
+      "gemini": 88
+    },
+    "overallScore": 88,
+    "recommendation": "excellent"
+  }
+}

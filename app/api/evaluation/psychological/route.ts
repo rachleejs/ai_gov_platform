@@ -198,6 +198,8 @@ export async function POST(request: Request) {
       const results = await evaluator.evaluate(modelName, provider);
       console.log("심리학적 평가 완료");
 
+
+
       // 데이터베이스에 저장 시도
       try {
         const cookieStore = cookies();

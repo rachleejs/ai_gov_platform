@@ -42,4 +42,19 @@ export const createClient = (cookieStore: ReturnType<typeof cookies>) => {
       },
     }
   );
+};
+
+// 쿠키 없이 서버에서만 사용하는 클라이언트 (백그라운드 작업용)
+export const createServerClient = () => {
+  return createSupabaseClient(
+    supabaseUrl,
+    supabaseAnonKey,
+    {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+        detectSessionInUrl: false
+      }
+    }
+  );
 }; 

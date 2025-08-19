@@ -43,16 +43,16 @@ export default function SignupPage() {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-grey/20">
-      <div className="p-8 bg-white rounded-lg shadow-md w-96">
+      <div className="p-8 bg-transparent rounded-lg shadow-md w-96 border-4 border-lime">
         <h1 className="text-2xl font-bold mb-6 text-center text-green">회원가입</h1>
         {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg">
+          <div className="mb-4 p-3 bg-white border border-red-200 text-green rounded-lg">
             {error}
           </div>
         )}
         <form onSubmit={handleSignup}>
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="name">
+            <label className="block text-green text-sm font-bold mb-2" htmlFor="name">
               이름
             </label>
             <input
@@ -60,13 +60,13 @@ export default function SignupPage() {
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green/50 focus:border-green"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green/50 focus:border-green text-green"
               required
               disabled={isLoading}
             />
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
+            <label className="block text-green text-sm font-bold mb-2" htmlFor="email">
               이메일
             </label>
             <input
@@ -74,13 +74,13 @@ export default function SignupPage() {
               id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green/50 focus:border-green"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green/50 focus:border-green text-green"
               required
               disabled={isLoading}
             />
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
+            <label className="block text-green text-sm font-bold mb-2" htmlFor="password">
               비밀번호
             </label>
             <input
@@ -88,13 +88,13 @@ export default function SignupPage() {
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green/50 focus:border-green"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green/50 focus:border-green text-green"
               required
               disabled={isLoading}
             />
           </div>
           <div className="mb-6">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="confirmPassword">
+            <label className="block text-green text-sm font-bold mb-2" htmlFor="confirmPassword">
               비밀번호 확인
             </label>
             <input
@@ -102,7 +102,7 @@ export default function SignupPage() {
               id="confirmPassword"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green/50 focus:border-green"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green/50 focus:border-green text-green"
               required
               disabled={isLoading}
             />

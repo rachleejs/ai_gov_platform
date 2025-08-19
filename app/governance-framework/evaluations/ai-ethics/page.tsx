@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
+import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/app/contexts/LanguageContext';
 
@@ -71,12 +71,8 @@ export default function AIEthicsEvaluation() {
     },
   ];
 
-  const handleCriterionClick = (slug: string) => {
-    router.push(`/governance-framework/evaluations/ai-ethics/${slug}`);
-  };
-
-  const handleDeepMetricsEvaluationClick = (slug: string) => {
-    router.push(`/governance-framework/evaluations/deep-metrics?focus=${slug}`);
+  const handleDeepMetricsEvaluationClick = (slug: string, evaluationType: 'quality' | 'security') => {
+    router.push(`/governance-framework/evaluations/deep-metrics?focus=${slug}&type=${evaluationType}`);
   };
 
   const deepMetricsEvaluationItems = ['accountability', 'safety', 'fairness', 'data-privacy', 'transparency', 'harm-prevention', 'stability', 'inclusion', 'risk-management', 'maintenance'];
@@ -104,30 +100,51 @@ export default function AIEthicsEvaluation() {
               AI 윤리 평가는 AI 시스템의 윤리적 측면을 종합적으로 평가하여 안전하고 신뢰할 수 있는 AI 개발을 지원합니다.
             </p>
             <div className="bg-transparent border border-lime rounded-md p-4 mb-4">
-              <h3 className="text-lg font-medium text-white mb-2">평가 방법</h3>
-              <ul className="text-sm text-white space-y-1">
-                <li>• 각 평가 기준별 상세 체크리스트 검토</li>
-                <li>• 정량적/정성적 평가 지표 분석</li>
-                <li>• Deep 메트릭 기반 실제 사례 테스트</li>
-                <li>• 초등교육 전문가 검토 및 피드백 반영</li>
+              <h3 className="text-lg font-medium text-white mb-2">Deep 메트릭 평가란?</h3>
+              <p className="text-sm text-white mb-3">
+                Deep 메트릭 평가는 DeepEval과 DeepTeam 프레임워크를 활용하여 AI 모델의 윤리적, 기술적 성능을 종합적으로 측정하는 첨단 평가 방법입니다.
+              </p>
+              <ul className="text-sm text-white space-y-2">
+                <li>• <span className="font-semibold">실시간 자동화 평가:</span> 사전 정의된 테스트 케이스를 통한 일관된 평가</li>
+                <li>• <span className="font-semibold">다각도 분석:</span> 편향성, 독성, 환각, 일관성 등 12가지 핵심 메트릭</li>
+                <li>• <span className="font-semibold">실제 시나리오 기반:</span> 초등교육 환경과 유사한 상황에서의 성능 검증</li>
+                <li>• <span className="font-semibold">정량적 결과:</span> 객관적이고 비교 가능한 점수 체계</li>
               </ul>
             </div>
+            <div className="bg-transparent border border-lime rounded-md p-4 mb-4">
+              <h3 className="text-lg font-medium text-white mb-2">평가 메트릭</h3>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm text-white">
+                <div>• 환각 방지 (Hallucination)</div>
+                <div>• 독성 방지 (Toxicity)</div>
+                <div>• 편향 방지 (Bias)</div>
+                <div>• 충실성 (Faithfulness)</div>
+                <div>• 답변 관련성 (Relevancy)</div>
+                <div>• 문맥 정확성 (Context)</div>
+                <div>• 일관성 (Consistency)</div>
+                <div>• PII 유출 방지</div>
+                <div>• 프롬프트 주입 방지</div>
+                <div>• 탈옥 방지 (Jailbreaking)</div>
+                <div>• 인코딩 공격 방지</div>
+                <div>• 대화 완성도</div>
+              </div>
+            </div>
             <div className="bg-transparent border border-lime rounded-md p-4">
-              <h3 className="text-lg font-medium text-white mb-2">Deep 메트릭 기반 평가</h3>
-              <p className="text-sm text-white mb-2">
-                실제 사용 맥락과 유사한 시나리오를 통해 AI 시스템의 윤리적 판단과 행동을 평가합니다.
-              </p>
-              <p className="text-sm text-white">
-                Deep 메트릭은 실제 사용 환경을 반영하여 지속적으로 업데이트됩니다.
-              </p>
+              <h3 className="text-lg font-medium text-white mb-2">왜 Deep 메트릭 평가인가?</h3>
+              <ul className="text-sm text-white space-y-2">
+                <li>• <span className="font-semibold">객관성:</span> 인간의 주관적 판단을 배제한 일관된 평가 기준</li>
+                <li>• <span className="font-semibold">확장성:</span> 대량의 모델과 데이터를 효율적으로 평가 가능</li>
+                <li>• <span className="font-semibold">신뢰성:</span> 검증된 오픈소스 프레임워크 기반의 안정적인 평가</li>
+                <li>• <span className="font-semibold">실용성:</span> 실제 교육 현장에서 발생할 수 있는 다양한 상황 반영</li>
+                <li>• <span className="font-semibold">추적가능성:</span> 각 평가 결과의 근거와 개선 방향 제시</li>
+              </ul>
             </div>
           </div>
         </div>
 
         <div className="mt-8">
-          <h2 className="text-[28pt] font-bold text-white mb-4">평가 기준</h2>
+          <h2 className="text-[28pt] font-bold text-white mb-4">윤리 평가 기준</h2>
           <p className="text-white mb-4">
-            AI 시스템의 윤리적 측면을 평가하기 위한 10가지 핵심 기준입니다.
+            AI 시스템의 윤리적 측면을 Deep 메트릭으로 평가하기 위한 10가지 핵심 기준입니다. 각 기준은 해당하는 Deep 메트릭을 통해 객관적으로 측정됩니다.
           </p>
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 mt-6">
             {evaluationCriteria.map((criterion) => (
@@ -148,25 +165,25 @@ export default function AIEthicsEvaluation() {
                     </p>
                   </div>
                   
-                  <div className="mt-4 flex flex-wrap gap-2">
+                  <div className="mt-4 flex flex-col space-y-2">
                     <button
-                      onClick={() => handleCriterionClick(criterion.slug)}
-                      className="inline-flex items-center px-3 py-2 border border-lime text-sm font-medium rounded-md text-lime bg-transparent hover:bg-lime/20 transition-colors"
+                      onClick={() => handleDeepMetricsEvaluationClick(criterion.slug, 'quality')}
+                      className="inline-flex items-center px-4 py-2 border-2 border-lime text-sm font-medium rounded-md text-lime bg-transparent hover:bg-lime hover:text-grey transition-colors w-full justify-center"
                     >
-                      <ChevronRightIcon className="w-4 h-4 mr-1" />
-                      상세 평가
+                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      품질/윤리 평가 (DeepEval)
                     </button>
-                    {deepMetricsEvaluationItems.includes(criterion.slug) && (
-                      <button
-                        onClick={() => handleDeepMetricsEvaluationClick(criterion.slug)}
-                        className="inline-flex items-center px-3 py-2 border border-lime text-sm font-medium rounded-md text-lime bg-transparent hover:bg-lime/20 transition-colors"
-                      >
-                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-                        </svg>
-                        Deep 메트릭 평가
-                      </button>
-                    )}
+                    <button
+                      onClick={() => handleDeepMetricsEvaluationClick(criterion.slug, 'security')}
+                      className="inline-flex items-center px-4 py-2 border-2 border-red-400 text-sm font-medium rounded-md text-red-400 bg-transparent hover:bg-red-400 hover:text-grey transition-colors w-full justify-center"
+                    >
+                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                      </svg>
+                      보안 평가 (DeepTeam)
+                    </button>
                   </div>
                 </div>
               </div>

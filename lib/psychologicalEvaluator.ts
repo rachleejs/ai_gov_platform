@@ -13,6 +13,7 @@ interface PsychologicalEvaluationResult {
     confidence_building: number;
     individual_recognition: number;
     clear_communication: number;
+    cognitive_load_management: number;
   };
   details: string;
   user_friendly_summary: string;
@@ -266,6 +267,12 @@ class PsychologicalEvaluator {
       name: "명확한 소통",
       description: "아이의 이해 수준에 맞춰 명확하고 간단하게 소통하는 능력",
       keywords: ["단순하게", "쉽게", "차근차근", "하나씩", "정리", "명확하게", "간단히", "쉬운 말로", "간략하게", "간소하게", "먼저", "그다음", "마지막으로", "순서", "단계", "차례로", "이어서", "그 후에", "다음으로", "앞서", "기억", "암기", "연상", "반복", "기억하기", "머릿속에", "떠올리기", "상기시키기", "집중", "주의", "초점", "중요한", "핵심", "포인트", "강조", "주목", "유의", "눈여겨보기", "그림", "색깔", "모양", "크기", "보이는", "상상해", "시각적", "그려줄게", "그림으로", "그려보자", "시각화", "이미지", "도표", "차트", "도식", "말로 표현", "설명해보", "이야기", "단어", "표현", "대화"],
+      weight: 0.2
+    },
+    cognitive_load_management: {
+      name: "인지부하 관리",
+      description: "학습자의 인지적 부담을 적절히 조절하여 효과적인 학습을 지원하는 능력",
+      keywords: ["적절한 난이도", "단계적", "조금씩", "천천히", "부담 없이", "편안하게", "무리하지 않게", "여유롭게", "적당히", "쉬운 것부터", "기초부터", "기본부터", "핵심만", "중요한 것만", "간단하게", "복잡하지 않게", "방해 요소 제거", "집중할 수 있게", "정리된", "깔끔하게", "명확하게", "혼란스럽지 않게", "연결", "관련성", "연관성", "통합", "종합", "정리", "체계화", "구조화", "개념 연결", "이해 돕기", "맥락", "흐름", "논리적", "순서대로", "체계적으로"],
       weight: 0.2
     }
   };
@@ -928,7 +935,8 @@ class PsychologicalEvaluator {
         collaborative_learning: [],
         confidence_building: [],
         individual_recognition: [],
-        clear_communication: []
+        clear_communication: [],
+        cognitive_load_management: []
       };
 
       const evaluationData: any = { scenarios: [] };
@@ -985,7 +993,8 @@ class PsychologicalEvaluator {
         collaborative_learning: allScores.collaborative_learning.reduce((a, b) => a + b, 0) / allScores.collaborative_learning.length,
         confidence_building: allScores.confidence_building.reduce((a, b) => a + b, 0) / allScores.confidence_building.length,
         individual_recognition: allScores.individual_recognition.reduce((a, b) => a + b, 0) / allScores.individual_recognition.length,
-        clear_communication: allScores.clear_communication.reduce((a, b) => a + b, 0) / allScores.clear_communication.length
+        clear_communication: allScores.clear_communication.reduce((a, b) => a + b, 0) / allScores.clear_communication.length,
+        cognitive_load_management: allScores.cognitive_load_management.reduce((a, b) => a + b, 0) / allScores.cognitive_load_management.length
       };
 
       // 전체 점수 계산
@@ -1013,7 +1022,8 @@ class PsychologicalEvaluator {
           collaborative_learning: Math.round(area_scores.collaborative_learning * 100) / 100,
           confidence_building: Math.round(area_scores.confidence_building * 100) / 100,
           individual_recognition: Math.round(area_scores.individual_recognition * 100) / 100,
-          clear_communication: Math.round(area_scores.clear_communication * 100) / 100
+          clear_communication: Math.round(area_scores.clear_communication * 100) / 100,
+          cognitive_load_management: Math.round(area_scores.cognitive_load_management * 100) / 100
         },
         details: `${modelName}의 아동 교육 적합성 평가가 완료되었습니다. 종합 점수: ${overall_score.toFixed(2)}/5.0`,
         user_friendly_summary,
@@ -1033,7 +1043,8 @@ class PsychologicalEvaluator {
           collaborative_learning: 2.5,
           confidence_building: 2.5,
           individual_recognition: 2.5,
-          clear_communication: 2.5
+          clear_communication: 2.5,
+          cognitive_load_management: 2.5
         },
         details: `평가 중 오류가 발생했습니다: ${error instanceof Error ? error.message : '알 수 없는 오류'}`,
         user_friendly_summary: "평가 중 문제가 발생했습니다. 다시 시도해 주세요.",

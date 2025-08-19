@@ -37,22 +37,16 @@ export default function GovernanceFramework() {
   const [evaluationFrameworks, setEvaluationFrameworks] = useState([
     {
       id: 'ai-ethics',
-      name: 'AI 윤리 평가지표',
+      name: 'AI 윤리 평가 (Deep 메트릭 기반)',
       route: '/governance-framework/evaluations/ai-ethics',
       lastUpdated: '2025-07-01',
       status: 'active',
-      description: t('governance.aiEthics.description'),
+      description: 'DeepEval과 DeepTeam 프레임워크를 활용하여 AI 모델의 윤리적, 기술적 성능을 종합적으로 측정하는 첨단 평가 방법입니다.',
       icon: CheckCircleIcon,
-      metrics: [
-        t('accountability.title'),
-        t('dataPrivacy.title'),
-        t('fairness.title'),
-        t('inclusion.title'),
-        t('transparency.title')
-      ],
-      totalCriteria: 10,
-      completedCriteria: 0,
-      completionRate: 0
+      metrics: ['환각 방지', '독성 방지', '편향 방지', '충실성', '답변 관련성', '문맥 정확성', '일관성', 'PII 유출 방지'],
+      totalCriteria: 12,
+      completedCriteria: 11,
+      completionRate: 92
     },
     {
       id: 'psychology',
@@ -72,19 +66,7 @@ export default function GovernanceFramework() {
       completedCriteria: 0,
       completionRate: 0
     },
-    {
-      id: 'scenario',
-      name: 'Deep 메트릭 평가',
-      route: '/governance-framework/evaluations/scenario',
-      lastUpdated: '2025-07-01',
-      status: 'active',
-      description: 'DeepEval과 DeepTeam 메트릭을 통한 AI 모델의 종합적 성능과 안전성을 평가합니다.',
-      icon: ChartBarIcon,
-      metrics: ['환각 방지', '독성 방지', '편향 방지', '충실성', '답변 관련성', '문맥 정확성', '일관성', 'PII 유출 방지'],
-      totalCriteria: 12,
-      completedCriteria: 11,
-      completionRate: 92
-    },
+
     {
       id: 'edu-quality',
       name: '초등교육 품질평가',

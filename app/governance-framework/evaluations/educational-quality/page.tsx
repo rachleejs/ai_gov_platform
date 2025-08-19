@@ -17,6 +17,7 @@ import { useState, useEffect } from 'react';
 import { useLanguage } from '@/app/contexts/LanguageContext';
 import Link from 'next/link';
 import { useAuth } from '@/app/contexts/AuthContext';
+import { broadcastEvaluationUpdate } from '@/lib/evaluation-sync';
 
 interface EvaluationResult {
   id: string;
@@ -55,8 +56,8 @@ export default function EducationalQualityEvaluation() {
         '신뢰도 분석 (Confidence Analysis)'
       ],
       color: 'text-blue-600',
-      bgColor: 'bg-white',
-      borderColor: 'border-blue-200'
+      bgColor: 'bg-transparent',
+      borderColor: 'border-white'
     },
     {
       id: 'accuracy',
@@ -70,8 +71,8 @@ export default function EducationalQualityEvaluation() {
         '학습 표준 준수도 (Standard Compliance)'
       ],
       color: 'text-green-600',
-      bgColor: 'bg-green-50',
-      borderColor: 'border-green-200'
+      bgColor: 'bg-transparent',
+        borderColor: 'border-white'
     },
     {
       id: 'specificity',
@@ -85,7 +86,7 @@ export default function EducationalQualityEvaluation() {
         '설명 품질 (Explanation Quality)'
       ],
       color: 'text-purple-600',
-      bgColor: 'bg-white',
+      bgColor: 'bg-transparent',
       borderColor: 'border-white'
     }
   ];
@@ -207,6 +208,19 @@ export default function EducationalQualityEvaluation() {
       };
       
       setEvaluationResults(prev => [newResult, ...prev]);
+      
+      // 평가 완료 브로드캐스트
+      try {
+        broadcastEvaluationUpdate(selectedModel, 'educational-quality', {
+          total_score: evaluationResult.overallScore,
+          gradeLevel: evaluationResult.gradeLevel,
+          subject: evaluationResult.subject
+        });
+        console.log('📡 교육 품질 평가 완료 브로드캐스트 전송:', selectedModel);
+      } catch (broadcastError) {
+        console.error('브로드캐스트 오류:', broadcastError);
+      }
+      
       alert('평가가 완료되었습니다!');
     } catch (error) {
       console.error('Evaluation failed:', error);
@@ -247,7 +261,7 @@ export default function EducationalQualityEvaluation() {
 
       <main className="py-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
         {/* 평가 프레임워크 소개 */}
-        <div className="mb-8 bg-white rounded-2xl shadow-lg border border-tan/30 p-8">
+        <div className="mb-8 bg-transparent rounded-2xl shadow-lg border border-lime p-8">
           <div className="text-center mb-8">
             <div className="flex justify-center mb-4">
               <AcademicCapIcon className="h-16 w-16 text-green" />
@@ -285,7 +299,7 @@ export default function EducationalQualityEvaluation() {
         </div>
 
         {/* 평가 실행 섹션 */}
-        <div className="mb-8 bg-white rounded-2xl shadow-lg border border-tan/30 p-8">
+        <div className="mb-8 bg-transparent rounded-2xl shadow-lg border border-lime p-8">
           <h3 className="text-2xl font-bold text-green mb-6">새로운 평가 실행</h3>
           
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
@@ -361,7 +375,7 @@ export default function EducationalQualityEvaluation() {
         </div>
 
         {/* 평가 결과 섹션 */}
-        <div className="bg-white rounded-2xl shadow-lg border border-tan/30 p-8">
+        <div className="bg-transparent rounded-2xl shadow-lg border border-lime p-8">
           <h3 className="text-2xl font-bold text-green mb-6">평가 결과 이력</h3>
           
           {evaluationResults.length === 0 ? (
@@ -384,7 +398,7 @@ export default function EducationalQualityEvaluation() {
                     <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">평가일</th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-transparent divide-y divide-gray-200">
                   {evaluationResults.map((result) => (
                     <tr key={result.id} className="hover:bg-grey">
                       <td className="px-6 py-4 whitespace-nowrap">
